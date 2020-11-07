@@ -1,0 +1,12 @@
+main: wbs.utils.WbsUtils
+name: WbsUtils
+version: 0.0.1
+api-version: 1.13
+author: Weber588
+softdepend: [PlaceholderAPI, GriefPrevention, Towny, PlotSquared, WorldGuard]
+description: A library primarily for other Wbs plugins
+commands:
+  utilsreload:
+    permission: 'wbsutils.reload'
+    default: op
+    description: 'Reload some configured options.'
