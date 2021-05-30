@@ -1,9 +1,15 @@
 package wbs.utils.util.string;
 
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.jetbrains.annotations.NotNull;
+import wbs.utils.util.VersionUtil;
+import wbs.utils.util.WbsColours;
 
 
 public final class WbsStrings {
@@ -69,7 +75,23 @@ public final class WbsStrings {
 		}
 		return new String(charList);
 	}
-	
+
+	private static final Pattern HEX_CODES = Pattern.compile("&#([0-9a-fA-F]{6})");
+
+	public static String colourise(String string) {
+		if (VersionUtil.getVersion() >= 16) {
+			Matcher rgbMatcher = HEX_CODES.matcher(string);
+
+			while (rgbMatcher.find()) {
+				String colour = string.substring(rgbMatcher.start(), rgbMatcher.end());
+
+				string = string.replace(colour, ChatColor.of(colour.substring(1)).toString());
+				rgbMatcher = HEX_CODES.matcher(string);
+			}
+		}
+
+		return ChatColor.translateAlternateColorCodes('&', string);
+	}
 	/**
 	 * Reveal a string concealed by {@link #getInvisibleString(String)}
 	 * @param invisibleString An "invisible" string created by {@link #getInvisibleString(String)}
@@ -94,8 +116,7 @@ public final class WbsStrings {
 
 	public static String combineFirst(String[] strings, int length) {
 		String[] newStringList = new String[length];
-		if (length >= 0)
-			System.arraycopy(strings, 0, newStringList, 0, length);
+		System.arraycopy(strings, 0, newStringList, 0, length);
 		return String.join(" ", newStringList);
 	}
 	
@@ -124,4 +145,57 @@ public final class WbsStrings {
         }
         return uncoloured;
 	}
+
+	public static String addColourGradient(String string, Color startColour, Color endColour) {
+		int length = string.length();
+
+		float step = 1.0f / (length - 1);
+
+		StringBuilder newMessageBuilder = new StringBuilder();
+
+		float progress = 0;
+		Color currentColour;
+		for (int i = 0; i < length; i++) {
+			// TODO: Make colour cycle ignore spaces
+			newMessageBuilder.append("&#");
+
+			currentColour = WbsColours.colourLerp(startColour, endColour, progress);
+
+			newMessageBuilder.append(String.format("%06X", currentColour.asRGB()))
+					.append(string.charAt(i));
+
+			progress += step;
+			if (progress > 1) progress = 1; // Yay floating point error
+		}
+
+		return WbsStrings.colourise(newMessageBuilder.toString());
+	}
+
+	public static String addColourGradient(String string, Color... colors) {
+		int length = string.length();
+
+		StringBuilder builder = new StringBuilder();
+
+		int charsPerColour = length / colors.length;
+		int remainder = length % colors.length;
+
+		int beginIndex = 0;
+		int endIndex = charsPerColour + 1;
+		remainder--;
+		for (int i = 0; i < colors.length; i++) {
+			String substring = string.substring(beginIndex, endIndex);
+
+			builder.append(substring);
+
+			beginIndex += (endIndex - beginIndex);
+			endIndex += charsPerColour;
+			if (remainder > 0) {
+				endIndex += 1;
+				remainder--;
+			}
+		}
+
+		return builder.toString();
+	}
+
 }

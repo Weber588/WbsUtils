@@ -12,7 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.yaml.snakeyaml.scanner.ScannerException;
 
 /**
  * Contains all configuration settings that aren't universal to WbsPlugin
@@ -42,10 +41,6 @@ public abstract class WbsSettings {
 		String messageChar = config.getString("message-colour", "a");
 		String highlightChar = config.getString("highlight-colour", "b");
 		String errorChar = config.getString("error-colour", "c");
-
-		assert messageChar != null;
-		assert highlightChar != null;
-		assert errorChar != null;
 
         String newPrefix = config.getString("message-prefix", defaultPrefix);
         ChatColor newColour = ChatColor.getByChar(messageChar);
@@ -81,7 +76,7 @@ public abstract class WbsSettings {
 	 * @param file The file to parse
 	 * @return The YamlConfiguration
 	 */
-	protected YamlConfiguration loadConfigSafely(File file) throws ScannerException {
+	protected YamlConfiguration loadConfigSafely(File file) {
 		Validate.notNull(file, "File cannot be null");
 
         YamlConfiguration config = new YamlConfiguration();

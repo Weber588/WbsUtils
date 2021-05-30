@@ -3,6 +3,7 @@ package wbs.utils;
 import org.bukkit.command.PluginCommand;
 import wbs.utils.util.particles.WbsParticleEffect;
 import wbs.utils.util.plugin.WbsPlugin;
+import wbs.utils.util.pluginhooks.PluginHookManager;
 
 public class WbsUtils extends WbsPlugin {
 	
@@ -22,6 +23,9 @@ public class WbsUtils extends WbsPlugin {
 		PluginCommand reloadCommand = getCommand("utilsreload");
 		assert reloadCommand != null;
 		reloadCommand.setExecutor(new UtilsCommand(this));
+
+		PluginHookManager.isConfigured = false;
+		PluginHookManager.configure();
 	}
 
     @Override

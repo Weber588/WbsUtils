@@ -1,20 +1,52 @@
 package wbs.utils.util.particles;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
 import wbs.utils.util.WbsMath;
+import wbs.utils.util.configuration.NumProvider;
+import wbs.utils.util.configuration.VectorProvider;
+import wbs.utils.util.configuration.WbsConfigReader;
+import wbs.utils.util.plugin.WbsSettings;
 
 public class CuboidParticleEffect extends VelocityParticleEffect {
 
 	public CuboidParticleEffect() {
-		
+		x = new NumProvider(1);
+		y = new NumProvider(1);
+		z = new NumProvider(1);
+
+		rotation = new NumProvider(0);
 	}
 	
-	private double x = 1, y = 1, z = 1;
-	private double rotation = 0;
-	private Vector about = upVector;
+	private NumProvider x, y, z;
+	private NumProvider rotation;
+	private VectorProvider about = new VectorProvider(upVector);
 
-	@Override
+    public CuboidParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
+    	super(section, settings, directory);
+
+		WbsConfigReader.requireNotNull(section, "xSize", settings, directory );
+		x = new NumProvider(section, "xSize", settings, directory + "/xSize", 1);
+		WbsConfigReader.requireNotNull(section, "ySize", settings, directory);
+		y = new NumProvider(section, "ySize", settings, directory + "/ySize", 1);
+		WbsConfigReader.requireNotNull(section, "zSize", settings, directory);
+		z = new NumProvider(section, "zSize", settings, directory + "/zSize", 1);
+
+		if (section.get("rotation") != null) {
+			rotation = new NumProvider(section, "rotation", settings, directory + "/rotation", 0);
+		} else {
+			rotation = new NumProvider(0);
+		}
+
+		if (section.get("about") != null) {
+			about = new VectorProvider(section.getConfigurationSection("about"), settings, directory + "/about", upVector);
+		} else {
+			about = new VectorProvider(upVector);
+		}
+	}
+
+    @Override
 	public CuboidParticleEffect clone() {
 		CuboidParticleEffect cloned = new CuboidParticleEffect();
 		this.cloneInto(cloned);
@@ -27,22 +59,33 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 	}
 
 	@Override
+	protected void refreshProviders() {
+		super.refreshProviders();
+
+		x.refresh();
+		y.refresh();
+		z.refresh();
+		rotation.refresh();
+		about.refresh();
+	}
+
+	@Override
 	public CuboidParticleEffect build() {
 		points.clear();
-		
+		refreshProviders();
 		/*
 		 *  Seed vertices: A+X+Y+Z, B+X-Y-Z, C-X+Y-Z, D-X-Y+Z
 		 *  These vertices do not connect to each other, so 4 vertices with 3 edges
 		 *  each is the whole cuboid
 		 */
-		Vector start = new Vector(x, y, z);
+		Vector start = new Vector(x.val(), y.val(), z.val());
 		
-		Vector finish = new Vector(-x, y, z);
+		Vector finish = new Vector(-x.val(), y.val(), z.val());
 		
 		double scaledX, scaledY, scaledZ; // Need to go size/2 away from the origin in each direction
-		scaledX = x / 2;
-		scaledY = y / 2;
-		scaledZ = z / 2;
+		scaledX = x.val() / 2;
+		scaledY = y.val() / 2;
+		scaledZ = z.val() / 2;
 		
 		double[] signs = {1, 1, 1};
 		Vector rotatedStart, rotatedFinish;
@@ -52,7 +95,7 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 			start.setY(scaledY*signs[1]);
 			start.setZ(scaledZ*signs[2]);
 			
-			rotatedStart = WbsMath.rotateVector(start, about, rotation);
+			rotatedStart = WbsMath.rotateVector(start, about.val(), rotation.val());
 			
 			for (int j = 0; j < 3; j++) {
 				signs[j] = -signs[j];
@@ -60,9 +103,9 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 				finish.setY(scaledY*signs[1]);
 				finish.setZ(scaledZ*signs[2]);
 
-				rotatedFinish = WbsMath.rotateVector(finish, about, rotation);
+				rotatedFinish = WbsMath.rotateVector(finish, about.val(), rotation.val());
 				
-				points.addAll(WbsMath.getLine(amount, rotatedStart, rotatedFinish));
+				points.addAll(WbsMath.getLine(amount.intVal(), rotatedStart, rotatedFinish));
 				
 				signs[j] = -signs[j];
 			}
@@ -130,29 +173,44 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 	}
 
 	public CuboidParticleEffect setSpeed(double speed) {
-		this.speed = speed;
+		this.speed = new NumProvider(speed);
 		return this;
 	}
 
 	public CuboidParticleEffect setX(double x) {
-		this.x = x;
+		this.x = new NumProvider(x);
 		return this;
 	}
 	public CuboidParticleEffect setY(double y) {
-		this.y = y;
+		this.y = new NumProvider(y);
 		return this;
 	}
 	public CuboidParticleEffect setZ(double z) {
-		this.z = z;
+		this.z = new NumProvider(z);
 		return this;
 	}
 
 	public CuboidParticleEffect setRotation(double rotation) {
-		this.rotation = rotation;
+		this.rotation = new NumProvider(rotation);
 		return this;
 	}
 	public CuboidParticleEffect setAbout(Vector about) {
-		this.about = about;
+		this.about = new VectorProvider(about);
 		return this;
+	}
+
+	/*=============================*/
+	/*        Serialization        */
+	/*=============================*/
+
+	public void writeToConfig(ConfigurationSection section, String path) {
+		super.writeToConfig(section, path);
+
+		x.writeToConfig(section, path + ".xSize");
+		y.writeToConfig(section, path + ".ySize");
+		z.writeToConfig(section, path + ".zSize");
+
+		about.writeToConfig(section, path + ".about");
+		rotation.writeToConfig(section, path + ".rotation");
 	}
 }

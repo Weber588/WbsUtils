@@ -5,13 +5,53 @@ import java.util.LinkedList;
 
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import wbs.utils.WbsUtils;
+import wbs.utils.util.WbsEnums;
 import wbs.utils.util.WbsMath;
+import wbs.utils.util.configuration.NumProvider;
+import wbs.utils.util.configuration.WbsConfigReader;
+import wbs.utils.util.plugin.WbsSettings;
 
 public abstract class WbsParticleEffect {
 	protected static Vector upVector = new Vector(0, 1, 0);
+
+	public enum WbsParticleType { CUBOID, DISC, ELECTRIC, LINE, NORMAL, RING, SPHERE, SPIRAL }
+
+	/**
+	 * Build a particle effect from a config, and output errors to the settings field
+	 * @param section The configuration section to build from
+	 * @param settings The settings to log errors to
+	 * @param directory The path to the section within the parent section for logging purpsoes
+	 */
+	public static WbsParticleEffect buildParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
+		WbsConfigReader.requireNotNull(section, "type", settings, directory);
+		WbsParticleType type = WbsEnums.getEnumFromString(WbsParticleType.class, section.getString("type"));
+
+		switch (type) {
+			case CUBOID:
+				return new CuboidParticleEffect(section, settings, directory);
+			case DISC:
+				return new DiscParticleEffect(section, settings, directory);
+			case ELECTRIC:
+				return new ElectricParticleEffect(section, settings, directory);
+			case LINE:
+				return new LineParticleEffect(section, settings, directory);
+			case NORMAL:
+				return new NormalParticleEffect(section, settings, directory);
+			case RING:
+				return new RingParticleEffect(section, settings, directory);
+			case SPHERE:
+				return new SphereParticleEffect(section, settings, directory);
+			case SPIRAL:
+				return new SpiralParticleEffect(section, settings, directory);
+		}
+
+		return null;
+	}
 
 	protected static WbsUtils pl;
 	public static void setPlugin(WbsUtils plugin) {
@@ -19,20 +59,31 @@ public abstract class WbsParticleEffect {
 	}
 	
 	protected double chance = 100;
-	protected int amount = 1;
+	protected NumProvider amount;
 	protected Object options = null;
+	protected boolean force = true;
 	
 	public WbsParticleEffect() {
-		
+		amount = new NumProvider(1);
 	}
 
+	protected WbsParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
+		if (section.get("amount") != null) {
+			amount = new NumProvider(section, "amount", settings, directory + "/amount", 1);
+		} else {
+			amount = new NumProvider(1);
+		}
+
+		if (section.get("force") != null) {
+			force = section.getBoolean("force");
+		}
+	}
 
 	/*===========================*/
 	/*          BUILDER          */
 	/*===========================*/
-	
+
 	protected final ArrayList<Vector> points = new ArrayList<>();
-	protected Particle particle;
 	
 	/**
 	 * Generate the particle set based on current settings.
@@ -40,6 +91,16 @@ public abstract class WbsParticleEffect {
 	 * buildAndRun each time to run based on current settings.
 	 */
 	public abstract WbsParticleEffect build();
+
+	/**
+	 * Refresh all providers for this object.
+	 * Subclasses may override this, but should
+	 * call super.refreshProviders() at the start
+	 * of the method
+	 */
+	protected void refreshProviders() {
+		amount.refresh();
+	}
 
 	/**
 	 * Run and regenerate the point set based on new settings.
@@ -62,6 +123,8 @@ public abstract class WbsParticleEffect {
 	 * @param loc The location at which to run the effect.
 	 */
 	public abstract WbsParticleEffect play(Particle particle, Location loc);
+	
+	public abstract WbsParticleEffect play(Particle particle, Location loc, Player player);
 
 	/*===========================*/
 	/*       UTILITY METHODS      */
@@ -111,7 +174,7 @@ public abstract class WbsParticleEffect {
 	public abstract WbsParticleEffect clone();
 	
 	protected WbsParticleEffect cloneInto(WbsParticleEffect cloned) {
-		cloned.setAmount(amount)
+		cloned.setAmount((int) amount.val())
 				.setChance(chance)
 				.setOptions(options);
 		
@@ -123,10 +186,10 @@ public abstract class WbsParticleEffect {
 	/*===============================*/
 	
 	public int getAmount() {
-		return amount;
+		return (int) amount.val();
 	}
 	public WbsParticleEffect setAmount(int amount) {
-		this.amount = amount;
+		this.amount = new NumProvider(amount);
 		return this;
 	}
 
@@ -148,4 +211,23 @@ public abstract class WbsParticleEffect {
 		this.chance = chance;
 		return this;
 	}
+
+	public WbsParticleEffect setForce(boolean force) {
+		this.force = force;
+		return this;
+	}
+
+	public boolean getForce() {
+		return force;
+	}
+
+	/*=============================*/
+	/*        Serialization        */
+	/*=============================*/
+
+	public void writeToConfig(ConfigurationSection section, String path) {
+		amount.writeToConfig(section, path + ".amount");
+		section.set(path + ".force", force);
+	}
+
 }

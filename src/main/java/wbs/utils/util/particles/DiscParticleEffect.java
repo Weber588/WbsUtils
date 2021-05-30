@@ -1,6 +1,8 @@
 package wbs.utils.util.particles;
 
+import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.util.WbsMath;
+import wbs.utils.util.plugin.WbsSettings;
 
 public class DiscParticleEffect extends CircleParticleEffect {
 
@@ -9,7 +11,14 @@ public class DiscParticleEffect extends CircleParticleEffect {
 	}
 	
 	private boolean random = false;
-	
+
+	public DiscParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
+		super(section, settings, directory);
+		if (section.get("random") != null) {
+			random = section.getBoolean("random");
+		}
+	}
+
 	@Override
 	public DiscParticleEffect clone() {
 		DiscParticleEffect cloned = new DiscParticleEffect();
@@ -21,14 +30,16 @@ public class DiscParticleEffect extends CircleParticleEffect {
 	@Override
 	public DiscParticleEffect build() {
 		points.clear();
-		if (about.equals(upVector)) {
+		refreshProviders();
+
+		if (about.val().equals(upVector)) {
 			if (random) {
-				points.addAll(WbsMath.getRandom2Disc(amount, radius));
+				points.addAll(WbsMath.getRandom2Disc(amount.intVal(), radius.val()));
 			} else {
-				points.addAll(WbsMath.get2Disc(amount, radius, rotation));
+				points.addAll(WbsMath.get2Disc(amount.intVal(), radius.val(), rotation.val()));
 			}
 		} else {
-			points.addAll(WbsMath.get3Disc(amount, radius, about, rotation));
+			points.addAll(WbsMath.get3Disc(amount.intVal(), radius.val(), about.val(), rotation.val()));
 		}
 		
 		return this;
@@ -44,5 +55,15 @@ public class DiscParticleEffect extends CircleParticleEffect {
 	public DiscParticleEffect setRandom(boolean random) {
 		this.random = random;
 		return this;
+	}
+
+	/*=============================*/
+	/*        Serialization        */
+	/*=============================*/
+
+	public void writeToConfig(ConfigurationSection section, String path) {
+		super.writeToConfig(section, path);
+
+		section.set(path + ".random", random);
 	}
 }

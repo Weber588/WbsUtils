@@ -5,18 +5,29 @@ import java.util.ArrayList;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
 import wbs.utils.util.WbsMath;
+import wbs.utils.util.configuration.NumProvider;
+import wbs.utils.util.configuration.VectorProvider;
+import wbs.utils.util.plugin.WbsSettings;
 
 public class SpiralParticleEffect extends CircleParticleEffect {
 
 	public SpiralParticleEffect() {
-		
+		super();
 	}
 	
 	private boolean clockwise = true;
-	
+
+	public SpiralParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
+		super(section, settings, directory);
+		if (section.get("clockwise") != null) {
+			clockwise = section.getBoolean("clockwise");
+		}
+	}
+
 	@Override
 	public SpiralParticleEffect clone() {
 		SpiralParticleEffect cloned = new SpiralParticleEffect();
@@ -30,10 +41,12 @@ public class SpiralParticleEffect extends CircleParticleEffect {
 	@Override
 	public SpiralParticleEffect build() {
 		points.clear();
-		if (about.equals(upVector)) {
-			points.addAll(WbsMath.get2Ring(amount, radius, rotation));
+		refreshProviders();
+
+		if (about.val().equals(upVector)) {
+			points.addAll(WbsMath.get2Ring(amount.intVal(), radius.val(), rotation.val()));
 		} else {
-			points.addAll(WbsMath.get3Ring(amount, radius, about, rotation));
+			points.addAll(WbsMath.get3Ring(amount.intVal(), radius.val(), about.val(), rotation.val()));
 		}
 		
 		return this;
@@ -49,7 +62,7 @@ public class SpiralParticleEffect extends CircleParticleEffect {
 		if (world == null)
 			throw new IllegalArgumentException("Location had an invalid world.");
 
-		direction.normalize().multiply(1);
+		direction.val().normalize();
 		
 		ArrayList<Location> locations = getLocations(loc);
 
@@ -71,14 +84,14 @@ public class SpiralParticleEffect extends CircleParticleEffect {
 				velPoint = locations.get(pointerIndex);
 			}
 			Vector vec = velPoint.clone().subtract(loc.toVector()).toVector();
-			vec = scaleVector(vec, variation);
+			vec = scaleVector(vec, variation.val());
 			Vector vecSave = vec;
-			for (int k = 0; k < amount; k++) {
+			for (int k = 0; k < amount.intVal(); k++) {
 				vec = vecSave.clone();
 				if (options == null) {
-					world.spawnParticle(particle, point, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed, null, true);
+					world.spawnParticle(particle, point, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed.val(), null, force);
 				} else {
-					world.spawnParticle(particle, point, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed, particle.getDataType().cast(options), true);
+					world.spawnParticle(particle, point, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed.val(), particle.getDataType().cast(options), force);
 				}
 			}
 		}
@@ -90,64 +103,23 @@ public class SpiralParticleEffect extends CircleParticleEffect {
 	/*        GETTERS/SETTERS        */
 	/*===============================*/
 	
-	public double getRadius() {
-		return radius;
-	}
-	public SpiralParticleEffect setRadius(double radius) {
-		this.radius = radius;
-		return this;
-	}
-
-	public double getSpeed() {
-		return speed;
-	}
-	public SpiralParticleEffect setSpeed(double speed) {
-		this.speed = speed;
-		return this;
-	}
-	
-	public Vector getAbout() {
-		return about;
-	}
-	public SpiralParticleEffect setAbout(Vector about) {
-		this.about = about;
-		return this;
-	}
-	
-	public Vector getDirection() {
-		return direction;
-	}
-	public SpiralParticleEffect setDirection(Vector direction) {
-		this.direction = direction;
-		return this;
-	}
-	
-	public double getRotation() {
-		return rotation;
-	}
-	/**
-	 * @param rotation The rotation in degrees
-	 */
-	public SpiralParticleEffect setRotation(double rotation) {
-		this.rotation = rotation;
-		return this;
-	}
-
-	public double getVariation() {
-		return variation;
-	}
-	/**
-	 * @param variation The variation in direction when the
-	 * particles have speed.
-	 */
-	public SpiralParticleEffect setVariation(double variation) {
-		this.variation = variation;
-		return this;
-	}
-	
 	public SpiralParticleEffect setClockwise(boolean clockwise) {
 		this.clockwise = clockwise;
 		
 		return this;
+	}
+
+	/*=============================*/
+	/*        Serialization        */
+	/*=============================*/
+
+	/*=============================*/
+	/*        Serialization        */
+	/*=============================*/
+
+	public void writeToConfig(ConfigurationSection section, String path) {
+		super.writeToConfig(section, path);
+
+		section.set(path + "clockwise", clockwise);
 	}
 }

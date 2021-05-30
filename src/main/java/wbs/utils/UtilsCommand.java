@@ -9,7 +9,7 @@ import org.bukkit.command.TabExecutor;
 
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.plugin.WbsMessenger;
-import wbs.utils.util.plugin.WbsPlugin;
+import wbs.utils.util.pluginhooks.PluginHookManager;
 import wbs.utils.util.pluginhooks.WbsRegionUtils;
 
 public class UtilsCommand extends WbsMessenger implements TabExecutor {
@@ -21,10 +21,10 @@ public class UtilsCommand extends WbsMessenger implements TabExecutor {
 	@Override
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
 
-		WbsRegionUtils.isConfigured = false;
-		WbsRegionUtils.configure();
+		PluginHookManager.isConfigured = false;
+		PluginHookManager.configure();
 		sendMessage("Reloaded! See console for details.", sender);
-		
+
 		return true;
 	}
 	

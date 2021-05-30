@@ -232,6 +232,26 @@ public final class WbsMath {
 		return locations;
 	}
 
+	public static final double PHI = Math.PI * (3. - Math.sqrt(5));
+
+	public static ArrayList<Vector> getFibonacciSphere(int amount, double radius) {
+		ArrayList<Vector> points = new ArrayList<>();
+
+		for (int i = 0; i < amount; i++) {
+			double y = 1 - (i / ((float)(amount - 1))) * 2;
+			double tempRadius = Math.sqrt(1 - y * y);
+
+			double theta = PHI * i;
+
+			double x = Math.cos(theta) * tempRadius;
+			double z = Math.sin(theta) * tempRadius;
+
+			points.add(new Vector(x, y + 1, z).multiply(radius));
+		}
+
+		return points;
+	}
+
 	/**
 	 * Get points in a ring in the X-Z plane
 	 * @param n The number of points in the ring

@@ -2,24 +2,27 @@ package wbs.utils.util.pluginhooks;
 
 import java.util.UUID;
 
+import com.sk89q.worldedit.world.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+/*
 import com.github.intellectualsites.plotsquared.plot.PlotSquared;
 import com.github.intellectualsites.plotsquared.plot.config.Captions;
 import com.github.intellectualsites.plotsquared.plot.object.Plot;
 import com.github.intellectualsites.plotsquared.plot.object.PlotPlayer;
 import com.github.intellectualsites.plotsquared.plot.object.PlotPlayer.PlotPlayerConverter;
 import com.github.intellectualsites.plotsquared.plot.util.Permissions;
+*/
 
 import com.palmergames.bukkit.towny.Towny;
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.utils.CombatUtil;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.world.World;
+
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -37,64 +40,9 @@ public abstract class WbsRegionUtils {
 
 	private WbsRegionUtils() {}
 
-	public static boolean isConfigured = false;
-	
-	private static boolean isInstalled(String pluginName) {
-		return Bukkit.getPluginManager().getPlugin(pluginName) != null;
-	}
-
-	private static boolean griefPreventionInstalled = false;
-	
-	private static boolean townyInstalled = false;
-	private static Towny towny;
-	
-	private static boolean plotsquaredInstalled = false;
-	
-	private static boolean worldGuardInstalled = false;
-	private static WorldGuardPlugin worldGuard;
-	
-	public static void configure() {
-		if (isConfigured) {
-			return;
-		}
-		WbsUtils.getInstance().logger.info("Configuring plugin hooks...");
-
-		int hooksFound = 0;
-		
-		griefPreventionInstalled = isInstalled("GriefPrevention");
-		if (griefPreventionInstalled) {
-			WbsUtils.getInstance().logger.info("Successfully hooked into GriefPrevention!");
-			hooksFound++;
-		}
-
-		townyInstalled = isInstalled("Towny");
-		if (townyInstalled) {
-			towny = (Towny) Bukkit.getServer().getPluginManager().getPlugin("Towny");
-			WbsUtils.getInstance().logger.info("Successfully hooked into Towny!");
-			hooksFound++;
-		}
-		
-		plotsquaredInstalled = isInstalled("PlotSquared");
-		if (plotsquaredInstalled) {
-			WbsUtils.getInstance().logger.info("Successfully hooked into PlotSquared!");
-			hooksFound++;
-		}
-		
-		worldGuardInstalled = isInstalled("WorldGuard");
-		if (worldGuardInstalled) {
-			WbsUtils.getInstance().logger.info("Successfully hooked into WorldGuard!");
-			worldGuard = (WorldGuardPlugin) Bukkit.getPluginManager().getPlugin("WorldGuard");
-			hooksFound++;
-		}
-		
-		isConfigured = true;
-		WbsUtils.getInstance().logger.info("Successfully hooked into " + hooksFound + " plugins.");
-	}
 	
 	public static boolean canBuildAt(Location loc, Player player) {
-		configure();
-		
-		if (griefPreventionInstalled) {
+		if (PluginHookManager.isGriefPreventionInstalled()) {
 			PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
 			Claim claim = GriefPrevention.instance.dataStore.getClaimAt(loc, true, playerData.lastClaim);
 			if (claim != null) {
@@ -104,7 +52,7 @@ public abstract class WbsRegionUtils {
 			}
 		}
 		
-		if (townyInstalled) {
+		if (PluginHookManager.isTownyInstalled()) {
 			boolean bBuild = PlayerCacheUtil.getCachePermission(player, loc, loc.getBlock().getType(), TownyPermission.ActionType.BUILD);
 			
 			if (!bBuild) {
@@ -112,17 +60,17 @@ public abstract class WbsRegionUtils {
 			}
 		}
 		
-		if (plotsquaredInstalled) {
-			if (!canPlayerBuildPlot(player, loc)) {
-				return false;
-			}
+		if (PluginHookManager.isPlotsquaredInstalled()) {
+		//	if (!canPlayerBuildPlot(player, loc)) {
+		//		return false;
+		//	}
 		}
 		
-		if (worldGuardInstalled) { // why so convoluted oml
+		if (PluginHookManager.isWorldGuardInstalled()) { // why so convoluted oml
 			LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
 			World world = localPlayer.getWorld();
 			boolean canBypass = WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, world);
-			
+
 			if (!canBypass) {
 				com.sk89q.worldedit.util.Location checkLoc = BukkitAdapter.adapt(loc);
 				RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
@@ -138,25 +86,25 @@ public abstract class WbsRegionUtils {
 	
 	public static boolean canDealDamage(Entity attacker, Entity victim) {
 
-		if (townyInstalled) {
-		    if (CombatUtil.preventDamageCall(towny, attacker, victim)) {
+		if (PluginHookManager.isTownyInstalled()) {
+		    if (CombatUtil.preventDamageCall(PluginHookManager.getTowny(), attacker, victim)) {
 		    	return false;
 		    }
 	    }
 	    
-		if (griefPreventionInstalled) {
+		if (PluginHookManager.isGriefPreventionInstalled()) {
 			// TODO
 		}
 		
-		if (plotsquaredInstalled) {
+		if (PluginHookManager.isPlotsquaredInstalled()) {
 			if (attacker instanceof Player) {
-				if (!canPlayerBuildPlot((Player) attacker, victim.getLocation())) {
-					return false;
-				}
+			//	if (!canPlayerBuildPlot((Player) attacker, victim.getLocation())) {
+			//		return false;
+			//	}
 			}
 		}
 		
-		if (worldGuardInstalled) {
+		if (PluginHookManager.isWorldGuardInstalled()) {
 			if (attacker instanceof Player) {
 				Player playerAttacker = (Player) attacker;
 				
@@ -177,7 +125,7 @@ public abstract class WbsRegionUtils {
 		
 		return true;
 	}
-	
+	/*
 	private static boolean canPlayerBuildPlot(Player player, Location loc) {
 
 		org.bukkit.World world = loc.getWorld();
@@ -186,13 +134,13 @@ public abstract class WbsRegionUtils {
 			throw new IllegalArgumentException("Location had an invalid world.");
 
 		PlotPlayer plotPlayer = PlotPlayer.wrap(player);
-		
-		com.github.intellectualsites.plotsquared.plot.object.Location checkLocation = 
+
+		com.github.intellectualsites.plotsquared.plot.object.Location checkLocation =
 				new com.github.intellectualsites.plotsquared.plot.object.
 				Location(loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), 0, 0);
 
 		Plot plot = checkLocation.getPlot();
-	
+
 		if (plot == null) {
 			return Permissions.hasPermission(plotPlayer,
 					Captions.PERMISSION_ADMIN_BUILD_ROAD, false);
@@ -206,7 +154,7 @@ public abstract class WbsRegionUtils {
 						boolean isOwnerOnline = false;
 						for (UUID ownerUUID : plot.getOwners()) {
 							PlotPlayer owner = PlotPlayer.wrap(ownerUUID);
-							
+
 							if (owner.isOnline()) {
 								isOwnerOnline = true;
 								break;
@@ -218,7 +166,9 @@ public abstract class WbsRegionUtils {
 				}
 			}
 		}
-		
+
 		return true;
 	}
+
+	 */
 }

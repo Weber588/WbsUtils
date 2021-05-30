@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import wbs.utils.util.string.WbsStrings;
 
 /**
  * Somewhat a utility class, use this
@@ -39,7 +40,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 		message = message.replaceAll("&h", "" + highlight); // Replace &h with the highlight colour
 		message = message.replaceAll("&w", "" + errorColour); // Replace &w with the error colour
 		message = message.replaceAll("&x", "" + errorColour); // Replace &x with the error colour
-		message = ChatColor.translateAlternateColorCodes('&', message);
+		message = WbsStrings.colourise(message);
 		sender.sendMessage(prefix + ' ' +  colour + message);
 	}
 	

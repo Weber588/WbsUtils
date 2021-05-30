@@ -1,4 +1,4 @@
-package wbs.utils.util;
+package wbs.utils.util.configuration;
 
 import java.util.Map;
 
@@ -6,6 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import wbs.utils.exceptions.MissingConfigurationException;
 import wbs.utils.exceptions.UndefinedClassConfigurationException;
+import wbs.utils.util.WbsEnums;
 
 public class ConfigurableField<T> {
 
