@@ -48,11 +48,7 @@ public class CycleGenerator extends DoubleGenerator{
         progress += step;
         if (progress > 1) progress -= 1;
 
-        if (end.val() < start.val()) {
-            return Math.abs(start.val() - end.val()) * (1 - progress) + start.val();
-        } else {
-            return Math.abs(start.val() - end.val()) * progress + start.val();
-        }
+        return (end.val() - start.val()) * progress + start.val();
     }
 
     @Override
