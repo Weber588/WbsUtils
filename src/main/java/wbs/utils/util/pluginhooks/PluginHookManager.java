@@ -70,7 +70,9 @@ public class PluginHookManager {
         plotsquaredInstalled = isInstalled("PlotSquared");
         if (plotsquaredInstalled) {
             WbsUtils.getInstance().logger.info("Successfully hooked into PlotSquared!");
-            WbsUtils.getInstance().logger.warning("WARNING: PlotSquared is not supported due to version changes!");
+            if (Bukkit.getPluginManager().getPlugin("PlotSquared").getDescription().getVersion().startsWith("6")) {
+                WbsUtils.getInstance().logger.warning("PlotSquared 6 is not yet supported!");
+            }
             hooksFound++;
         }
 

@@ -1,10 +1,10 @@
 package wbs.utils.util;
 
+import com.viaversion.viaversion.api.Via;
+import com.viaversion.viaversion.api.ViaAPI;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import us.myles.ViaVersion.api.Via;
-import us.myles.ViaVersion.api.ViaAPI;
-import us.myles.ViaVersion.api.protocol.ProtocolVersion;
 import wbs.utils.WbsUtils;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 
@@ -50,13 +50,22 @@ public final class VersionUtil {
     }
 
     public static double getVersion(Player player) {
+        if (!PluginHookManager.isViaVersionInstalled()) return getVersion();
+
         String versionName = getReadableVersion(player);
+        if (versionName.contains("Unknown")) return getVersion();
 
         double versionNum;
         try {
             versionNum = Double.parseDouble(versionName.substring(2));
         } catch (NumberFormatException e) {
-            return getVersion();
+
+            try {
+                versionNum = Double.parseDouble(versionName.split("\\.")[1]);
+            } catch (NumberFormatException e1) {
+                return getVersion();
+            }
+
         }
         return versionNum;
     }
