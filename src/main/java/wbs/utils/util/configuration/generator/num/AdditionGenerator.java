@@ -1,8 +1,7 @@
-package wbs.utils.util.configuration.generator;
+package wbs.utils.util.configuration.generator.num;
 
 import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.util.configuration.NumProvider;
-import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
 public class AdditionGenerator extends FunctionalGenerator {

@@ -1,8 +1,10 @@
-package wbs.utils.util.configuration.generator;
+package wbs.utils.util.configuration.generator.vector;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.util.Vector;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.configuration.NumProvider;
+import wbs.utils.util.configuration.VectorProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
@@ -10,18 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public abstract class FunctionalGenerator extends DoubleGenerator {
+public abstract class VectorFunctionalGenerator extends VectorGenerator {
 
-    protected final List<NumProvider> args = new ArrayList<>();
+    protected final List<VectorProvider> args = new ArrayList<>();
 
-    public FunctionalGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
+    public VectorFunctionalGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
         this(section, settings, directory, 0, Integer.MAX_VALUE);
     }
-    public FunctionalGenerator(ConfigurationSection section, WbsSettings settings, String directory, int minArgs) {
+    public VectorFunctionalGenerator(ConfigurationSection section, WbsSettings settings, String directory, int minArgs) {
         this(section, settings, directory, minArgs, Integer.MAX_VALUE);
     }
 
-    public FunctionalGenerator(ConfigurationSection section, WbsSettings settings, String directory, int minArgs, int maxArgs) {
+    public VectorFunctionalGenerator(ConfigurationSection section, WbsSettings settings, String directory, int minArgs, int maxArgs) {
         super(section, settings, directory);
 
         Set<String> keys = section.getKeys(false);
@@ -34,14 +36,15 @@ public abstract class FunctionalGenerator extends DoubleGenerator {
         }
 
         for (String key : section.getKeys(false)) {
-            NumProvider a = new NumProvider(section, key, settings, directory + "/" + key);
+            ConfigurationSection argSection = WbsConfigReader.getRequiredSection(section, key, settings, directory);
+            VectorProvider a = new VectorProvider(argSection, settings, directory + "/" + key);
             args.add(a);
         }
     }
 
     @Override
     public void refresh() {
-        for (NumProvider arg : args) {
+        for (VectorProvider arg : args) {
             arg.refresh();
         }
 
@@ -50,7 +53,7 @@ public abstract class FunctionalGenerator extends DoubleGenerator {
 
     @Override
     public void writeToConfig(ConfigurationSection section, String path) {
-        for (NumProvider arg : args) {
+        for (VectorProvider arg : args) {
             arg.writeToConfig(section, path);
         }
     }

@@ -1,4 +1,4 @@
-package wbs.utils.util.configuration.generator;
+package wbs.utils.util.configuration.generator.num;
 
 import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.util.configuration.NumProvider;

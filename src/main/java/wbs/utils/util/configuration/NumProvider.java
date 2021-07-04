@@ -4,7 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
 import wbs.utils.util.WbsEnums;
-import wbs.utils.util.configuration.generator.*;
+import wbs.utils.util.configuration.generator.num.DoubleGenerator;
 import wbs.utils.util.plugin.WbsSettings;
 
 import java.util.Set;
@@ -16,6 +16,11 @@ public class NumProvider {
     private double staticValue = Double.MIN_VALUE;
 
     private NumProvider() {}
+
+    public NumProvider(DoubleGenerator generator) {
+        this.generator = generator;
+        staticField = false;
+    }
 
     public NumProvider(double staticValue) {
         this.staticValue = staticValue;
@@ -82,5 +87,4 @@ public class NumProvider {
             generator.writeToConfig(section, path);
         }
     }
-
 }
