@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 import wbs.utils.util.WbsEnums;
@@ -18,6 +19,17 @@ public final class WbsStringify {
 
 	public static String toString(ItemStack item) {
 		return item.getAmount() + "x " + WbsEnums.toPrettyString(item.getType());
+	}
+
+	public static String toString(Location location, boolean includeWorld) {
+		String asString = location.getBlockX() + ", " +
+				location.getBlockY() + ", " +
+				location.getBlockZ();
+
+		if (includeWorld) {
+			asString += ", " + location.getWorld().getName();
+		}
+		return asString;
 	}
 
 	/**
@@ -48,7 +60,7 @@ public final class WbsStringify {
 		
 		return prettyTime;
 	}
-	
+
 
 	public static String toString(LocalDateTime timeStamp) {
 		String prettyTime;

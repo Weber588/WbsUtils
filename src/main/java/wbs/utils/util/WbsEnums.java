@@ -56,13 +56,20 @@ public final class WbsEnums {
 	 * @throws IllegalArgumentException If the class is not an enum, or if the string
 	 * does not match any enum
 	 */
-	public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) throws IllegalArgumentException {
+	public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) {
 		
 		string = string.toUpperCase();
 		string = string.replaceAll(" ", "_");
 		string = string.replaceAll("-", "_");
 
-		return Enum.valueOf(c, string.trim().toUpperCase());
+		T value;
+		try {
+			value = Enum.valueOf(c, string.trim().toUpperCase());
+		} catch (IllegalArgumentException | NullPointerException e) {
+			return null;
+		}
+
+		return value;
 	}
 	
 	/**

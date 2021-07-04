@@ -1,6 +1,6 @@
 package wbs.utils.util.string;
 
-import java.util.Collection;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,16 +108,78 @@ public final class WbsStrings {
 	 * @return A single String containing all entries in {strings} split with " ", excluding the first {index} entries
 	 */
 	public static String combineLast(String[] strings, int index) {
+		return combineLast(strings, index, " ");
+	}
+
+	public static String combineLast(String[] strings, int index, String delimiter) {
 		String[] newStringList = new String[strings.length-index];
 		if (strings.length - index >= 0)
 			System.arraycopy(strings, index, newStringList, 0, strings.length - index);
-		return String.join(" ", newStringList);
+		return String.join(delimiter, newStringList);
 	}
 
+	public static Set<String> getNextNodes(String current, Collection<String> options) {
+		return getNextNodes(current, options, ".");
+	}
+
+	public static Set<String> getNextNodes(String current, Collection<String> options, String delimiter) {
+		Set<String> nodes = new HashSet<>();
+
+		String[] currentNodes = current.split(Pattern.quote(delimiter));
+		int currentLength = currentNodes.length;
+
+		if (current.endsWith(".")) {
+			String[] temp = new String[currentLength+1];
+			System.arraycopy(currentNodes, 0, temp, 0, currentLength);
+			temp[currentLength] = "";
+			currentLength++;
+
+			currentNodes = temp;
+		}
+
+		String latestArg = currentNodes[currentLength-1];
+
+		main: for (String path: options) {
+			String[] nodesInPath = path.split("\\.");
+
+			if (nodesInPath.length < currentLength) {
+				continue;
+			} else {
+				for (int i = 0; i < currentLength-1; i++) {
+					if (!currentNodes[i].equals(nodesInPath[i])) {
+						continue main;
+					}
+				}
+
+				// We now know that currentNodes is the starting args of nodesInPath
+				// Set will handle duplicates
+				String toAdd = nodesInPath[currentLength-1];
+
+				if (toAdd.startsWith(latestArg)) {
+					toAdd = toAdd.substring(latestArg.length());
+
+					if (toAdd.length() == 0) {
+						if (nodesInPath.length > currentLength) {
+							return getNextNodes(current + delimiter, options, delimiter);
+						}
+					} else {
+						nodes.add(current + toAdd);
+					}
+				}
+			}
+		}
+
+		return nodes;
+	}
+
+
 	public static String combineFirst(String[] strings, int length) {
+		return combineFirst(strings, length, " ");
+	}
+	public static String combineFirst(String[] strings, int length, String delimiter) {
 		String[] newStringList = new String[length];
 		System.arraycopy(strings, 0, newStringList, 0, length);
-		return String.join(" ", newStringList);
+		return String.join(delimiter, newStringList);
 	}
 	
 	private static final String[] colourCodes = {
@@ -147,13 +209,17 @@ public final class WbsStrings {
 	}
 
 	public static String addColourGradient(String string, Color startColour, Color endColour) {
+		return addColourGradient(string, startColour, endColour, true);
+	}
+
+	public static String addColourGradient(String string, Color startColour, Color endColour, boolean colourise) {
 		int length = string.length();
 
-		float step = 1.0f / (length - 1);
+		double step = 1.0f / (length - 1);
 
 		StringBuilder newMessageBuilder = new StringBuilder();
 
-		float progress = 0;
+		double progress = 0;
 		Color currentColour;
 		for (int i = 0; i < length; i++) {
 			// TODO: Make colour cycle ignore spaces
@@ -168,34 +234,27 @@ public final class WbsStrings {
 			if (progress > 1) progress = 1; // Yay floating point error
 		}
 
-		return WbsStrings.colourise(newMessageBuilder.toString());
+		if (colourise) {
+			return WbsStrings.colourise(newMessageBuilder.toString());
+		} else {
+			return newMessageBuilder.toString();
+		}
 	}
 
-	public static String addColourGradient(String string, Color... colors) {
-		int length = string.length();
-
-		StringBuilder builder = new StringBuilder();
-
-		int charsPerColour = length / colors.length;
-		int remainder = length % colors.length;
-
-		int beginIndex = 0;
-		int endIndex = charsPerColour + 1;
-		remainder--;
-		for (int i = 0; i < colors.length; i++) {
-			String substring = string.substring(beginIndex, endIndex);
-
-			builder.append(substring);
-
-			beginIndex += (endIndex - beginIndex);
-			endIndex += charsPerColour;
-			if (remainder > 0) {
-				endIndex += 1;
-				remainder--;
+	/**
+	 * Filter a collection of strings by those that start with the given string
+	 * @param choices The collection to filter
+	 * @param filter The string to check startsWith
+	 * @return A list of strings that contains only elements of choices that
+	 * start with the filter string, ignoring case
+	 */
+	public static List<String> filterStartsWith(Collection<String> choices, String filter) {
+		List<String> result = new ArrayList<>();
+		for (String add : choices) {
+			if (add.toLowerCase().startsWith(filter.toLowerCase())) {
+				result.add(add);
 			}
 		}
-
-		return builder.toString();
+		return result;
 	}
-
 }

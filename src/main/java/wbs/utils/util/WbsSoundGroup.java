@@ -31,6 +31,15 @@ public class WbsSoundGroup implements Serializable {
 		allSounds.add(sound);
 		delay.add(ticks);
 	}
+
+	/**
+	 * Add a WbsSound to this sound group
+	 * @param sound The sound to add
+	 */
+	public void addSound(WbsSound sound) {
+		allSounds.add(sound);
+		delay.add(0L);
+	}
 	
 	/**
 	 * Play the sound.

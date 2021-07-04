@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -35,6 +36,18 @@ public abstract class WbsSettings {
 	 * the whole plugin.
 	 */
 	public abstract void reload();
+
+	protected YamlConfiguration loadDefaultConfig(String configName) {
+		File configFile = new File(plugin.getDataFolder(), configName);
+		if (!configFile.exists()) {
+			plugin.saveResource(configName, false);
+		}
+
+		YamlConfiguration config = loadConfigSafely(genConfig(configName));
+		loadMessageFormat(config);
+
+		return config;
+	}
 
 	protected void loadMessageFormat(YamlConfiguration config) {
 		String defaultPrefix = "[" + plugin.getName()  + "]";

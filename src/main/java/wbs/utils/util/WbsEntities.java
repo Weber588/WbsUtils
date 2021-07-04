@@ -55,6 +55,10 @@ public final class WbsEntities {
 		return false;
 	}
 	
+	public static Set<LivingEntity> getNearbyLivingSpherical(Location loc, double range) {
+		Set<LivingEntity> excludeSet = new HashSet<>();
+		return getNearbySpherical(loc, range, excludeSet, LivingEntity.class);
+	}
 	public static Set<LivingEntity> getNearbyLivingSpherical(Location loc, double range, LivingEntity exclude) {
 		Set<LivingEntity> excludeSet = new HashSet<>();
 		excludeSet.add(exclude);
@@ -64,11 +68,19 @@ public final class WbsEntities {
 	public static Set<LivingEntity> getNearbyLivingSpherical(Location loc, double range, Set<LivingEntity> exclude) {
 		return getNearbySpherical(loc, range, exclude, LivingEntity.class);
 	}
-		
-	public static <T extends LivingEntity> Set<T> getNearbySpherical(Location loc, double range, T exclude, Class<T> clazz) {
+
+
+
+	public static <T extends Entity> Set<T> getNearbySpherical(Location loc, double range, Class<T> clazz) {
+		Set<T> excludeSet = new HashSet<>();
+
+		return getNearbySpherical(loc, range, excludeSet, clazz);
+	}
+
+	public static <T extends Entity> Set<T> getNearbySpherical(Location loc, double range, T exclude, Class<T> clazz) {
 		Set<T> excludeSet = new HashSet<>();
 		excludeSet.add(exclude);
-		
+
 		return getNearbySpherical(loc, range, excludeSet, clazz);
 	}
 	
@@ -83,21 +95,19 @@ public final class WbsEntities {
 	 * @return A Set of LivingEntities within the radius specified with range.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends LivingEntity> Set<T> getNearbySpherical(Location loc, double radius, Set<T> exclude, Class<T> clazz) {
+	public static <T extends Entity> Set<T> getNearbySpherical(Location loc, double radius, Set<T> exclude, Class<T> clazz) {
 		World world = loc.getWorld();
 		if (world == null) throw new IllegalArgumentException();
 		Collection<Entity> entities = world.getNearbyEntities(loc, radius, radius, radius);
 	
-		Set<LivingEntity> nearbyLiving = new HashSet<>();
+		Set<Entity> nearby = new HashSet<>();
 		for (Entity targetEntity : entities) {
-			if (targetEntity instanceof LivingEntity) {
-				if (targetEntity.getLocation().distance(loc) <= radius) {
-					if (exclude == null || exclude.isEmpty()) {
-						nearbyLiving.add((LivingEntity) targetEntity);
-					} else {
-						if (!exclude.contains(targetEntity)) {
-							nearbyLiving.add((LivingEntity) targetEntity);
-						}
+			if (targetEntity.getLocation().distance(loc) <= radius) {
+				if (exclude == null || exclude.isEmpty()) {
+					nearby.add(targetEntity);
+				} else {
+					if (!exclude.contains(targetEntity)) {
+						nearby.add(targetEntity);
 					}
 				}
 			}
@@ -105,14 +115,14 @@ public final class WbsEntities {
 
 		Set<T> targets = new HashSet<>();
 		
-		if (!clazz.equals(LivingEntity.class)) { // Don't need to repeat for this
-			for (LivingEntity filterEntity : nearbyLiving) {
+		if (!clazz.equals(Entity.class)) { // Don't need to repeat for this
+			for (Entity filterEntity : nearby) {
 				if (clazz.isInstance(filterEntity)) {
 					targets.add((T) filterEntity);
 				}
 			}
 		} else {
-			for (LivingEntity filterEntity : nearbyLiving) {
+			for (Entity filterEntity : nearby) {
 				targets.add((T) filterEntity);
 			}
 		}
@@ -120,6 +130,11 @@ public final class WbsEntities {
 		return targets;
 	}
 	
+	public static Set<LivingEntity> getNearbyLiving(Location loc, double range) {
+		Set<LivingEntity> excludeSet = new HashSet<>();
+		return getNearby(loc, range, excludeSet, LivingEntity.class);
+	}
+
 	public static Set<LivingEntity> getNearbyLiving(Location loc, double range, LivingEntity exclude) {
 		Set<LivingEntity> excludeSet = new HashSet<>();
 		excludeSet.add(exclude);
@@ -130,17 +145,22 @@ public final class WbsEntities {
 		return getNearby(loc, range, exclude, LivingEntity.class);
 	}
 		
-	public static <T extends LivingEntity> Set<T> getNearby(Location loc, double range, T exclude, Class<T> clazz) {
+	public static <T extends Entity> Set<T> getNearby(Location loc, double range, Class<T> clazz) {
+		Set<T> excludeSet = new HashSet<>();
+		
+		return getNearby(loc, range, excludeSet, clazz);
+	}
+	public static <T extends Entity> Set<T> getNearby(Location loc, double range, T exclude, Class<T> clazz) {
 		Set<T> excludeSet = new HashSet<>();
 		excludeSet.add(exclude);
-		
+
 		return getNearby(loc, range, excludeSet, clazz);
 	}
 
 	/**
 	 * Get all entities of a given LivingEntity subclass
 	 * within a cuboid radius of a given location.
-	 * For a spherical region, use {@link #getNearbySpherical(Location, double, LivingEntity, Class)}
+	 * For a spherical region, use {@link #getNearbySpherical(Location, double, Entity, Class)}
 	 * @param <T> The class of LivingEntity to be retrieved
 	 * @param loc The center of the selection.
 	 * @param range The max cuboid distance around the location to check in.
@@ -149,7 +169,7 @@ public final class WbsEntities {
 	 * @return A Set of LivingEntities within the radius specified with range.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends LivingEntity> Set<T> getNearby(Location loc, double range, Set<T> exclude, Class<T> clazz) {
+	public static <T extends Entity> Set<T> getNearby(Location loc, double range, Set<T> exclude, Class<T> clazz) {
 		World world = loc.getWorld();
 		if (world == null) throw new IllegalArgumentException();
 		Collection<Entity> entities = world.getNearbyEntities(loc, range, range, range);

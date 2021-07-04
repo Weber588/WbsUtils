@@ -1,5 +1,6 @@
 package wbs.utils;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
 import wbs.utils.util.particles.WbsParticleEffect;
 import wbs.utils.util.plugin.WbsPlugin;
@@ -23,6 +24,9 @@ public class WbsUtils extends WbsPlugin {
 		PluginCommand reloadCommand = getCommand("utilsreload");
 		assert reloadCommand != null;
 		reloadCommand.setExecutor(new UtilsCommand(this));
+
+		// TODO: Actually add a config omg
+		setDisplays("&8[&7WbsUtils&8]", ChatColor.GREEN, ChatColor.AQUA, ChatColor.RED);
 
 		PluginHookManager.isConfigured = false;
 		PluginHookManager.configure();

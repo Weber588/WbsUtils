@@ -63,6 +63,14 @@ public final class WbsMath {
 		
 		return rotateVectors(toRotate, aboutVector, Math.toDegrees(angle));
 	}
+
+	public static Vector rotateFrom(Vector toRotate, Vector from, Vector with) {
+		Vector aboutVector = with.clone().crossProduct(from);
+
+		double angle = from.angle(with);
+
+		return rotateVector(toRotate, aboutVector, Math.toDegrees(angle));
+	}
 	
 	public static List<Vector> rotateVectors(List<Vector> toRotate, Vector about, double degrees) {
 		ArrayList<Vector> rotatedList = new ArrayList<>();
@@ -237,6 +245,8 @@ public final class WbsMath {
 	public static ArrayList<Vector> getFibonacciSphere(int amount, double radius) {
 		ArrayList<Vector> points = new ArrayList<>();
 
+		Vector offset = new Vector(0, -radius, 0);
+
 		for (int i = 0; i < amount; i++) {
 			double y = 1 - (i / ((float)(amount - 1))) * 2;
 			double tempRadius = Math.sqrt(1 - y * y);
@@ -246,10 +256,17 @@ public final class WbsMath {
 			double x = Math.cos(theta) * tempRadius;
 			double z = Math.sin(theta) * tempRadius;
 
-			points.add(new Vector(x, y + 1, z).multiply(radius));
+			points.add(new Vector(x, y + 1, z).multiply(radius).add(offset));
 		}
 
 		return points;
+	}
+
+	public static Vector reflectVector(Vector vector, Vector normal) {
+		vector = vector.clone();
+		normal = normal.clone();
+
+		return vector.subtract(normal.clone().multiply(2).multiply(vector.dot(normal)));
 	}
 
 	/**
@@ -476,5 +493,25 @@ public final class WbsMath {
 		z/=scale;
 		
 		return new Vector(x, y, z);
+	}
+
+	public static int parseIntBetween(String input, int min, int max) throws IllegalArgumentException {
+		int returnVal = Integer.parseInt(input);
+
+		if (returnVal > max || returnVal < min) {
+			throw new IllegalArgumentException();
+		}
+
+		return returnVal;
+	}
+
+	public static double parseDoubleBetween(String input, double min, double max) throws IllegalArgumentException {
+		double returnVal = Double.parseDouble(input);
+
+		if (returnVal > max || returnVal < min) {
+			throw new IllegalArgumentException();
+		}
+
+		return returnVal;
 	}
 }

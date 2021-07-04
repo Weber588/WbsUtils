@@ -19,9 +19,8 @@ public abstract class WbsKeyed {
 	 */
 	public static <T extends Enum<T>> T getEnumFromKeyed(Class<T> clazz, String string) {
 		T enumConstant;
-		try {
-			enumConstant = WbsEnums.getEnumFromString(clazz, string);
-		} catch (IllegalArgumentException ex) {
+		enumConstant = WbsEnums.getEnumFromString(clazz, string);
+		if (enumConstant == null) {
 			if (Keyed.class.isAssignableFrom(clazz)) { // If clazz extends/implements Keyed
 				for (T constant : clazz.getEnumConstants()) {
 					try {
@@ -33,7 +32,6 @@ public abstract class WbsKeyed {
 					}
 				}
 			}
-			return null;
 		}
 
 		return enumConstant;

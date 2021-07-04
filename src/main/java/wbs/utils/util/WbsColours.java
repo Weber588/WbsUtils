@@ -12,7 +12,7 @@ public class WbsColours {
      * @param brightness The brightness in range 0-1
      * @return The bukkit compatible Color object.
      */
-    private static Color fromHSB(float hue, float saturation, float brightness) {
+    public static Color fromHSB(double hue, double saturation, double brightness) {
 
         int scaledBrightness = (int) (brightness * 255);
         if (saturation == 0) {
@@ -21,10 +21,10 @@ public class WbsColours {
 
         hue = hue - (float) Math.floor(hue);
         int i = (int) (6 * hue);
-        float f = 6 * hue - i;
-        float p = brightness * (1 - saturation);
-        float q = brightness * (1 - saturation * f);
-        float t = brightness * (1 - saturation * (1 - f));
+        double f = 6 * hue - i;
+        double p = brightness * (1 - saturation);
+        double q = brightness * (1 - saturation * f);
+        double t = brightness * (1 - saturation * (1 - f));
 
         switch (i) {
             case 0:
@@ -45,14 +45,14 @@ public class WbsColours {
     }
 
 
-    public static float[] getHSV(Color colour) {
-        float red = colour.getRed() / 255.0f;
-        float green = colour.getGreen() / 255.0f;
-        float blue = colour.getBlue() / 255.0f;
+    public static double[] getHSV(Color colour) {
+        double red = colour.getRed() / 255.0f;
+        double green = colour.getGreen() / 255.0f;
+        double blue = colour.getBlue() / 255.0f;
 
-        float hue, saturation, value;
+        double hue, saturation, value;
 
-        float min, max, delta;
+        double min, max, delta;
 
         min = Math.min(Math.min(red, green), blue);
         max = Math.max(Math.max(red, green), blue);
@@ -61,7 +61,7 @@ public class WbsColours {
         delta = max - min;
 
         // Saturation
-        if (max == 0) return new float[]{-1, 0, value};
+        if (max == 0) return new double[]{-1, 0, value};
 
         saturation = delta / max;
 
@@ -79,28 +79,28 @@ public class WbsColours {
         if (hue < 0) hue += 360;
     //    saturation = saturation * 100;
     //    value = (value / 256) * 100;
-        return new float[] { hue, saturation, value };
+        return new double[] { hue, saturation, value };
     }
 
-    public static Color colourLerp(Color start, Color end, float interval) {
-        float[] hsv1 = getHSV(start);
+    public static Color colourLerp(Color start, Color end, double interval) {
+        double[] hsv1 = getHSV(start);
 
-        float[] hsv2 = getHSV(end);
+        double[] hsv2 = getHSV(end);
 
-        float lerpedH = lerp(hsv1[0], hsv2[0], interval);
-        float lerpedS = lerp(hsv1[1], hsv2[1], interval);
-        float lerpedV = lerp(hsv1[2], hsv2[2], interval);
+        double lerpedH = lerp(hsv1[0], hsv2[0], interval);
+        double lerpedS = lerp(hsv1[1], hsv2[1], interval);
+        double lerpedV = lerp(hsv1[2], hsv2[2], interval);
 
         return fromHSB(lerpedH / 360.0f, lerpedS, lerpedV);
     }
 
-    private static float lerp(float a, float b, float interval) {
+    private static double lerp(double a, double b, double interval) {
         return (b - a) * interval + a;
     }
 
     public static void testHsVConversion(Color color) {
         System.out.printf("%06X%n", color.asRGB());
-        float[] hsv = getHSV(color);
+        double[] hsv = getHSV(color);
         System.out.println("hsv: " + hsv[0] + ", " + hsv[1] + ", " + hsv[2]);
         Color converted = fromHSB(hsv[0] / 360, hsv[1], hsv[2]);
         System.out.printf("%06X%n", converted.asRGB());

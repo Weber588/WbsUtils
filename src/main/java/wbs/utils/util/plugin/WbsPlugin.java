@@ -27,6 +27,16 @@ public abstract class WbsPlugin extends JavaPlugin {
 
 	public Logger logger = getLogger();
 
+
+	public String dynamicColourise(String message) {
+		message = message.replaceAll("&r", "" + colour); // Replace default with the main colour
+		message = message.replaceAll("&h", "" + highlight); // Replace &h with the highlight colour
+		message = message.replaceAll("&w", "" + errorColour); // Replace &w with the error colour
+		message = message.replaceAll("&x", "" + errorColour); // Replace &x with the error colour
+		message = WbsStrings.colourise(message);
+		return message;
+	}
+
 	/**
 	 * Send a formatted message with "&" colour codes,
 	 * where "&w" becomes the configured error colour,
@@ -36,11 +46,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * @param sender The CommandSender to receive the message
 	 */
 	public void sendMessage(String message, CommandSender sender) {
-		message = message.replaceAll("&r", "" + colour); // Replace default with the main colour
-		message = message.replaceAll("&h", "" + highlight); // Replace &h with the highlight colour
-		message = message.replaceAll("&w", "" + errorColour); // Replace &w with the error colour
-		message = message.replaceAll("&x", "" + errorColour); // Replace &x with the error colour
-		message = WbsStrings.colourise(message);
+		message = dynamicColourise(message);
 		sender.sendMessage(prefix + ' ' +  colour + message);
 	}
 	
@@ -53,10 +59,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * @param sender The CommandSender to receive the message
 	 */
 	public void sendMessageNoPrefix(String message, CommandSender sender) {
-		message = message.replaceAll("&r", "" + colour); // Replace default with the main colour
-		message = message.replaceAll("&h", "" + highlight); // Replace &h with the highlight colour
-		message = message.replaceAll("&w", "" + errorColour); // Replace &w with the error colour
-		message = ChatColor.translateAlternateColorCodes('&', message);
+		message = dynamicColourise(message);
 		sender.sendMessage(colour + message);
 	}
 	
@@ -66,10 +69,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * @param message The message to broadcast
 	 */
 	public void broadcast(String message) {
-		message = message.replaceAll("&r", "" + colour); // Replace default with the main colour
-		message = message.replaceAll("&h", "" + highlight); // Replace &h with the highlight colour
-		message = message.replaceAll("&w", "" + errorColour); // Replace &h with the highlight colour
-		message = ChatColor.translateAlternateColorCodes('&', message);
+		message = dynamicColourise(message);
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			player.sendMessage(prefix + ' ' +  colour + message);
 		}
@@ -82,10 +82,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * @param player The player to receive the action bar
 	 */
 	public void sendActionBar(String message, Player player) {
-		message = message.replaceAll("&r", "" + colour); // Replace default with the main colour
-		message = message.replaceAll("&h", "" + highlight); // Replace &h with the highlight colour
-		message = message.replaceAll("&w", "" + errorColour); // Replace default with the main colour
-		message = ChatColor.translateAlternateColorCodes('&', message);
+		message = dynamicColourise(message);
 		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(colour + message).create());
 	}
 	

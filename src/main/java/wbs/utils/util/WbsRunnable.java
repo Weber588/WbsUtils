@@ -4,9 +4,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public abstract class WbsRunnable extends BukkitRunnable {
 
-	public void cancelSafely() {
+	@Override
+	public void cancel() {
 		super.cancel();
-		
+
 		finish();
 	}
 
