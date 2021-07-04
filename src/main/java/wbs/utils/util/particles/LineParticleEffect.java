@@ -25,6 +25,7 @@ public class LineParticleEffect extends WbsParticleEffect {
 	private NumProvider radius;
 	private NumProvider speed;
 	private VectorProvider end;
+	private boolean scaleAmount = false;
 
 	public LineParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
 		super(section, settings, directory);
@@ -49,6 +50,10 @@ public class LineParticleEffect extends WbsParticleEffect {
 
 		if (section.get("random") != null) {
 			random = section.getBoolean("random", random);
+		}
+
+		if (section.get("scale-amount") != null) {
+			scaleAmount = section.getBoolean("scale-amount");
 		}
 	}
 
@@ -113,7 +118,13 @@ public class LineParticleEffect extends WbsParticleEffect {
 
 	public LineParticleEffect play(Particle particle, Location start, Location finish, Player player) {
 		points.clear();
-		points.addAll(WbsMath.getLine(amount.intVal(), finish.clone().subtract(start).toVector()));
+
+		if (scaleAmount) {
+			int localAmount = (int) (amount.intVal() * start.distance(finish));
+			points.addAll(WbsMath.getLine(localAmount, finish.clone().subtract(start).toVector()));
+		} else {
+			points.addAll(WbsMath.getLine(amount.intVal(), finish.clone().subtract(start).toVector()));
+		}
 
 		ArrayList<Location> locations = WbsMath.offsetPoints(start, points);
 		locations = filterChances(locations);
@@ -139,8 +150,14 @@ public class LineParticleEffect extends WbsParticleEffect {
 			throw new IllegalArgumentException("Start and Finish location must be constrained to the same world");
 
 		points.clear();
-		points.addAll(WbsMath.getLine(amount.intVal(), finish.clone().subtract(start).toVector()));
-		
+
+		if (scaleAmount) {
+			int localAmount = (int) (amount.intVal() * start.distance(finish));
+			points.addAll(WbsMath.getLine(localAmount, finish.clone().subtract(start).toVector()));
+		} else {
+			points.addAll(WbsMath.getLine(amount.intVal(), finish.clone().subtract(start).toVector()));
+		}
+
 		ArrayList<Location> locations = WbsMath.offsetPoints(start, points);
 		locations = filterChances(locations);
 		
@@ -186,5 +203,9 @@ public class LineParticleEffect extends WbsParticleEffect {
 		radius.writeToConfig(section, path + ".radius");
 		end.writeToConfig(section, path + ".end");
 		section.set("random", random);
+	}
+
+	public void setScaleAmount(boolean scaleAmount) {
+		this.scaleAmount = scaleAmount;
 	}
 }

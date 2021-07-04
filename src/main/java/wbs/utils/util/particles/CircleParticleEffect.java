@@ -71,6 +71,10 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 		this.radius = new NumProvider(radius);
 		return this;
 	}
+	public CircleParticleEffect setRadius(NumProvider radius) {
+		this.radius = radius;
+		return this;
+	}
 	
 	public Vector getAbout() {
 		return about.val();
@@ -88,6 +92,10 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 	 */
 	public CircleParticleEffect setRotation(double rotation) {
 		this.rotation = new NumProvider(rotation);
+		return this;
+	}
+	public CircleParticleEffect setRotation(NumProvider rotation) {
+		this.rotation = rotation;
 		return this;
 	}
 

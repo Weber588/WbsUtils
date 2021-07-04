@@ -1,6 +1,11 @@
 package wbs.utils.util.particles;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import wbs.utils.util.WbsMath;
@@ -22,6 +27,8 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 	private NumProvider x, y, z;
 	private NumProvider rotation;
 	private VectorProvider about = new VectorProvider(upVector);
+	// When true, amount = particles per block. When false, amount = particles per edge
+	private boolean scaleAmount = false;
 
     public CuboidParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
     	super(section, settings, directory);
@@ -33,14 +40,19 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 		WbsConfigReader.requireNotNull(section, "zSize", settings, directory);
 		z = new NumProvider(section, "zSize", settings, directory + "/zSize", 1);
 
-		if (section.get("rotation") != null) {
+		if (section.getConfigurationSection("rotation") != null) {
 			rotation = new NumProvider(section, "rotation", settings, directory + "/rotation", 0);
 		} else {
 			rotation = new NumProvider(0);
 		}
 
-		if (section.get("about") != null) {
-			about = new VectorProvider(section.getConfigurationSection("about"), settings, directory + "/about", upVector);
+		if (section.get("scale-amount") != null) {
+			scaleAmount = section.getBoolean("scale-amount", scaleAmount);
+		}
+
+		ConfigurationSection aboutConfig = section.getConfigurationSection("about");
+		if (aboutConfig != null) {
+			about = new VectorProvider(aboutConfig, settings, directory + "/about", upVector);
 		} else {
 			about = new VectorProvider(upVector);
 		}
@@ -104,8 +116,14 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 				finish.setZ(scaledZ*signs[2]);
 
 				rotatedFinish = WbsMath.rotateVector(finish, about.val(), rotation.val());
-				
-				points.addAll(WbsMath.getLine(amount.intVal(), rotatedStart, rotatedFinish));
+
+				int localAmount;
+				if (scaleAmount) {
+					localAmount = (int) (rotatedStart.distance(rotatedFinish) * amount.val());
+				} else {
+					localAmount = amount.intVal();
+				}
+				points.addAll(WbsMath.getLine(localAmount, rotatedStart, rotatedFinish));
 				
 				signs[j] = -signs[j];
 			}
@@ -118,57 +136,52 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 				signs[2] = -signs[2];
 			}
 		}
-		/*
-		// Vertex A
-		start = new Vector(x, y, z);
 		
-		finish = new Vector(-x, y, z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
+		return this;
+	}
 
-		finish = new Vector(x, -y, z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
+	/**
+	 * Configure this effect to outline the cuboid region defined by corner1, corner2
+	 * and return the location to play at to center on those blocks.
+	 * @param corner1 The first corner of the cuboid region
+	 * @param corner2 The second corner of the cuboid region
+	 * @return A location that, when used in {@link #play(Particle, Location)}, will make
+	 * this effect outline the cuboid region defined
+	 */
+	public Location configureBlockOutline(Location corner1, Location corner2) {
+		// Clone both to avoid changing the passed references
+		corner1 = corner1.clone();
+		corner2 = corner2.clone();
 
-		finish = new Vector(x, y, -z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
+		if (corner1.getX() < corner2.getX()) {
+			corner2.setX(corner2.getX() + 1);
+		} else {
+			corner1.setX(corner1.getX() + 1);
+		}
 
-		// Vertex B
-		start = new Vector(-x, y, -z);
-		
-		finish = new Vector(x, y, -z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
+		if (corner1.getY() < corner2.getY()) {
+			corner2.setY(corner2.getY() + 1);
+		} else {
+			corner1.setY(corner1.getY() + 1);
+		}
 
-		finish = new Vector(-x, -y, -z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
+		if (corner1.getZ() < corner2.getZ()) {
+			corner2.setZ(corner2.getZ() + 1);
+		} else {
+			corner1.setZ(corner1.getZ() + 1);
+		}
 
-		finish = new Vector(-x, y, z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
-		
-		// Vertex C
-		start = new Vector(-x, -y, z);
-		
-		finish = new Vector(x, -y, z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
+		Location difference = corner2.clone().subtract(corner1);
+		Vector halfDifference = difference.toVector().multiply(0.5);
+		Location selectionCenter = corner1.clone().add(halfDifference);
 
-		finish = new Vector(-x, y, z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
+		setXYZ(difference.toVector());
 
-		finish = new Vector(-x, -y, -z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
-		
-		// Vertex D
-		start = new Vector(x, -y, -z);
-		
-		finish = new Vector(-x, -y, -z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
+		return selectionCenter;
+	}
 
-		finish = new Vector(x, y, -z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
-
-		finish = new Vector(x, -y, z);
-		points.addAll(WbsMath.getLine(pointsInLine, start, finish));
-		
-		*/
-		
+	public CuboidParticleEffect setScaleAmount(boolean scaleAmount) {
+		this.scaleAmount = scaleAmount;
 		return this;
 	}
 
@@ -188,6 +201,20 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 	public CuboidParticleEffect setZ(double z) {
 		this.z = new NumProvider(z);
 		return this;
+	}
+
+	public CuboidParticleEffect setXYZ(double size) {
+    	setX(size);
+    	setY(size);
+    	setZ(size);
+    	return this;
+	}
+
+	public CuboidParticleEffect setXYZ(Vector xyz) {
+    	setX(xyz.getX());
+    	setY(xyz.getY());
+    	setZ(xyz.getZ());
+    	return this;
 	}
 
 	public CuboidParticleEffect setRotation(double rotation) {

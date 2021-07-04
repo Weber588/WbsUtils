@@ -132,7 +132,14 @@ public class NormalParticleEffect extends WbsParticleEffect {
 		x = new NumProvider(size);
 		y = new NumProvider(size);
 		z = new NumProvider(size);
-		
+
+		return this;
+	}
+	public NormalParticleEffect setXYZ(double x, double y, double z) {
+		this.x = new NumProvider(x);
+		this.y = new NumProvider(y);
+		this.z = new NumProvider(z);
+
 		return this;
 	}
 

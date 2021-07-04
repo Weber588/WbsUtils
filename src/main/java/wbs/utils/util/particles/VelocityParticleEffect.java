@@ -1,6 +1,7 @@
 package wbs.utils.util.particles;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -34,6 +35,8 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 	protected NumProvider speed;
 	protected NumProvider variation;
 
+	protected boolean relative = false;
+
 	public VelocityParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
 		super(section, settings, directory);
 
@@ -54,6 +57,8 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 		} else {
 			direction = new VectorProvider(upVector);
 		}
+
+		relative = section.getBoolean("relative");
 	}
 
 	@Override
@@ -79,13 +84,22 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 	public VelocityParticleEffect play(Particle particle, Location loc, Player player) {
 		ArrayList<Location> locations = getLocations(loc);
 
-		if (options == null) {
-			for (Location point : locations) {
-				player.spawnParticle(particle, point, 0, direction.getX() + rand(variation.val()), direction.getY() + rand(variation.val()), direction.getZ() + rand(variation.val()), speed.val(), null);
-			}
+		List<Vector> localDirections = new ArrayList<>();
+		if (relative) {
+			localDirections.addAll(points);
 		} else {
-			for (Location point : locations) {
-				player.spawnParticle(particle, point, 0, direction.getX() + rand(variation.val()), direction.getY() + rand(variation.val()), direction.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(options));
+			for (int i = 0; i < points.size(); i++) {
+				localDirections.set(i, direction.val());
+			}
+		}
+
+		for (int i = 0; i < points.size(); i++) {
+			Location point = locations.get(i);
+			Vector localDirection = localDirections.get(i);
+			if (options == null) {
+				player.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), null);
+			} else {
+				player.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(options));
 			}
 		}
 		return this;
@@ -96,14 +110,23 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 		World world = loc.getWorld();
 		if (world == null) return this;
 		ArrayList<Location> locations = getLocations(loc);
-		
-		if (options == null) {
-			for (Location point : locations) {
-				world.spawnParticle(particle, point, 0, direction.getX() + rand(variation.val()), direction.getY() + rand(variation.val()), direction.getZ() + rand(variation.val()), speed.val(), null, force);
-			}
+
+		List<Vector> localDirections = new ArrayList<>();
+		if (relative) {
+			localDirections.addAll(points);
 		} else {
-			for (Location point : locations) {
-				world.spawnParticle(particle, point, 0, direction.getX() + rand(variation.val()), direction.getY() + rand(variation.val()), direction.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(options), force);
+			for (int i = 0; i < points.size(); i++) {
+				localDirections.add(direction.val());
+			}
+		}
+
+		for (int i = 0; i < points.size(); i++) {
+			Location point = locations.get(i);
+			Vector localDirection = localDirections.get(i);
+			if (options == null) {
+				world.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), null, force);
+			} else {
+				world.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(options), force);
 			}
 		}
 		return this;
@@ -142,6 +165,10 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 		return this;
 	}
 
+	public VelocityParticleEffect setRelative(boolean relative) {
+		this.relative = relative;
+		return this;
+	}
 	/*=============================*/
 	/*        Serialization        */
 	/*=============================*/
