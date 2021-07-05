@@ -12,8 +12,8 @@ import wbs.utils.util.VersionUtil;
 import wbs.utils.util.WbsColours;
 
 
+@SuppressWarnings("unused")
 public final class WbsStrings {
-	
 	private WbsStrings() {}
 	
 	/**

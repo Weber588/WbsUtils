@@ -12,8 +12,8 @@ import org.bukkit.Sound;
 
 import wbs.utils.util.string.WbsStrings;
 
+@SuppressWarnings("unused")
 public final class WbsEnums {
-	
 	private WbsEnums() {}
 
 	private static Map<Class<? extends Enum<?>>, String[]> stringArrays = new HashMap<>();

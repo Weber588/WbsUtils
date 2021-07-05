@@ -6,8 +6,8 @@ import org.bukkit.plugin.PluginManager;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 
-public abstract class PlaceholderAPIWrapper {
-
+@SuppressWarnings("unused")
+public final class PlaceholderAPIWrapper {
 	private PlaceholderAPIWrapper() {}
 
 	private static PluginManager manager = Bukkit.getPluginManager();

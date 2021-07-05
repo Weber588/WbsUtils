@@ -2,8 +2,9 @@ package wbs.utils.util;
 
 import org.bukkit.Color;
 
-public class WbsColours {
-
+@SuppressWarnings("unused")
+public final class WbsColours {
+    private WbsColours() {}
 
     /**
      * Adapted method from @java.awt.Color

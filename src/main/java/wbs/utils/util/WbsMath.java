@@ -7,11 +7,9 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public final class WbsMath {
-
-	private WbsMath() {
-		
-	}
+	private WbsMath() {}
 
 	/*==========*/
 	// Misc

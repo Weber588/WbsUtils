@@ -5,7 +5,9 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.Bukkit;
 import wbs.utils.WbsUtils;
 
-public class PluginHookManager {
+@SuppressWarnings("unused")
+public final class PluginHookManager {
+    private PluginHookManager() {}
 
     public static boolean isConfigured = false;
 

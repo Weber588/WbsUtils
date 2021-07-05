@@ -3,8 +3,8 @@ package wbs.utils.util;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 
+@SuppressWarnings("unused")
 public abstract class WbsKeyed {
-
 	private WbsKeyed() {}
 
 	/**

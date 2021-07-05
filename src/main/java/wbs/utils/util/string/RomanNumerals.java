@@ -6,7 +6,10 @@ import java.util.TreeMap;
  * Convert a number to Roman Numerals
  * @author Ben-Hur Langoni Junior on stackoverflow.com
  */
-public class RomanNumerals {
+@SuppressWarnings("unused")
+public final class RomanNumerals {
+    private RomanNumerals() {}
+
     private final static TreeMap<Integer, String> map = new TreeMap<>();
 
     static {

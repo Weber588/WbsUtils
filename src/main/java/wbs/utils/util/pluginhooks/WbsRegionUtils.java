@@ -14,8 +14,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class WbsRegionUtils {
-
+@SuppressWarnings("unused")
+public final class WbsRegionUtils {
 	private WbsRegionUtils() {}
 
 	private static final Set<WbsRegionHook> hooks = new HashSet<>();
@@ -28,7 +28,6 @@ public abstract class WbsRegionUtils {
 		));
 	}
 
-	@SuppressWarnings("unused")
 	public static boolean canBuildAt(Location loc, Player player) {
 		boolean canBuild = true;
 		PluginManager pm = Bukkit.getPluginManager();
@@ -42,7 +41,6 @@ public abstract class WbsRegionUtils {
 		return canBuild;
 	}
 
-	@SuppressWarnings("unused")
 	public static boolean canDealDamage(Entity attacker, Entity victim) {
 		boolean canDamage = true;
 		PluginManager pm = Bukkit.getPluginManager();

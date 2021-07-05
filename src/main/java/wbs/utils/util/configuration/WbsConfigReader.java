@@ -14,6 +14,7 @@ import wbs.utils.util.plugin.WbsSettings;
 /**
  * A static class to read configs and automatically provide errors to the WbsSettings object without external logic
  */
+@SuppressWarnings("unused")
 public final class WbsConfigReader {
     private WbsConfigReader() {}
 

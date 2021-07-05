@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import wbs.utils.WbsUtils;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 
+@SuppressWarnings("unused")
 public final class VersionUtil {
     private VersionUtil() {}
 

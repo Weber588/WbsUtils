@@ -27,8 +27,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+@SuppressWarnings("unused")
 public final class WbsEntities {
-	
 	private WbsEntities() {}
 	
 	public static boolean canSeeSky(LivingEntity entity) {

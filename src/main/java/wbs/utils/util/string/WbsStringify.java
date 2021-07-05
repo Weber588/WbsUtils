@@ -13,8 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.WbsMath;
 
+@SuppressWarnings("unused")
 public final class WbsStringify {
-	
 	private WbsStringify() {}
 
 	public static String toString(ItemStack item) {
