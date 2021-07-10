@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import wbs.utils.WbsUtils;
+import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.configuration.NumProvider;
@@ -29,7 +30,14 @@ public abstract class WbsParticleEffect {
 	 */
 	public static WbsParticleEffect buildParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
 		WbsConfigReader.requireNotNull(section, "type", settings, directory);
-		WbsParticleType type = WbsEnums.getEnumFromString(WbsParticleType.class, section.getString("type"));
+		String typeString = section.getString("type");
+		WbsParticleType type = WbsEnums.getEnumFromString(WbsParticleType.class, typeString);
+
+		if (type == null) {
+			settings.logError("Invalid type: " + typeString
+					+ ". Choose from the following: " + String.join(", ", WbsEnums.toStringList(WbsParticleType.class)), directory + "/type");
+			throw new InvalidConfigurationException();
+		}
 
 		switch (type) {
 			case CUBOID:

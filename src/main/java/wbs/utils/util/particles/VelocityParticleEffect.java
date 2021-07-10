@@ -113,14 +113,20 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 
 		List<Vector> localDirections = new ArrayList<>();
 		if (relative) {
-			localDirections.addAll(points);
+			locations.forEach(
+					offsetLoc -> localDirections.add(
+							offsetLoc.clone()
+							.subtract(loc)
+							.toVector()
+					)
+			);
 		} else {
-			for (int i = 0; i < points.size(); i++) {
+			for (int i = 0; i < locations.size(); i++) {
 				localDirections.add(direction.val());
 			}
 		}
 
-		for (int i = 0; i < points.size(); i++) {
+		for (int i = 0; i < locations.size(); i++) {
 			Location point = locations.get(i);
 			Vector localDirection = localDirections.get(i);
 			if (options == null) {
