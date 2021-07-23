@@ -48,6 +48,11 @@ public final class PluginHookManager {
         return viaVersionInstalled;
     }
 
+    private static boolean vaultInstalled = false;
+    public static boolean isVaultInstalled() {
+        return vaultInstalled;
+    }
+
     public static void configure() {
         if (isConfigured) {
             return;
@@ -72,9 +77,7 @@ public final class PluginHookManager {
         plotsquaredInstalled = isInstalled("PlotSquared");
         if (plotsquaredInstalled) {
             WbsUtils.getInstance().logger.info("Successfully hooked into PlotSquared!");
-            if (Bukkit.getPluginManager().getPlugin("PlotSquared").getDescription().getVersion().startsWith("6")) {
-                WbsUtils.getInstance().logger.warning("PlotSquared 6 is not yet supported!");
-            }
+
             hooksFound++;
         }
 
@@ -88,6 +91,12 @@ public final class PluginHookManager {
         viaVersionInstalled = isInstalled("ViaVersion");
         if (viaVersionInstalled) {
             WbsUtils.getInstance().logger.info("Successfully hooked into ViaVersion!");
+            hooksFound++;
+        }
+
+        vaultInstalled = isInstalled("Vault");
+        if (vaultInstalled) {
+            WbsUtils.getInstance().logger.info("Successfully hooked into Vault!");
             hooksFound++;
         }
 

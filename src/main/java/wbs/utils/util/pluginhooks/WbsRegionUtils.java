@@ -5,10 +5,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
-import wbs.utils.util.pluginhooks.region.GriefPreventionRegionHook;
-import wbs.utils.util.pluginhooks.region.TownyRegionHook;
-import wbs.utils.util.pluginhooks.region.WbsRegionHook;
-import wbs.utils.util.pluginhooks.region.WorldGuardRegionHook;
+
+import wbs.utils.util.pluginhooks.region.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -24,16 +22,16 @@ public final class WbsRegionUtils {
 		hooks.addAll(Arrays.asList(
 				new TownyRegionHook(),
 				new WorldGuardRegionHook(),
-				new GriefPreventionRegionHook()
+				new GriefPreventionRegionHook(),
+				new PlotSquaredRegionHook()
 		));
 	}
 
 	public static boolean canBuildAt(Location loc, Player player) {
 		boolean canBuild = true;
-		PluginManager pm = Bukkit.getPluginManager();
 
 		for (WbsRegionHook hook : hooks) {
-			if (pm.isPluginEnabled(hook.getRequiredPlugin())) {
+			if (hook.enabled()) {
 				canBuild &= hook.canPlayerBuild(loc, player);
 			}
 		}
@@ -43,10 +41,9 @@ public final class WbsRegionUtils {
 
 	public static boolean canDealDamage(Entity attacker, Entity victim) {
 		boolean canDamage = true;
-		PluginManager pm = Bukkit.getPluginManager();
 
 		for (WbsRegionHook hook : hooks) {
-			if (pm.isPluginEnabled(hook.getRequiredPlugin())) {
+			if (hook.enabled()) {
 				canDamage &= hook.canDealDamage(attacker, victim);
 			}
 		}

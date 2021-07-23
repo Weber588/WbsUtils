@@ -5,6 +5,7 @@ import org.bukkit.command.PluginCommand;
 import wbs.utils.util.particles.WbsParticleEffect;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.pluginhooks.PluginHookManager;
+import wbs.utils.util.pluginhooks.VaultWrapper;
 
 public class WbsUtils extends WbsPlugin {
 	
@@ -28,8 +29,15 @@ public class WbsUtils extends WbsPlugin {
 		// TODO: Actually add a config omg
 		setDisplays("&8[&7WbsUtils&8]", ChatColor.GREEN, ChatColor.AQUA, ChatColor.RED);
 
+		configure();
+	}
+
+	public void configure() {
 		PluginHookManager.isConfigured = false;
 		PluginHookManager.configure();
+
+		VaultWrapper.isConfigured = false;
+		VaultWrapper.configure();
 	}
 
     @Override

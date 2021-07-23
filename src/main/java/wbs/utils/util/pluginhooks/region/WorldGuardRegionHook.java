@@ -12,7 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-public class WorldGuardRegionHook implements WbsRegionHook {
+public class WorldGuardRegionHook extends WbsRegionHook {
     @Override
     public boolean canPlayerBuild(Location loc, Player player) {
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);

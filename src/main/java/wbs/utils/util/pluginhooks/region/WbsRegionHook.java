@@ -1,10 +1,11 @@
 package wbs.utils.util.pluginhooks.region;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-public interface WbsRegionHook {
+public abstract class WbsRegionHook {
 
     /**
      * Check if the given player can build at the given
@@ -13,7 +14,7 @@ public interface WbsRegionHook {
      * @param player The player to verify against
      * @return True if the player may build there, false otherwise
      */
-    boolean canPlayerBuild(Location loc, Player player);
+    public abstract boolean canPlayerBuild(Location loc, Player player);
 
     /**
      * Can the attacker damage the victim according to
@@ -22,10 +23,17 @@ public interface WbsRegionHook {
      * @param victim The entity being attacked
      * @return True if the attacker can damage the victim.
      */
-    boolean canDealDamage(Entity attacker, Entity victim);
+    public abstract boolean canDealDamage(Entity attacker, Entity victim);
 
     /**
      * @return The name of the plugin to interact with
      */
-    String getRequiredPlugin();
+    public abstract String getRequiredPlugin();
+
+    /**
+     * @return True if the correct plugin is inst
+     */
+    public boolean enabled() {
+        return Bukkit.getPluginManager().isPluginEnabled(getRequiredPlugin());
+    }
 }

@@ -14,15 +14,15 @@ import wbs.utils.util.pluginhooks.WbsRegionUtils;
 
 public class UtilsCommand extends WbsMessenger implements TabExecutor {
 
+	private final WbsUtils plugin;
 	public UtilsCommand(WbsUtils plugin) {
 		super(plugin);
+		this.plugin = plugin;
 	}
 
 	@Override
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-
-		PluginHookManager.isConfigured = false;
-		PluginHookManager.configure();
+		plugin.configure();
 		sendMessage("Reloaded! See console for details.", sender);
 
 		return true;

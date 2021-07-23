@@ -9,7 +9,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 
-public class TownyRegionHook implements WbsRegionHook {
+public class TownyRegionHook extends WbsRegionHook {
 
     private final Towny towny;
     public TownyRegionHook() {
