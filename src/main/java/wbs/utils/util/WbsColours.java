@@ -1,10 +1,46 @@
 package wbs.utils.util;
 
 import org.bukkit.Color;
+import org.bukkit.DyeColor;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public final class WbsColours {
     private WbsColours() {}
+
+    @NotNull
+    public static DyeColor toDyeColour(Color colour) {
+        DyeColor closest = DyeColor.getByColor(colour);
+        if (closest != null) return closest;
+
+        double[] inputHSV = getHSV(colour);
+
+        double shortestDistance = Double.MAX_VALUE; // distance in HSV space
+        closest = DyeColor.BLACK;
+        for (DyeColor dyeColor : DyeColor.values()) {
+            double[] hsv = getHSV(dyeColor.getColor());
+
+            double distanceSquared = arrayVectorDistance(inputHSV, hsv);
+            if (distanceSquared < shortestDistance) {
+                closest = dyeColor;
+                shortestDistance = distanceSquared;
+            }
+        }
+
+        return closest;
+    }
+
+    private static double arrayVectorDistance(double[] arr1, double[] arr2) {
+        if (arr1.length != arr2.length) throw new IllegalArgumentException("Arrays must be equal length to treat as vectors");
+
+        double distanceSquared = 0;
+        for (int i = 0; i < arr1.length; i++) {
+            double sum = arr1[i] - arr2[i];
+            distanceSquared += sum * sum;
+        }
+
+        return distanceSquared;
+    }
 
     /**
      * Adapted method from @java.awt.Color

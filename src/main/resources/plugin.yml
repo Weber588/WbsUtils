@@ -3,7 +3,14 @@ name: WbsUtils
 version: 0.0.1
 api-version: 1.13
 author: Weber588
-softdepend: [PlaceholderAPI, GriefPrevention, Towny, PlotSquared, WorldGuard, ViaVersion]
+softdepend:
+  - PlaceholderAPI
+  - GriefPrevention
+  - Towny
+  - PlotSquared
+  - WorldGuard
+  - ViaVersion
+  - Vault
 description: A library primarily for other Wbs plugins
 commands:
   utilsreload:

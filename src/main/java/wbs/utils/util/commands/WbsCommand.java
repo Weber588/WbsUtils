@@ -139,11 +139,13 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
             return this;
         }
         subcommandMap.put(subcommand.getLabel(), subcommand);
-        subcommand.setPermission(permission);
+        if (permission != null) {
+            subcommand.setPermission(permission);
+        }
         return this;
     }
 
     public WbsCommand addSubcommand(WbsSubcommand subcommand) {
-        return addSubcommand(subcommand, "");
+        return addSubcommand(subcommand, null);
     }
 }
