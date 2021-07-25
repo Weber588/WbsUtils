@@ -3,10 +3,38 @@ package wbs.utils.util;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public final class WbsColours {
     private WbsColours() {}
+
+    @Nullable
+    public static Color fromHexOrDyeString(String input) {
+        Color colour;
+        if (input.equalsIgnoreCase("")) {
+            return null;
+        } else {
+            int colourInt;
+            try {
+                colourInt = Integer.parseInt(input, 16);
+            } catch (NumberFormatException e) {
+                DyeColor exact = WbsEnums.getEnumFromString(DyeColor.class, input);
+                if (exact != null) {
+                    return exact.getColor();
+                } else {
+                    return null;
+                }
+            }
+            return Color.fromRGB(colourInt);
+        }
+    }
+
+    @NotNull
+    public static Color fromHexOrDyeString(String input, Color defaultColour) {
+        Color colour =  fromHexOrDyeString(input);
+        return colour != null ? colour : defaultColour;
+    }
 
     @NotNull
     public static DyeColor toDyeColour(Color colour) {
