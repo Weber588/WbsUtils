@@ -45,6 +45,23 @@ public final class WbsMath {
 	/*==========*/
 	// Geometry
 	/*==========*/
+
+	/**
+	 * Limit the given vector to have a slope in Y between slope and -slope
+	 * @param vector The vector to limit
+	 * @param slope The maximum slope of the returned vector
+	 * @return A clone of {@param vector} with slope between slope and -slope
+	 */
+	public static Vector limitToSlope(Vector vector, double slope) {
+		Vector flatVector = vector.clone().setY(0);
+		double xzLength = flatVector.length();
+		double currentSlope = vector.getY() / xzLength;
+
+		double actualSlope = Math.max(Math.min(currentSlope, slope), -slope);
+		double slopedY = actualSlope * xzLength;
+
+		return flatVector.setY(slopedY);
+	}
 	
 	/**
 	 * Rotate a list of Vectors based on a vector.
