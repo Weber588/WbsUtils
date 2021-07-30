@@ -62,7 +62,7 @@ public abstract class WbsCommandNode extends WbsSubcommand {
         if (args.length == start - 1 + getArgLength()) {
             return children.values().stream().map(WbsSubcommand::getLabel).collect(Collectors.toList());
         } else {
-            WbsSubcommand child = children.get(args[start - 1 + getArgLength()]);
+            WbsSubcommand child = children.get(args[start - 2 + getArgLength()]);
             if (child == null) {
                 return new LinkedList<>();
             }
