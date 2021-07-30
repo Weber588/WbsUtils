@@ -1,18 +1,21 @@
 package wbs.utils.util.plugin;
 
+import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import wbs.utils.util.string.WbsStrings;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * Contains all configuration settings that aren't universal to WbsPlugin
@@ -20,6 +23,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * Includes methods for logging configuration errors and safely loading configs.
  * @author Weber588
  */
+@SuppressWarnings("unused")
 public abstract class WbsSettings {
 	
 	protected WbsPlugin plugin;
@@ -116,6 +120,7 @@ public abstract class WbsSettings {
 	 * @param path The path of the file within the plugins data folder
 	 * @return The new file, or the file that was present at the path.
 	 */
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	protected File genConfig(String path) {
 		File configFile = new File(plugin.getDataFolder(), path);
         if (!configFile.exists()) { 
@@ -124,5 +129,49 @@ public abstract class WbsSettings {
         }
         
         return configFile;
+	}
+
+	/**
+	 * Runs an operation on a YamlConfiguration as defined in the delegate
+	 * after guaranteeing that the config is non-null and corresponding file
+	 * exists in the given plugins folder. Automatically logs errors, formatted with
+	 * the given dataName.
+	 * @param config Optionally, the configuration to write to & save. Leave as null to
+	 *               automatically load from the given
+	 * @param fileName The file to save to & read from if config is null
+	 * @param dataName The name of the thing being saved. For example, using "Player"
+	 *                 will make the file created message say "Player file created."
+	 * @param delegate The function to run on the YamlConfiguration before saving
+	 * @return The used YamlConfiguration; this is config if non-null.
+	 */
+	@SuppressWarnings("ResultOfMethodCallIgnored")
+	protected YamlConfiguration saveYamlData(@Nullable YamlConfiguration config,
+											 @NotNull String fileName,
+											 @NotNull String dataName,
+											 @NotNull Consumer<YamlConfiguration> delegate) {
+		File file = new File(plugin.getDataFolder(), fileName);
+		if (config == null) {
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				plugin.logger.info(WbsStrings.capitalize(dataName) + " file failed to create.");
+				e.printStackTrace();
+				return null;
+			}
+			plugin.logger.info(WbsStrings.capitalize(dataName) + " file created.");
+			config = loadConfigSafely(file);
+		}
+
+		delegate.accept(config);
+
+		try {
+			config.save(file);
+		} catch (IOException e) {
+			plugin.logger.info(WbsStrings.capitalize(dataName) + " file failed to save.");
+			e.printStackTrace();
+			return config;
+		}
+		plugin.logger.info("Saved " + dataName + "s.");
+		return config;
 	}
 }
