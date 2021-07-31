@@ -20,6 +20,7 @@ import java.util.*;
  * to the first layer of subcommands.
  * Automatically tabs to the labels (not aliases) of any added subcommands.
  */
+@SuppressWarnings("unused")
 public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
 
     private final PluginCommand command;

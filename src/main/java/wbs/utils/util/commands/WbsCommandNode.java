@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public abstract class WbsCommandNode extends WbsSubcommand {
     public WbsCommandNode(WbsPlugin plugin, String label) {
         super(plugin, label);

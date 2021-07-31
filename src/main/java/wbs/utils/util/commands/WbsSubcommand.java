@@ -1,7 +1,5 @@
 package wbs.utils.util.commands;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +10,7 @@ import wbs.utils.util.string.WbsStrings;
 
 import java.util.*;
 
+@SuppressWarnings("unused")
 public abstract class WbsSubcommand extends WbsMessenger {
     @Nullable
     private final WbsSubcommand parent;
@@ -101,6 +100,7 @@ public abstract class WbsSubcommand extends WbsMessenger {
         return parent;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public @NotNull WbsSubcommand setPermission(@NotNull String permission) {
         this.permission = permission;
         return this;
