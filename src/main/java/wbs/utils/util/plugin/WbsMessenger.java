@@ -8,20 +8,24 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Somewhat a utility class, this class
- * provides a few methods to redirect
+ * Provides a few methods to redirect
  * messaging to the plugin messaging system.
  * Also provides some permission checking
  * methods commonly used in classes that
  * deal with player interaction.
- * @author Weber588
  */
+@SuppressWarnings("unused")
 public abstract class WbsMessenger {
 	
-	protected WbsPlugin plugin;
-	public WbsMessenger(WbsPlugin plugin) {
+	protected @NotNull WbsPlugin plugin;
+
+	/**
+	 * @param plugin The WbsPlugin to wrap messaging methods for
+	 */
+	public WbsMessenger(@NotNull WbsPlugin plugin) {
 		this.plugin = plugin;
 	}
 	

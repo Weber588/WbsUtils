@@ -1,15 +1,14 @@
 package wbs.utils.util.string;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.VersionUtil;
 import wbs.utils.util.WbsColours;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @SuppressWarnings("unused")
@@ -69,7 +68,7 @@ public final class WbsStrings {
 		char[] charList = new char[original.length()*2];
 		int i = 0;
 		for (char c : original.toCharArray()) {
-			charList[i] = '§';
+			charList[i] = ChatColor.COLOR_CHAR;
 			charList[i+1] = c;
 			i+=2;
 		}
@@ -142,9 +141,7 @@ public final class WbsStrings {
 		main: for (String path: options) {
 			String[] nodesInPath = path.split("\\.");
 
-			if (nodesInPath.length < currentLength) {
-				continue;
-			} else {
+			if (nodesInPath.length >= currentLength) {
 				for (int i = 0; i < currentLength-1; i++) {
 					if (!currentNodes[i].equals(nodesInPath[i])) {
 						continue main;

@@ -5,15 +5,25 @@ import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
-public class PulseGenerator extends DoubleGenerator{
+/**
+ * A generator that moves between two NumProviders using a sine wave,
+ * over a given period.
+ */
+public class PulseGenerator extends DoubleGenerator {
 
     private NumProvider min;
     private NumProvider max;
-    private NumProvider period;
+    private final NumProvider period;
 
     private double progress;
     private double step;
 
+    /**
+     * Create this generator from a ConfigurationSection, logging errors in the given settings
+     * @param section The section where this generator is defined
+     * @param settings The settings to log errors against
+     * @param directory The path taken through the config to get to this point, for logging purposes
+     */
     public PulseGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
         super(section, settings, directory);
 
@@ -37,7 +47,7 @@ public class PulseGenerator extends DoubleGenerator{
     }
 
     @Override
-    public void refresh() {
+    protected void refreshInternal() {
         min.refresh();
         max.refresh();
         period.refresh();
@@ -49,8 +59,6 @@ public class PulseGenerator extends DoubleGenerator{
         }
 
         step = 1 / period.val();
-
-        super.refresh();
     }
 
     @Override

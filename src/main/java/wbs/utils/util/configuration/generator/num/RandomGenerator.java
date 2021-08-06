@@ -5,6 +5,9 @@ import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A generator that returns a random value between two NumProviders
+ */
 public class RandomGenerator extends DoubleGenerator {
 
     private NumProvider min, max;
@@ -28,11 +31,9 @@ public class RandomGenerator extends DoubleGenerator {
     }
 
     @Override
-    public void refresh() {
+    protected void refreshInternal() {
         min.refresh();
         max.refresh();
-
-        super.refresh();
     }
 
     @Override

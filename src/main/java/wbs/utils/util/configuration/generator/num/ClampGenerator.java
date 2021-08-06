@@ -5,14 +5,23 @@ import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
-// This is technically a functional generator, but args have special meanings for this
+/**
+ * A generator that takes a NumProvider and clamps it between two
+ * other NumProviders
+ */
 public class ClampGenerator extends DoubleGenerator {
     private NumProvider min;
     private NumProvider max;
     private NumProvider value;
 
-    public ClampGenerator() {}
+    private ClampGenerator() {}
 
+    /**
+     * Create this generator from a ConfigurationSection, logging errors in the given settings
+     * @param section The section where this generator is defined
+     * @param settings The settings to log errors against
+     * @param directory The path taken through the config to get to this point, for logging purposes
+     */
     public ClampGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
         super(section, settings, directory);
 
@@ -32,7 +41,7 @@ public class ClampGenerator extends DoubleGenerator {
     }
 
     @Override
-    public void refresh() {
+    protected void refreshInternal() {
         min.refresh();
         max.refresh();
         value.refresh();
@@ -42,8 +51,6 @@ public class ClampGenerator extends DoubleGenerator {
             min = max;
             max = temp;
         }
-
-        super.refresh();
     }
 
     @Override

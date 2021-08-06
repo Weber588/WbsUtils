@@ -53,8 +53,6 @@ public final class WbsEnums {
 	 * @param c Enum class
 	 * @param string The string that represents the value of the enum to return
 	 * @return corresponding enum, or null
-	 * @throws IllegalArgumentException If the class is not an enum, or if the string
-	 * does not match any enum
 	 */
 	public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) {
 		

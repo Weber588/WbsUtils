@@ -38,10 +38,10 @@ public abstract class WbsPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Send a formatted message with "&" colour codes,
-	 * where "&w" becomes the configured error colour,
-	 * "&h" becomes the configured highlight colour, and
-	 * "&r" resets to the configured main colour.
+	 * Send a formatted message with "&amp;" colour codes,
+	 * where "&amp;w" becomes the configured error colour,
+	 * "&amp;h" becomes the configured highlight colour, and
+	 * "&amp;r" resets to the configured main colour.
 	 * @param message The message to send
 	 * @param sender The CommandSender to receive the message
 	 */
@@ -52,9 +52,9 @@ public abstract class WbsPlugin extends JavaPlugin {
 	
 	/**
 	 * Send a formatted message with no prefix and 
-	 * formatted "&" colour codes, where
-	 * "&w" becomes the configured error colour, and
-	 * "&h" becomes the configured highlight colour
+	 * formatted "&amp;" colour codes, where
+	 * "&amp;w" becomes the configured error colour, and
+	 * "&amp;h" becomes the configured highlight colour
 	 * @param message The message to send
 	 * @param sender The CommandSender to receive the message
 	 */

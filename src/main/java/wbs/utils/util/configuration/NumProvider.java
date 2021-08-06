@@ -9,6 +9,9 @@ import wbs.utils.util.plugin.WbsSettings;
 
 import java.util.Set;
 
+/**
+ * Represents a number (typically a double) that may either be static, or change over time
+ */
 public class NumProvider {
 
     private DoubleGenerator generator;
@@ -17,19 +20,46 @@ public class NumProvider {
 
     private NumProvider() {}
 
+    /**
+     * Create this provider with a given, pre-configured DoubleGenerator
+     * @param generator The DoubleGenerator to generate numbers
+     */
     public NumProvider(DoubleGenerator generator) {
         this.generator = generator;
         staticField = false;
     }
 
+    /**
+     * Create this provider with a single static value
+     * @param staticValue The value to return from {@link #val()}
+     */
     public NumProvider(double staticValue) {
         this.staticValue = staticValue;
     }
 
+    /**
+     * Create this provider from a configuration section, and log any errors
+     * against the given settings.
+     * @param section The parent section of the key-pair that contains this provider
+     * @param field The key/field where this provider exists inside the given section
+     * @param settings The WbsSettings to log errors against
+     * @param directory The path taken through the section to reach this provider, for
+     *                  logging purposes
+     */
     public NumProvider(ConfigurationSection section, String field, WbsSettings settings, String directory) {
         this(section, field, settings, directory, 0);
     }
 
+    /**
+     * Create this provider from a configuration section, and log any errors
+     * against the given settings.
+     * @param section The parent section of the key-pair that contains this provider
+     * @param field The key/field where this provider exists inside the given section
+     * @param settings The WbsSettings to log errors against
+     * @param directory The path taken through the section to reach this provider, for
+     *                  logging purposes
+     * @param defaultValue The default double to use in case a double exists but is malformed
+     */
     public NumProvider(ConfigurationSection section, String field, WbsSettings settings, String directory, double defaultValue) {
         if (section.getDouble(field, Double.MIN_VALUE) != Double.MIN_VALUE) {
             staticField = true;
@@ -64,6 +94,10 @@ public class NumProvider {
             generator.refresh();
     }
 
+    /**
+     * Get the current value this object represents
+     * @return The current value
+     */
     public double val() {
         if (staticField) {
             return staticValue;
@@ -72,6 +106,10 @@ public class NumProvider {
         return generator.getValue();
     }
 
+    /**
+     * Get the current value as an integer
+     * @return The current integer value
+     */
     public int intVal() {
         if (staticField) {
             return (int) staticValue;
@@ -80,6 +118,11 @@ public class NumProvider {
         return (int) generator.getValue();
     }
 
+    /**
+     * Save this provider in a config that can be read by the constructor
+     * @param section The section to write to
+     * @param path The field/path inside the given section
+     */
     public void writeToConfig(ConfigurationSection section, String path) {
         if (staticField) {
             section.set(path, staticValue);

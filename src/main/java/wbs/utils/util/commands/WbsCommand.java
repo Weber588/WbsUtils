@@ -27,6 +27,11 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
     private final Map<String, WbsSubcommand> subcommandMap = new HashMap<>();
     private WbsSubcommand defaultCommand;
 
+    /**
+     * @param plugin The WbsPlugin this command should be registered to
+     * @param command The PluginCommand this command represents, as defined in
+     *                the plugin.yml of the given WbsPlugin
+     */
     public WbsCommand(WbsPlugin plugin, PluginCommand command) {
         super(plugin);
         this.command = command;
@@ -35,11 +40,24 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
         command.setExecutor(this);
     }
 
+    /**
+     * A method that gets run when no arguments are provided.
+     * Overrideable, but defaults to a dynamic usage message that lists the
+     * subcommands usable by the sender.
+     * @param sender The sender performing this command
+     * @param label The label they used to get this command
+     * @return Whether or not the command was successful
+     */
     public boolean onCommandNoArgs(@NotNull CommandSender sender, String label) {
         sendMessage("Usage: &h/" + label + " <option>&r. Please choose from the following: &h" + getLabelsString(sender), sender);
         return true;
     }
 
+    /**
+     * Gets a list of all labels for subcommands usable by the given sender
+     * @param sender The sender to filter by
+     * @return The list of labels for subcommands usable by the sender
+     */
     public List<String> getSubcommandLabels(CommandSender sender) {
         List<String> labelList = new LinkedList<>();
         for (WbsSubcommand subcommand : subcommandMap.values()) {
@@ -50,6 +68,11 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
         return labelList;
     }
 
+    /**
+     * Gets a human readable list of all labels for subcommands usable by the given sender
+     * @param sender The command sender to filter by
+     * @return A human readable list of subcommand labels
+     */
     public String getLabelsString(CommandSender sender) {
         StringBuilder builder = new StringBuilder();
 
@@ -129,11 +152,23 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
         return WbsStrings.filterStartsWith(choices, args[length-1]);
     }
 
+    /**
+     * Set the command to run if an invalid argument is passed in as
+     * the first argument
+     * @param defaultCommand The default command
+     * @return The same WbsCommand (for chaining)
+     */
     public WbsCommand setDefaultCommand(WbsSubcommand defaultCommand) {
         this.defaultCommand = defaultCommand;
         return this;
     }
 
+    /**
+     * Add a subcommand under a given permission
+     * @param subcommand The subcommand to add
+     * @param permission The permission to automatically set for the subcommand
+     * @return The same WbsCommand (for chaining)
+     */
     public WbsCommand addSubcommand(WbsSubcommand subcommand, String permission) {
         if (subcommandMap.containsKey(subcommand.getLabel())) {
             WbsUtils.getInstance().logger.warning("Multiple subcommands attempted to register to " + command.getLabel());
@@ -146,6 +181,11 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
         return this;
     }
 
+    /**
+     * Add a subcommand without specifying a permission
+     * @param subcommand The subcommand to add
+     * @return The same WbsCommand (for chaining)
+     */
     public WbsCommand addSubcommand(WbsSubcommand subcommand) {
         return addSubcommand(subcommand, null);
     }

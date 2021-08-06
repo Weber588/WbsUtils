@@ -1,6 +1,10 @@
 package wbs.utils.exceptions;
 
-public class InvalidWorldException extends RuntimeException {
+/**
+ * Thrown when there is an attempt to retrieve a world that does
+ * not exist
+ */
+public class InvalidWorldException extends IllegalArgumentException {
     public InvalidWorldException() {}
 
     public InvalidWorldException(String message) {

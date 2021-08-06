@@ -9,6 +9,9 @@ import wbs.utils.util.WbsMath;
 
 import java.util.Objects;
 
+/**
+ * An ItemRenderer that uses an {@link org.bukkit.entity.ArmorStand}'s head slot
+ */
 public class HeadRenderer extends ItemRenderer {
 
     public HeadRenderer(Location location) {

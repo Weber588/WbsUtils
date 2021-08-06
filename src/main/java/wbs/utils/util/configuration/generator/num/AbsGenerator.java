@@ -4,12 +4,21 @@ import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A simple generator that takes a NumProvider and returns its absolute value
+ */
 public class AbsGenerator extends DoubleGenerator {
 
     private NumProvider value;
 
     private AbsGenerator() {}
 
+    /**
+     * Create this generator from a ConfigurationSection, logging errors in the given settings
+     * @param section The section where this generator is defined
+     * @param settings The settings to log errors against
+     * @param directory The path taken through the config to get to this point, for logging purposes
+     */
     public AbsGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
         super(section, settings, directory);
 
@@ -18,9 +27,8 @@ public class AbsGenerator extends DoubleGenerator {
     }
 
     @Override
-    public void refresh() {
+    protected void refreshInternal() {
         value.refresh();
-        super.refresh();
     }
 
     @Override

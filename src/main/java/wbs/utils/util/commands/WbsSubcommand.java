@@ -10,10 +10,12 @@ import wbs.utils.util.string.WbsStrings;
 
 import java.util.*;
 
+/**
+ * A "leaf" of a WbsCommand. WbsSubcommands are called from WbsCommands or
+ * WbsCommandNodes to run their command.
+ */
 @SuppressWarnings("unused")
 public abstract class WbsSubcommand extends WbsMessenger {
-    @Nullable
-    private final WbsSubcommand parent;
 
     @NotNull
     private final String label;
@@ -21,13 +23,12 @@ public abstract class WbsSubcommand extends WbsMessenger {
     @NotNull
     private String permission = "";
 
-    public WbsSubcommand(WbsPlugin plugin, String label) {
-        this(plugin, null, label);
-    }
-
-    public WbsSubcommand(WbsPlugin plugin, @Nullable WbsSubcommand parent, @NotNull String label) {
+    /**
+     * @param plugin The plugin to use for messaging
+     * @param label The label for this subcommand
+     */
+    public WbsSubcommand(@NotNull WbsPlugin plugin, @NotNull String label) {
         super(plugin);
-        this.parent = parent;
         this.label = label;
     }
 
@@ -63,7 +64,7 @@ public abstract class WbsSubcommand extends WbsMessenger {
      * @param args The arguments provided
      * @return false if the command failed unexpectedly, true otherwise
      */
-    public final boolean onCommandCheckPermission(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    protected final boolean onCommandCheckPermission(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
         if (checkPermission(sender, permission)) {
             return onCommand(sender, label, args);
         }
@@ -75,9 +76,10 @@ public abstract class WbsSubcommand extends WbsMessenger {
      * @param sender The sender that ran the command
      * @param label The alias used to run this command
      * @param args The arguments provided
+     * @param start The index that was reached before running this command
      * @return false if the command failed unexpectedly, true otherwise
      */
-    public final boolean onCommandCheckPermission(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, int start) {
+    protected final boolean onCommandCheckPermission(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, int start) {
         if (checkPermission(sender, permission)) {
             return onCommand(sender, label, args, start);
         }
@@ -92,40 +94,72 @@ public abstract class WbsSubcommand extends WbsMessenger {
         sendMessage("Usage: &h/" + label + " " + WbsStrings.combineFirst(args, count, " ") + " " + usage, sender);
     }
 
-    /**
-     * Get the parent subcommand of this one, or null if this is the root.
-     * @return The parent, or null if this is the root.
-     */
-    public @Nullable WbsSubcommand getParent() {
-        return parent;
-    }
 
+    /**
+     * Sets the permission needed to use this subcommand
+     * @param permission The permission that will be needed to use this subcommand
+     * @return The same WbsSubcommand (for chaining)
+     */
     @SuppressWarnings("UnusedReturnValue")
     public @NotNull WbsSubcommand setPermission(@NotNull String permission) {
         this.permission = permission;
         return this;
     }
+
+    /**
+     * @return The permission required to use this subcommand
+     */
     public @NotNull String getPermission() {
         return permission;
     }
 
+    /**
+     * Add an alternative label to use instead of label.
+     * The added alias does not appear in tabbing.
+     * @param alias A new alias for this subcommand
+     * @return The same WbsSubcommand (for chaining)
+     */
     public WbsSubcommand addAlias(String alias) {
         aliases.add(alias);
         return this;
     }
+
+    /**
+     * Add multiple aliases for this subcommand
+     * @param aliases Any number of Strings that this subcommand can be referenced by
+     * @return The same WbsSubcommand (for chaining)
+     */
     public WbsSubcommand addAliases(String ... aliases) {
         this.aliases.addAll(Arrays.asList(aliases));
         return this;
     }
+
+    /**
+     * Sets the list of aliases for this subcommand to the provided
+     * value, removing all existing ones.
+     * @param aliases The new aliases to be used for this subcommand.
+     * @return The same WbsSubcommand (for chaining)
+     */
     public WbsSubcommand setAliases(Set<String> aliases) {
         this.aliases.clear();
         this.aliases.addAll(aliases);
         return this;
     }
+
+    /**
+     * Returns a copy of the collection of aliases for this subcommand
+     * @return A copy of the collection of aliases
+     */
     public Collection<String> getAliases() {
         return new LinkedList<>(aliases);
     }
 
+    /**
+     * Check if the given String is an alias of this subcommand
+     * @param check The String to check
+     * @return True if the given String can be used to reference this subcommand,
+     * via an alias or the label
+     */
     public boolean isAliased(String check) {
         if (check.equalsIgnoreCase(label)) return true;
 
@@ -136,17 +170,18 @@ public abstract class WbsSubcommand extends WbsMessenger {
         return false;
     }
 
-
-
+    /**
+     * @return The label of this subcommand
+     */
     public @NotNull String getLabel() {
         return label;
     }
 
-    public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    protected List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
         return getTabCompletions(sender, label, args, 2);
     }
 
-    public List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, int start) {
+    protected List<String> getTabCompletions(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, int start) {
         return new LinkedList<>();
     }
 }

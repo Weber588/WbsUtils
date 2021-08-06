@@ -5,6 +5,11 @@ import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A generator that moves between two NumProviders in one direction
+ * over a given period, where it takes period calls to {@link #refresh()} to
+ * go form start to end
+ */
 public class CycleGenerator extends DoubleGenerator{
 
     private NumProvider start;
@@ -16,6 +21,12 @@ public class CycleGenerator extends DoubleGenerator{
 
     protected CycleGenerator() {}
 
+    /**
+     * Create this generator from a ConfigurationSection, logging errors in the given settings
+     * @param section The section where this generator is defined
+     * @param settings The settings to log errors against
+     * @param directory The path taken through the config to get to this point, for logging purposes
+     */
     public CycleGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
         super(section, settings, directory);
 
@@ -33,14 +44,12 @@ public class CycleGenerator extends DoubleGenerator{
     }
 
     @Override
-    public void refresh() {
+    protected void refreshInternal() {
         start.refresh();
         end.refresh();
         period.refresh();
 
         step = 1.0 / period.val();
-
-        super.refresh();
     }
 
     @Override

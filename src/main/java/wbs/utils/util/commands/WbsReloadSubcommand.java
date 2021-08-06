@@ -15,6 +15,10 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 public abstract class WbsReloadSubcommand extends WbsSubcommand {
+
+    /**
+     * @param plugin The plugin to be used for messaging
+     */
     public WbsReloadSubcommand(WbsPlugin plugin) {
         super(plugin, "reload");
     }
@@ -30,7 +34,7 @@ public abstract class WbsReloadSubcommand extends WbsSubcommand {
             sendMessage("&aReload successful!", sender);
             return true;
         } else {
-            sendMessage("&wThere were " + errors.size() + " config errors. Do &h/magic errors&w to see them.", sender);
+            sendMessage("&wThere were " + errors.size() + " config errors. Do &h/" + label + " errors&w to see them.", sender);
         }
 
         return true;

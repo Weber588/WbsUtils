@@ -10,18 +10,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * An implementation of WbsSubcommand that simply passes the command to
+ * a given subcommand, including tabbing, or provides default usage messages
+ * when no args or incorrect args are given.
+ */
 @SuppressWarnings("unused")
 public abstract class WbsCommandNode extends WbsSubcommand {
+    /**
+     * @param plugin The WbsPlugin
+     * @param label The label for this node
+     */
     public WbsCommandNode(WbsPlugin plugin, String label) {
         super(plugin, label);
     }
 
-    public Map<String, WbsSubcommand> children = new HashMap<>();
+    private final Map<String, WbsSubcommand> children = new HashMap<>();
 
+    /**
+     * Adds a child subcommand
+     * @param subcommand The child subcommand to pass to if the label is given
+     */
     public void addChild(WbsSubcommand subcommand) {
         children.put(subcommand.getLabel(), subcommand);
     }
 
+    /**
+     * Adds a child permission and automatically sets the permission for that
+     * subcommand
+     * @param subcommand The child subcommand to pass to if the label is given
+     * @param permission The permission to apply to the child subcommand
+     */
     public void addChild(WbsSubcommand subcommand, String permission) {
         children.put(subcommand.getLabel(), subcommand);
         subcommand.setPermission(permission);

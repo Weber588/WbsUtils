@@ -9,15 +9,25 @@ import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.configuration.generator.num.PulseGenerator;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A generator that, over a defined period, returns a vector that rotates around the
+ * origin with a radius defined by a NumProvider, where the axis about which it rotates
+ * is defined by a VectorProvider
+ */
 public class VectorGeneratorRotate extends VectorGenerator {
 
-    private VectorProvider about;
-    private NumProvider period;
-    private NumProvider radius;
-    private Vector value;
+    private final VectorProvider about;
+    private final NumProvider period;
+    private final NumProvider radius;
     private double progress;
     private double step;
 
+    /**
+     * Create this generator from a ConfigurationSection, logging errors in the given settings
+     * @param section The section where this generator is defined
+     * @param settings The settings to log errors against
+     * @param directory The path taken through the config to get to this point, for logging purposes
+     */
     public VectorGeneratorRotate(ConfigurationSection section, WbsSettings settings, String directory) {
         super(section, settings, directory);
 
@@ -43,13 +53,11 @@ public class VectorGeneratorRotate extends VectorGenerator {
     }
 
     @Override
-    public void refresh() {
+    public void refreshInternal() {
         about.refresh();
         period.refresh();
 
         step = 1 / period.val();
-
-        super.refresh();
     }
 
     @Override
@@ -63,7 +71,7 @@ public class VectorGeneratorRotate extends VectorGenerator {
         double y = 0;
         double z = Math.sin((progress) * 2 * Math.PI) * radius.val();
 
-        value = new Vector(x, y, z);
+        Vector value = new Vector(x, y, z);
 
         return WbsMath.rotateFrom(value, new Vector(0, 1, 0), about.val());
     }

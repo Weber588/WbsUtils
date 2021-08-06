@@ -1,12 +1,10 @@
 package wbs.utils.util.effects;
 
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-
-import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class RenderedItem {
