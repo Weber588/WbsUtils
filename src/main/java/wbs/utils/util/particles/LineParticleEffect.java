@@ -8,11 +8,15 @@ import org.bukkit.World;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.configuration.VectorProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A particle effect that spawns points on a line between two points
+ */
 public class LineParticleEffect extends WbsParticleEffect {
 
 	public LineParticleEffect() {
@@ -27,7 +31,7 @@ public class LineParticleEffect extends WbsParticleEffect {
 	private VectorProvider end;
 	private boolean scaleAmount = false;
 
-	public LineParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
+	protected LineParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
 		super(section, settings, directory);
 		if (section.get("radius") != null) {
 			radius = new NumProvider(section, "radius", settings, directory + "/radius", 0);
@@ -42,8 +46,9 @@ public class LineParticleEffect extends WbsParticleEffect {
 
 		random = section.get("end") == null;
 
-		if (section.get("end") != null) {
-			end = new VectorProvider(section.getConfigurationSection("end"), settings, directory + "/end", upVector);
+		ConfigurationSection endSection = section.getConfigurationSection("end");
+		if (endSection != null) {
+			end = new VectorProvider(endSection, settings, directory + "/end", upVector);
 		} else {
 			end = new VectorProvider(upVector);
 		}
@@ -91,7 +96,7 @@ public class LineParticleEffect extends WbsParticleEffect {
 	/**
 	 * Run the effect pattern at the given location with the given particle.
 	 * As Line needs a second location, this method generates a random second location
-	 * within a radius of 1 of loc.
+	 * within a radius of 1 of loc. Or, if
 	 * @param particle The particle type to use
 	 * @param loc The location at which to run the effect.
 	 */
@@ -176,22 +181,101 @@ public class LineParticleEffect extends WbsParticleEffect {
 	/*===============================*/
 	/*        GETTERS/SETTERS        */
 	/*===============================*/
-	
+
+	/**
+	 * @return The thickness of the line
+	 */
 	public double getRadius() {
 		return radius.val();
 	}
+
+	/**
+	 * @param radius The thickness of the line
+	 * @return The same particle effect
+	 */
 	public LineParticleEffect setRadius(double radius) {
 		this.radius = new NumProvider(radius);
 		return this;
 	}
 
+	/**
+	 * @return The speed spawned particles will go in a random direction
+	 */
 	public double getSpeed() {
 		return speed.val();
 	}
+
+	/**
+	 * @param speed The speed spawned particles will go in a random direction
+	 * @return The same particle effect
+	 */
 	public LineParticleEffect setSpeed(double speed) {
 		this.speed = new NumProvider(speed);
 		return this;
 	}
+
+	/**
+	 * @return Whether or not to use the amount value
+	 * as points-block-block
+	 */
+	public boolean getScaleAmount() {
+		return scaleAmount;
+	}
+
+	/**
+	 * @param scaleAmount Whether or not to use the amount value
+	 *                    as points-block-block
+	 * @return The same particle effect
+	 */
+	public LineParticleEffect setScaleAmount(boolean scaleAmount) {
+		this.scaleAmount = scaleAmount;
+		return this;
+	}
+
+	/**
+	 * @return Whether or not the other end of the line should be
+	 * random when {@link #play(Particle, Location)} is called without a second
+	 * location. When false, the end point must have been set with {@link #setEnd(Vector)}
+	 */
+	public boolean getRandom() {
+		return random;
+	}
+
+	/**
+	 * @param random Whether or not the other end of the line should be
+	 *               random when {@link #play(Particle, Location)} is called without a second
+	 *               location. When false, the end point must have been set with {@link #setEnd(Vector)}
+	 * @return The same particle effect
+	 */
+	public LineParticleEffect setRandom(boolean random) {
+		this.random = random;
+		return this;
+	}
+
+	/**
+	 * @return The end point to use when {@link #setRandom(boolean)} has been set to false
+	 */
+	public Vector getEnd() {
+		return end.val();
+	}
+
+	/**
+	 * @param end The end point to use when {@link #setRandom(boolean)} has been set to false
+	 * @return The same particle effect
+	 */
+	public LineParticleEffect setEnd(Vector end) {
+		this.end = new VectorProvider(end);
+		return this;
+	}
+	/**
+	 * @param end The end point to use when {@link #setRandom(boolean)} has been set to false
+	 * @return The same particle effect
+	 */
+	public LineParticleEffect setEnd(VectorProvider end) {
+		this.end = end;
+		return this;
+	}
+
 	/*=============================*/
 	/*        Serialization        */
 	/*=============================*/
@@ -203,9 +287,5 @@ public class LineParticleEffect extends WbsParticleEffect {
 		radius.writeToConfig(section, path + ".radius");
 		end.writeToConfig(section, path + ".end");
 		section.set("random", random);
-	}
-
-	public void setScaleAmount(boolean scaleAmount) {
-		this.scaleAmount = scaleAmount;
 	}
 }

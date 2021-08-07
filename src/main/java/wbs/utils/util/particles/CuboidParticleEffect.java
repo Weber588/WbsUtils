@@ -14,6 +14,9 @@ import wbs.utils.util.configuration.VectorProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A particle effect that draws the outline of a cuboid region
+ */
 public class CuboidParticleEffect extends VelocityParticleEffect {
 
 	public CuboidParticleEffect() {
@@ -30,7 +33,7 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 	// When true, amount = particles per block. When false, amount = particles per edge
 	private boolean scaleAmount = false;
 
-    public CuboidParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
+    protected CuboidParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
     	super(section, settings, directory);
 
 		WbsConfigReader.requireNotNull(section, "xSize", settings, directory );
@@ -180,29 +183,50 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 		return selectionCenter;
 	}
 
+	/**
+	 * Set whether or not to use the "amount" field as points-per-block
+	 * @param scaleAmount True to make amount be points-per-block
+	 * @return The same particle effect
+	 */
 	public CuboidParticleEffect setScaleAmount(boolean scaleAmount) {
 		this.scaleAmount = scaleAmount;
 		return this;
 	}
 
-	public CuboidParticleEffect setSpeed(double speed) {
-		this.speed = new NumProvider(speed);
-		return this;
-	}
-
+	/**
+	 * Set the size of the region in the X axis
+	 * @param x The new size in the X axis
+	 * @return The same particle effect
+	 */
 	public CuboidParticleEffect setX(double x) {
 		this.x = new NumProvider(x);
 		return this;
 	}
+	/**
+	 * Set the size of the region in the Y axis
+	 * @param y The new size in the Y axis
+	 * @return The same particle effect
+	 */
 	public CuboidParticleEffect setY(double y) {
 		this.y = new NumProvider(y);
 		return this;
 	}
+	/**
+	 * Set the size of the region in the Z axis
+	 * @param z The new size in the Z axis
+	 * @return The same particle effect
+	 */
 	public CuboidParticleEffect setZ(double z) {
 		this.z = new NumProvider(z);
 		return this;
 	}
 
+	/**
+	 * Set the size of the region in the all 3 axes,
+	 * making the region a cube
+	 * @param size The new size in the all axes
+	 * @return The same particle effect
+	 */
 	public CuboidParticleEffect setXYZ(double size) {
     	setX(size);
     	setY(size);
@@ -210,6 +234,12 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
     	return this;
 	}
 
+	/**
+	 * Set the size of the region in each axis defined by the
+	 * X, Y, and Z components of a given vector
+	 * @param xyz The vector representing the size of the region
+	 * @return The same particle effect
+	 */
 	public CuboidParticleEffect setXYZ(Vector xyz) {
     	setX(xyz.getX());
     	setY(xyz.getY());
@@ -217,10 +247,19 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
     	return this;
 	}
 
+	/**
+	 * @param rotation The rotation in degrees
+	 * @return The same particle effect
+	 */
 	public CuboidParticleEffect setRotation(double rotation) {
 		this.rotation = new NumProvider(rotation);
 		return this;
 	}
+
+	/**
+	 * @param about The vector about which to rotate
+	 * @return The same particle effect
+	 */
 	public CuboidParticleEffect setAbout(Vector about) {
 		this.about = new VectorProvider(about);
 		return this;

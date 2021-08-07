@@ -4,14 +4,21 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+/**
+ * An abstract particle effect to be overridden anonymously
+ */
 public abstract class CustomParticleEffect extends WbsParticleEffect {
 
-	public CustomParticleEffect() {
-		
-	}
-	
+	public CustomParticleEffect() {}
+
+	/**
+	 * Set the points to be used in {@link #play(Particle, Location)}
+	 * @param points The new list of points to play at
+	 * @return The same particle effect
+	 */
 	public CustomParticleEffect setPoints(List<Vector> points) {
 		this.points.clear();
 		this.points.addAll(points);

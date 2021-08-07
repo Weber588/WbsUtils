@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * An ItemRenderer that uses an {@link org.bukkit.entity.ArmorStand}'s head slot
  */
-public class HeadRenderer extends ItemRenderer {
+class HeadRenderer extends ItemRenderer {
 
     public HeadRenderer(Location location) {
         super(location);
@@ -22,7 +22,7 @@ public class HeadRenderer extends ItemRenderer {
     }
 
     @Override
-    public void calculateActual() {
+    protected void calculateActual() {
         actualLocation = renderLocation.clone().subtract(offset);
 
         double y = facing.getY();

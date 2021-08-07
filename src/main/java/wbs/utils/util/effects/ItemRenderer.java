@@ -8,6 +8,9 @@ import org.bukkit.util.Vector;
 
 import java.util.Objects;
 
+/**
+ * Represents a specific implementation of an item to render in the world.
+ */
 abstract class ItemRenderer {
     protected double limbLength;
     protected Vector offset;

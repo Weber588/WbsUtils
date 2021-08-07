@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * An ItemRenderer that uses an {@link org.bukkit.entity.ArmorStand}'s hand
  */
-public class HandRenderer extends ItemRenderer {
+class HandRenderer extends ItemRenderer {
 
     public HandRenderer(Location location) {
         super(location);
@@ -22,7 +22,7 @@ public class HandRenderer extends ItemRenderer {
     }
 
     @Override
-    public void calculateActual() {
+    protected void calculateActual() {
 
         double x = facing.getX();
         double y = facing.getY();

@@ -4,6 +4,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A particle effect that appears in a disc
+ */
 public class DiscParticleEffect extends CircleParticleEffect {
 
 	public DiscParticleEffect() {
@@ -12,7 +15,7 @@ public class DiscParticleEffect extends CircleParticleEffect {
 	
 	private boolean random = false;
 
-	public DiscParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
+	protected DiscParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
 		super(section, settings, directory);
 		if (section.get("random") != null) {
 			random = section.getBoolean("random");
@@ -48,10 +51,20 @@ public class DiscParticleEffect extends CircleParticleEffect {
 	/*===============================*/
 	/*        GETTERS/SETTERS        */
 	/*===============================*/
-	
+
+	/**
+	 * @return Whether or not to randomly distribute
+	 * points on the disc
+	 */
 	public boolean getRandom() {
 		return random;
 	}
+
+	/**
+	 * @param random Whether or not to randomly distribute
+	 *               points on the disc
+	 * @return The same particle effect
+	 */
 	public DiscParticleEffect setRandom(boolean random) {
 		this.random = random;
 		return this;

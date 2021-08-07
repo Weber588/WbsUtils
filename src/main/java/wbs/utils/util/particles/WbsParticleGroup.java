@@ -11,19 +11,31 @@ import wbs.utils.util.WbsMath;
 /**
  * Class to support multiple WbsParticleEffects with predefined particles
  * running at the same time and location.
- * @author Weber588
  */
 public class WbsParticleGroup {
 
-	private Map<WbsParticleEffect, Particle> effects = new HashMap<>();
-	private Map<WbsParticleEffect, Double> chances = new HashMap<>();
+	private final Map<WbsParticleEffect, Particle> effects = new HashMap<>();
+	private final Map<WbsParticleEffect, Double> chances = new HashMap<>();
 
+	/**
+	 * Add an effect to play with a given chance
+	 * @param effect The effect to play
+	 * @param particle The particle to use when playing the given effect
+	 * @param chance The chance for the
+	 * @return The same particle group
+	 */
 	public WbsParticleGroup addEffect(WbsParticleEffect effect, Particle particle, double chance) {
 		effects.put(effect, particle);
 		chances.put(effect, chance);
 		return this;
 	}
-	
+
+	/**
+	 * Add an effect to play 100% of the time
+	 * @param effect The effect to play
+	 * @param particle The particle to use when playing the given effect
+	 * @return The same particle group
+	 */
 	public WbsParticleGroup addEffect(WbsParticleEffect effect, Particle particle) {
 		return addEffect(effect, particle, 100);
 	}
@@ -31,7 +43,6 @@ public class WbsParticleGroup {
 	/**
 	 * Play all effects at a given location.
 	 * @param location The location to play the effects at.
-	 * if the effect is a line.
 	 */
 	public void play(Location location) {
 		play(location, location);

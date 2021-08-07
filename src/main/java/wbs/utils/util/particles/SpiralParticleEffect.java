@@ -13,6 +13,10 @@ import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.configuration.VectorProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A particle effect that draws a ring but specifically controls
+ * speed to move outwards to draw a spiral
+ */
 public class SpiralParticleEffect extends CircleParticleEffect {
 
 	public SpiralParticleEffect() {
@@ -102,16 +106,23 @@ public class SpiralParticleEffect extends CircleParticleEffect {
 	/*===============================*/
 	/*        GETTERS/SETTERS        */
 	/*===============================*/
-	
+
+	/**
+	 * @return Whether or not to draw clockwise
+	 */
+	public boolean getClockwise() {
+		return clockwise;
+	}
+
+	/**
+	 * @param clockwise Whether or not to draw clockwise
+	 * @return The same particle effect
+	 */
 	public SpiralParticleEffect setClockwise(boolean clockwise) {
 		this.clockwise = clockwise;
 		
 		return this;
 	}
-
-	/*=============================*/
-	/*        Serialization        */
-	/*=============================*/
 
 	/*=============================*/
 	/*        Serialization        */

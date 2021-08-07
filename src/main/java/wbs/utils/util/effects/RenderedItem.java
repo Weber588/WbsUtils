@@ -6,12 +6,25 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 
+/**
+ * Represents an item that gets rendered in the world with a given
+ * type, to allow for smooth transitions between different {@link ItemRenderer}s.
+ */
 @SuppressWarnings("unused")
 public class RenderedItem {
 
+    /**
+     * Represents a specific implementation of {@link ItemRenderer}
+     */
     public enum RenderType {
         HEAD, HAND, SMALL_HEAD, SMALL_HAND;
 
+        /**
+         * Gets a new ItemRenderer based on the enum value,
+         * created at the given location
+         * @param loc The location to render the item
+         * @return A new ItemRenderer
+         */
         public ItemRenderer getRenderer(Location loc) {
             switch (this) {
                 case HEAD:
@@ -29,64 +42,97 @@ public class RenderedItem {
     }
 
     private final ArmorStand stand;
-    private ItemRenderer type;
+    private ItemRenderer renderer;
+    private RenderType renderType;
 
+    /**
+     * Create a new rendered item in the world, defaulting to
+     * using a {@link HeadRenderer}
+     * @param location The location to render the item
+     */
     public RenderedItem(Location location) {
-        type = new HeadRenderer(location);
+        renderer = new HeadRenderer(location);
+        renderType = RenderType.HEAD;
 
-        type.calculateActual();
+        renderer.calculateActual();
 
-        stand = (ArmorStand) type.getWorld().spawnEntity(type.getActualLocation(), EntityType.ARMOR_STAND);
+        stand = (ArmorStand) renderer.getWorld().spawnEntity(renderer.getActualLocation(), EntityType.ARMOR_STAND);
         stand.setInvisible(true);
         stand.setMarker(true);
         stand.setInvulnerable(true);
         stand.setGravity(false);
         stand.setArms(true);
 
-        type.setStand(stand);
-        type.reposition();
+        renderer.setStand(stand);
+        renderer.reposition();
     }
 
-    public void setType(RenderType renderType) {
-        Location renderLocation = type.renderLocation;
-        Vector facing = type.facing;
-        Material material = type.getMaterial();
+    /**
+     * Change which renderer to use by using a RenderType
+     * @param renderType The type of renderer to change to
+     */
+    public void setRenderType(RenderType renderType) {
+        if (this.renderType == renderType) return;
+        this.renderType = renderType;
 
-        type.setMaterial(Material.AIR);
+        Location renderLocation = renderer.renderLocation;
+        Vector facing = renderer.facing;
+        Material material = renderer.getMaterial();
 
-        type = renderType.getRenderer(type.renderLocation);
+        renderer.setMaterial(Material.AIR);
 
-        type.setStand(stand);
+        renderer = renderType.getRenderer(renderer.renderLocation);
 
-        type.setLocation(renderLocation);
-        type.setFacing(facing);
-        type.setMaterial(material);
+        renderer.setStand(stand);
 
-        type.reposition();
+        renderer.setLocation(renderLocation);
+        renderer.setFacing(facing);
+        renderer.setMaterial(material);
+
+        renderer.reposition();
     }
 
-    public void setMaterial(Material mat) {
-        type.setMaterial(mat);
+    /**
+     * Set the type of item to render
+     * @param material The item type to render
+     */
+    public void setMaterial(Material material) {
+        renderer.setMaterial(material);
     }
 
 
+    /**
+     * Change this items location (direction ignored;
+     * use {@link #setFacing(Vector)}
+     * @param location The new position of this item
+     */
     public void setLocation(Location location) {
-        type.setLocation(location);
+        renderer.setLocation(location);
     }
 
+    /**
+     * Change the direction the item is facing
+     * @param facing The new facing direction
+     */
     public void setFacing(Vector facing) {
-        type.setFacing(facing);
+        renderer.setFacing(facing);
     }
 
+    /**
+     * Remove this item
+     */
     public void remove() {
         stand.remove();
     }
 
     private void calculateActual() {
-        type.calculateActual();
+        renderer.calculateActual();
     }
 
+    /**
+     * Recalculate the position and facing of the item.
+     */
     public void reposition() {
-        type.reposition();
+        renderer.reposition();
     }
 }

@@ -8,6 +8,9 @@ import wbs.utils.util.plugin.WbsSettings;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * A particle effect that creates a Fibonacci sphere
+ */
 public class SphereParticleEffect extends CircleParticleEffect {
 
     public SphereParticleEffect() {

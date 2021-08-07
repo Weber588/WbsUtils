@@ -16,10 +16,8 @@ import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
 /**
- * Some particle effects don't allow particles
- * to be given speed; this is for the ones that do.
- * @author Weber588
- *
+ * A superclass for particle effects that can have speed set in specific
+ * directions
  */
 public abstract class VelocityParticleEffect extends WbsParticleEffect {
 

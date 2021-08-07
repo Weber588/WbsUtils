@@ -7,6 +7,9 @@ import wbs.utils.util.configuration.VectorProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A particle effect that appears in a circle in some way
+ */
 public abstract class CircleParticleEffect extends VelocityParticleEffect {
 
 	public CircleParticleEffect() {
@@ -20,7 +23,7 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 	protected NumProvider radius;
 	protected NumProvider rotation;
 
-	public CircleParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
+	protected CircleParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
 		super(section, settings, directory);
 		WbsConfigReader.requireNotNull(section, "radius", settings, directory);
 		radius = new NumProvider(section, "radius", settings, directory + "/radius", 1);
@@ -36,8 +39,6 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 		} else {
 			about = new VectorProvider(upVector);
 		}
-
-
 	}
 
 	@Override
@@ -75,25 +76,44 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 		this.radius = radius;
 		return this;
 	}
-	
+
+	/**
+	 * @return The vector about which rotation occurs
+	 */
 	public Vector getAbout() {
 		return about.val();
 	}
+
+	/**
+	 * Sets the vector about which rotation occurs
+	 * @param about The about vector
+	 * @return The same particle effect
+	 */
 	public CircleParticleEffect setAbout(Vector about) {
 		this.about = new VectorProvider(about);
 		return this;
 	}
-	
+
+	/**
+	 * @return The rotation in degrees
+	 */
 	public double getRotation() {
 		return rotation.val();
 	}
 	/**
 	 * @param rotation The rotation in degrees
+	 * @return The same particle effect
 	 */
 	public CircleParticleEffect setRotation(double rotation) {
 		this.rotation = new NumProvider(rotation);
 		return this;
 	}
+
+	/**
+	 * Set the rotation as a provider directly
+	 * @param rotation The new rotation NumProvider
+	 * @return The same particle effect
+	 */
 	public CircleParticleEffect setRotation(NumProvider rotation) {
 		this.rotation = rotation;
 		return this;

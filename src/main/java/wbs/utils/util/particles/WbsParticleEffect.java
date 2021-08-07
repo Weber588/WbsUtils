@@ -17,6 +17,9 @@ import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * Represents a particle effect in a specific pattern
+ */
 public abstract class WbsParticleEffect {
 	protected static Vector upVector = new Vector(0, 1, 0);
 
@@ -131,7 +134,16 @@ public abstract class WbsParticleEffect {
 	 * @param loc The location at which to run the effect.
 	 */
 	public abstract WbsParticleEffect play(Particle particle, Location loc);
-	
+
+	/**
+	 * Run the effect pattern at the given location with the given particle.
+	 * For shapes needing two locations (such as Line), a random second location
+	 * will be chosen a random number of blocks away from the given
+	 * location.
+	 * @param particle The particle type to use
+	 * @param loc The location at which to run the effect.
+	 * @param player The only play who will see it
+	 */
 	public abstract WbsParticleEffect play(Particle particle, Location loc, Player player);
 
 	/*===========================*/
@@ -192,7 +204,13 @@ public abstract class WbsParticleEffect {
 	/*===============================*/
 	/*        GETTERS/SETTERS        */
 	/*===============================*/
-	
+
+	/**
+	 * Gets the amount defined in setAmount(). Note that,
+	 * while in many shapes this will be the amount of particles spawn,
+	 * it's not always the case.
+	 * @return The amount
+	 */
 	public int getAmount() {
 		return (int) amount.val();
 	}
@@ -220,11 +238,21 @@ public abstract class WbsParticleEffect {
 		return this;
 	}
 
+	/**
+	 * Set whether particles spawned should be forced to render
+	 * for players at any distance
+	 * @param force Whether or not to force rendering
+	 * @return The same particle effect
+	 */
 	public WbsParticleEffect setForce(boolean force) {
 		this.force = force;
 		return this;
 	}
 
+	/**
+	 * @return Whether or not to force rendering for players
+	 * at any distance
+	 */
 	public boolean getForce() {
 		return force;
 	}
@@ -233,9 +261,16 @@ public abstract class WbsParticleEffect {
 	/*        Serialization        */
 	/*=============================*/
 
+	/**
+	 * Save this effect in a config that can be read by
+	 * {@link #buildParticleEffect(ConfigurationSection, WbsSettings, String)}
+	 * @param section The section to write to
+	 * @param path The field/path inside the given section
+	 */
 	public void writeToConfig(ConfigurationSection section, String path) {
 		amount.writeToConfig(section, path + ".amount");
 		section.set(path + ".force", force);
+		section.set(path + ".chance", chance);
 	}
 
 }

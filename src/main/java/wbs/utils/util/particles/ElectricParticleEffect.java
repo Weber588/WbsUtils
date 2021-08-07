@@ -14,6 +14,10 @@ import wbs.utils.util.WbsMath;
 import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A particle effect that spawns many small lines in a
+ * random pattern around a location, similar to sparks
+ */
 public class ElectricParticleEffect extends WbsParticleEffect {
 
 	public ElectricParticleEffect() {
@@ -162,34 +166,66 @@ public class ElectricParticleEffect extends WbsParticleEffect {
 	/*===============================*/
 	/*        GETTERS/SETTERS        */
 	/*===============================*/
-	
+
+	/**
+	 * @return The radius within which arcs can appear
+	 */
 	public double getRadius() {
 		return radius.val();
 	}
+
+	/**
+	 * @param radius The radius within which arcs can appear
+	 * @return The same particle effect
+	 */
 	public ElectricParticleEffect setRadius(double radius) {
 		this.radius = new NumProvider(radius);
 		return this;
 	}
 
+	/**
+	 * @return The speed of spawned particles in a random direction
+	 */
 	public double getSpeed() {
 		return speed.val();
 	}
+
+	/**
+	 * @param speed The speed of spawned particles in a random direction
+	 * @return The same particle effect
+	 */
 	public ElectricParticleEffect setSpeed(double speed) {
 		this.speed = new NumProvider(speed);
 		return this;
 	}
-	
+
+	/**
+	 * @return How long the spawned arcs should be
+	 */
 	public double getArcLength() {
 		return arcLength.val();
 	}
+
+	/**
+	 * @param arcLength How long the spawned arcs should be
+	 * @return The same particle effect
+	 */
 	public ElectricParticleEffect setArcLength(double arcLength) {
 		this.arcLength = new NumProvider(arcLength);
 		return this;
 	}
-	
+
+	/**
+	 * @return How many ticks to play the effect for
+	 */
 	public int getTicks() {
 		return ticks.intVal();
 	}
+
+	/**
+	 * @param ticks How many ticks to play the effect for
+	 * @return The same particle effect
+	 */
 	public ElectricParticleEffect setTicks(int ticks) {
 		this.ticks = new NumProvider(ticks);
 		return this;

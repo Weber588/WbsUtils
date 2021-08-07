@@ -4,6 +4,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsSettings;
 
+/**
+ * A particle effect that appears in a ring of points
+ */
 public class RingParticleEffect extends CircleParticleEffect {
 
 	public RingParticleEffect() {
