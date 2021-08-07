@@ -5,6 +5,9 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.Bukkit;
 import wbs.utils.WbsUtils;
 
+/**
+ * Represents a central point to check if supported plugins are installed
+ */
 @SuppressWarnings("unused")
 public final class PluginHookManager {
     private PluginHookManager() {}
@@ -53,6 +56,10 @@ public final class PluginHookManager {
         return vaultInstalled;
     }
 
+    /**
+     * If not already configured, check all supported plugins to see if they're
+     * online. Prints in console which supported plugins were found
+     */
     public static void configure() {
         if (isConfigured) {
             return;

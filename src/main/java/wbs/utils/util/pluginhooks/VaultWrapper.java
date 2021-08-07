@@ -7,6 +7,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import wbs.utils.WbsUtils;
 
+/**
+ * A simple wrapper for common Vault methods, to avoid
+ * needing to set up Economy in every plugin
+ */
 @SuppressWarnings("unused")
 public final class VaultWrapper {
     private VaultWrapper() {}

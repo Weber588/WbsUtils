@@ -6,6 +6,10 @@ import org.bukkit.plugin.PluginManager;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 
+/**
+ * Simple wrapper for PlaceholderAPI that allows plugins to safely
+ * fill out placeholders without checking if that plugin is enabled
+ */
 @SuppressWarnings("unused")
 public final class PlaceholderAPIWrapper {
 	private PlaceholderAPIWrapper() {}

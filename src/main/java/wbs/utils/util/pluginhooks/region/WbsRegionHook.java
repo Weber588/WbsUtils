@@ -5,6 +5,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+/**
+ * Represents a set of commonly used checks for other plugins.
+ * Implementing classes represent a single plugin, and implement methods for
+ * performing these standard checks on that plugin.
+ */
 public abstract class WbsRegionHook {
 
     /**
@@ -31,7 +36,7 @@ public abstract class WbsRegionHook {
     public abstract String getRequiredPlugin();
 
     /**
-     * @return True if the correct plugin is inst
+     * @return True if the correct plugin is enabled
      */
     public boolean enabled() {
         return Bukkit.getPluginManager().isPluginEnabled(getRequiredPlugin());
