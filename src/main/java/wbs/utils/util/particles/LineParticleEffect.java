@@ -96,9 +96,11 @@ public class LineParticleEffect extends WbsParticleEffect {
 	/**
 	 * Run the effect pattern at the given location with the given particle.
 	 * As Line needs a second location, this method generates a random second location
-	 * within a radius of 1 of loc. Or, if
+	 * within a radius of 1 of loc. Or, if the end position is set and random is false,
+	 * the end location will be used.
 	 * @param particle The particle type to use
 	 * @param loc The location at which to run the effect.
+	 * @return The same particle effect
 	 */
 	@Override
 	public LineParticleEffect play(Particle particle, Location loc) {
@@ -111,6 +113,16 @@ public class LineParticleEffect extends WbsParticleEffect {
 	}
 
 
+	/**
+	 * Run the effect pattern at the given location with the given particle.
+	 * As Line needs a second location, this method generates a random second location
+	 * within a radius of 1 of loc. Or, if the end position is set and random is false,
+	 * the end location will be used.
+	 * @param particle The particle type to use
+	 * @param loc The location at which to run the effect.
+	 * @param player The player to see the particles
+	 * @return The same particle effect
+	 */
 	@Override
 	public LineParticleEffect play(Particle particle, Location loc, Player player) {
 		if (random) {
@@ -121,6 +133,14 @@ public class LineParticleEffect extends WbsParticleEffect {
 		return this;
 	}
 
+	/**
+	 * Draws a line with particles between start and finish
+	 * @param particle The particle type to use
+	 * @param start The location at which to run the effect.
+	 * @param finish The end of the line.
+	 * @param player The player to see the particles
+	 * @return The same particle effect
+	 */
 	public LineParticleEffect play(Particle particle, Location start, Location finish, Player player) {
 		points.clear();
 
@@ -146,6 +166,13 @@ public class LineParticleEffect extends WbsParticleEffect {
 		return this;
 	}
 
+	/**
+	 * Draws a line with particles between start and finish
+	 * @param particle The particle type to use
+	 * @param start The location at which to run the effect.
+	 * @param finish The end of the line.
+	 * @return The same particle effect
+	 */
 	public LineParticleEffect play(Particle particle, Location start, Location finish) {
 		World world = start.getWorld();
 
