@@ -49,6 +49,10 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
      * @return Whether or not the command was successful
      */
     public boolean onCommandNoArgs(@NotNull CommandSender sender, String label) {
+        if (getSubcommandLabels(sender).isEmpty()) {
+            sendMessage("You don't have permission to use any subcommands.", sender);
+            return true;
+        }
         sendMessage("Usage: &h/" + label + " <option>&r. Please choose from the following: &h" + getLabelsString(sender), sender);
         return true;
     }

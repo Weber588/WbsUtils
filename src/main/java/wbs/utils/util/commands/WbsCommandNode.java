@@ -70,6 +70,11 @@ public abstract class WbsCommandNode extends WbsSubcommand {
                     + "&r. Please choose from the following: &h" + getLabelsString(sender), sender);
 
         } else {
+            if (getSubcommandLabels(sender).isEmpty()) {
+                sendMessage("You don't have permission to use any subcommands.", sender);
+                return true;
+            }
+
             // TODO: Make this support multi-arg nodes
             sendUsage("<arg>.&r Please choose from one of the following: &h" + getLabelsString(sender), sender, label, args);
         }
@@ -88,6 +93,21 @@ public abstract class WbsCommandNode extends WbsSubcommand {
             }
             return child.getTabCompletions(sender, label, args, start + getArgLength());
         }
+    }
+
+    /**
+     * Gets a list of all labels for subcommands usable by the given sender
+     * @param sender The sender to filter by
+     * @return The list of labels for subcommands usable by the sender
+     */
+    public List<String> getSubcommandLabels(CommandSender sender) {
+        List<String> labelList = new LinkedList<>();
+        for (WbsSubcommand subcommand : children.values()) {
+            if (sender.hasPermission(subcommand.getPermission())) {
+                labelList.add(subcommand.getLabel());
+            }
+        }
+        return labelList;
     }
 
     private String getLabelsString(CommandSender sender) {
