@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +28,7 @@ public final class WbsStringify {
 				location.getBlockZ();
 
 		if (includeWorld) {
-			asString += ", " + location.getWorld().getName();
+			asString += ", " + Objects.requireNonNull(location.getWorld()).getName();
 		}
 		return asString;
 	}
