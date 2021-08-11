@@ -22,7 +22,7 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 public class WbsMenu implements Listener {
 
-    private final WbsPlugin plugin;
+    protected final WbsPlugin plugin;
     private final int rows;
 
     private final String titleString;
@@ -35,7 +35,7 @@ public class WbsMenu implements Listener {
      * @param plugin The plugin to register this menu to
      * @param title The title of the menu to show to players
      * @param rows How many rows to create, between 1 and 6 inclusive
-     * @param id A unique identifier (per plugin) for identifying inventory clicks
+     * @param id A unique identifier for identifying inventory clicks
      */
     public WbsMenu(WbsPlugin plugin, String title, int rows, String id) {
         if (rows < 1) throw new IllegalArgumentException("Rows must be greater than 1");
