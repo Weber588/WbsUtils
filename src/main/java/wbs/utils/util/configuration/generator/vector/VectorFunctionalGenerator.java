@@ -9,6 +9,7 @@ import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +20,8 @@ import java.util.Set;
 public abstract class VectorFunctionalGenerator extends VectorGenerator {
 
     protected final List<VectorProvider> args = new ArrayList<>();
+
+    public VectorFunctionalGenerator() {}
 
     /**
      * Create this type of generator from a given config

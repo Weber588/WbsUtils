@@ -6,6 +6,7 @@ import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,18 @@ import java.util.Set;
 public abstract class FunctionalGenerator extends DoubleGenerator {
 
     protected final List<NumProvider> args = new ArrayList<>();
+
+    public FunctionalGenerator(NumProvider ... args) {
+        this.args.addAll(Arrays.asList(args));
+    }
+
+    public FunctionalGenerator(List<Double> args) {
+        args.forEach(arg -> this.args.add(new NumProvider(arg)));
+    }
+
+    public FunctionalGenerator(double ... args) {
+        Arrays.stream(args).forEach(arg -> this.args.add(new NumProvider(arg)));
+    }
 
     /**
      * Create this type of generator from a given config

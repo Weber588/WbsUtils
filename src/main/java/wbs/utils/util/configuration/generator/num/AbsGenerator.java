@@ -9,9 +9,15 @@ import wbs.utils.util.plugin.WbsSettings;
  */
 public class AbsGenerator extends DoubleGenerator {
 
-    private NumProvider value;
+    private final NumProvider value;
 
-    private AbsGenerator() {}
+    public AbsGenerator(double value) {
+        this.value = new NumProvider(value);
+    }
+
+    public AbsGenerator(NumProvider value) {
+        this.value = value;
+    }
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings

@@ -18,6 +18,26 @@ public class PulseGenerator extends DoubleGenerator {
     private double progress;
     private double step;
 
+    public PulseGenerator(double min, double max, double period, double initialProgress) {
+        this.min = new NumProvider(min);
+        this.max = new NumProvider(max);
+        this.period = new NumProvider(period);
+
+        progress = Math.abs(initialProgress);
+        step = 1.0 / this.period.val();
+        enforceMinMax();
+    }
+
+    public PulseGenerator(NumProvider min, NumProvider max, NumProvider period, double initialProgress) {
+        this.min = min;
+        this.max = max;
+        this.period = period;
+
+        progress = Math.abs(initialProgress);
+        step = 1.0 / this.period.val();
+        enforceMinMax();
+    }
+
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings
      * @param section The section where this generator is defined
@@ -37,13 +57,17 @@ public class PulseGenerator extends DoubleGenerator {
 
         progress = Math.abs(section.getDouble("initialProgress", 0));
 
+        enforceMinMax();
+
+        step = 1 / period.val();
+    }
+
+    private void enforceMinMax() {
         if (min.val() > max.val()) {
             NumProvider temp = min;
             min = max;
             max = temp;
         }
-
-        step = 1 / period.val();
     }
 
     @Override

@@ -12,7 +12,12 @@ public class RandomGenerator extends DoubleGenerator {
 
     private NumProvider min, max;
 
-    protected RandomGenerator() {}
+    public RandomGenerator(double min, double max) {
+        this.min = new NumProvider(min);
+        this.max = new NumProvider(max);
+
+        enforceMinMax();
+    }
 
     public RandomGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
         super(section, settings, directory);
@@ -23,6 +28,10 @@ public class RandomGenerator extends DoubleGenerator {
         min = new NumProvider(section, "min", settings, directory);
         max = new NumProvider(section, "max", settings, directory);
 
+        enforceMinMax();
+    }
+
+    private void enforceMinMax() {
         if (min.val() > max.val()) {
             NumProvider temp = min;
             min = max;

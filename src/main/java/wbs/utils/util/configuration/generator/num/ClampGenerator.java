@@ -12,9 +12,21 @@ import wbs.utils.util.plugin.WbsSettings;
 public class ClampGenerator extends DoubleGenerator {
     private NumProvider min;
     private NumProvider max;
-    private NumProvider value;
+    private final NumProvider value;
 
-    private ClampGenerator() {}
+    public ClampGenerator(double min, double max, double value) {
+        this.min = new NumProvider(min);
+        this.max = new NumProvider(max);
+        this.value = new NumProvider(value);
+        enforceMinMax();
+    }
+
+    public ClampGenerator(NumProvider min, NumProvider max, NumProvider value) {
+        this.min = min;
+        this.max = max;
+        this.value = value;
+        enforceMinMax();
+    }
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings
@@ -32,7 +44,10 @@ public class ClampGenerator extends DoubleGenerator {
         min = new NumProvider(section, "min", settings, directory + "/min");
         max = new NumProvider(section, "max", settings, directory + "/max");
         value = new NumProvider(section, "value", settings, directory + "/value");
+        enforceMinMax();
+    }
 
+    private void enforceMinMax() {
         if (min.val() > max.val()) {
             NumProvider temp = min;
             min = max;

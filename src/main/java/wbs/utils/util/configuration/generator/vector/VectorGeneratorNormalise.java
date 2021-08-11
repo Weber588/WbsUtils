@@ -7,12 +7,18 @@ import wbs.utils.util.configuration.VectorProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
+import java.util.Arrays;
+
 /**
  * A generator that accepts a VectorProvider and normalizes it
  */
 public class VectorGeneratorNormalise extends VectorGenerator {
 
     private final VectorProvider value;
+
+    public VectorGeneratorNormalise(VectorProvider value) {
+        this.value = value;
+    }
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings

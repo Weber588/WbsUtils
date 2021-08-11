@@ -14,12 +14,30 @@ public class PingPongGenerator extends DoubleGenerator{
 
     private NumProvider min;
     private NumProvider max;
-    private NumProvider period;
+    private final NumProvider period;
 
     private double step;
     private double progress;
 
-    protected PingPongGenerator() {}
+    public PingPongGenerator(double min, double max, double period, double initialProgress) {
+        this.min = new NumProvider(min);
+        this.max = new NumProvider(max);
+        this.period = new NumProvider(period);
+
+        progress = Math.abs(initialProgress);
+        step = 1.0 / this.period.val();
+        enforceMinMax();
+    }
+
+    public PingPongGenerator(NumProvider min, NumProvider max, NumProvider period, double initialProgress) {
+        this.min = min;
+        this.max = max;
+        this.period = period;
+
+        progress = Math.abs(initialProgress);
+        step = 1.0 / this.period.val();
+        enforceMinMax();
+    }
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings
@@ -40,13 +58,17 @@ public class PingPongGenerator extends DoubleGenerator{
 
         progress = Math.abs(section.getDouble("initialProgress", 0));
 
+        enforceMinMax();
+
+        step = 2 / period.val(); // 2 because 0-1 = min to max, 1-2 = max back to min
+    }
+
+    private void enforceMinMax() {
         if (min.val() > max.val()) {
             NumProvider temp = min;
             min = max;
             max = temp;
         }
-
-        step = 2 / period.val(); // 2 because 0-1 = min to max, 1-2 = max back to min
     }
 
     @Override

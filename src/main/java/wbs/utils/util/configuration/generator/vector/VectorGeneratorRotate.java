@@ -22,6 +22,24 @@ public class VectorGeneratorRotate extends VectorGenerator {
     private double progress;
     private double step;
 
+    public VectorGeneratorRotate(VectorProvider about, NumProvider period, NumProvider radius, double initialProgress) {
+        this.about = about;
+        this.period = period;
+        this.radius = radius;
+
+        progress = Math.abs(initialProgress);
+        step = 1.0 / period.val();
+    }
+
+    public VectorGeneratorRotate(Vector about, double period, double radius, double initialProgress) {
+        this.about = new VectorProvider(about);
+        this.period = new NumProvider(period);
+        this.radius = new NumProvider(radius);
+
+        progress = Math.abs(initialProgress);
+        step = 1.0 / this.period.val();
+    }
+
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings
      * @param section The section where this generator is defined

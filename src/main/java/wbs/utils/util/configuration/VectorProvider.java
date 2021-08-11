@@ -32,6 +32,15 @@ public class VectorProvider {
     }
 
     /**
+     * Create this provider with a given, pre-configured VectorGenerator
+     * @param generator The VectorGenerator to generate numbers
+     */
+    public VectorProvider(VectorGenerator generator) {
+        this.generator = generator;
+        staticField = false;
+    }
+
+    /**
      * Create this provider from a configuration section, and log any errors
      * against the given settings.
      * @param section The section containing the x, y, z values. These may be NumProviders.

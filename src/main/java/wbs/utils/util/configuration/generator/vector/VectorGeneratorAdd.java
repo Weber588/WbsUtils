@@ -6,11 +6,26 @@ import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.configuration.VectorProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * A functional generator that accepts any number of arguments and returns their
  * sum
  */
 public class VectorGeneratorAdd extends VectorFunctionalGenerator {
+
+    public VectorGeneratorAdd(VectorProvider ... args) {
+        this.args.addAll(Arrays.asList(args));
+    }
+
+    public VectorGeneratorAdd(List<Vector> args) {
+        args.forEach(arg -> this.args.add(new VectorProvider(arg)));
+    }
+
+    public VectorGeneratorAdd(Vector ... args) {
+        Arrays.stream(args).forEach(arg -> this.args.add(new VectorProvider(arg)));
+    }
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings

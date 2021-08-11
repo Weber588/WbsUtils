@@ -22,7 +22,7 @@ public abstract class VectorGenerator {
         CROSS, ROTATE
     }
 
-    private VectorGenerator() {}
+    protected VectorGenerator() {}
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings

@@ -18,8 +18,6 @@ public class NumProvider {
     private boolean staticField = true;
     private double staticValue = Double.MIN_VALUE;
 
-    private NumProvider() {}
-
     /**
      * Create this provider with a given, pre-configured DoubleGenerator
      * @param generator The DoubleGenerator to generate numbers

@@ -12,14 +12,30 @@ import wbs.utils.util.plugin.WbsSettings;
  */
 public class CycleGenerator extends DoubleGenerator{
 
-    private NumProvider start;
-    private NumProvider end;
-    private NumProvider period;
+    private final NumProvider start;
+    private final NumProvider end;
+    private final NumProvider period;
 
     private double progress;
     private double step;
 
-    protected CycleGenerator() {}
+    public CycleGenerator(double start, double end, double period, double initialProgress) {
+        this.start = new NumProvider(start);
+        this.end = new NumProvider(end);
+        this.period = new NumProvider(period);
+
+        progress = Math.abs(initialProgress);
+        step = 1.0 / this.period.val();
+    }
+
+    public CycleGenerator(NumProvider start, NumProvider end, NumProvider period, double initialProgress) {
+        this.start = start;
+        this.end = end;
+        this.period = period;
+
+        progress = Math.abs(initialProgress);
+        step = 1.0 / period.val();
+    }
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings
