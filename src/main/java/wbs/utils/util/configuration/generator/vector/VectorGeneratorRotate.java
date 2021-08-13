@@ -22,6 +22,15 @@ public class VectorGeneratorRotate extends VectorGenerator {
     private double progress;
     private double step;
 
+    public VectorGeneratorRotate(VectorGeneratorRotate clone) {
+        about = new VectorProvider(clone.about);
+        period = new NumProvider(clone.period);
+        radius = new NumProvider(clone.radius);
+
+        progress = clone.progress;
+        step = clone.step;
+    }
+
     public VectorGeneratorRotate(VectorProvider about, NumProvider period, NumProvider radius, double initialProgress) {
         this.about = about;
         this.period = period;
@@ -99,5 +108,10 @@ public class VectorGeneratorRotate extends VectorGenerator {
         period.writeToConfig(section, path);
         about.writeToConfig(section, path);
         radius.writeToConfig(section, path);
+    }
+
+    @Override
+    public VectorGeneratorRotate clone() {
+        return new VectorGeneratorRotate(this);
     }
 }

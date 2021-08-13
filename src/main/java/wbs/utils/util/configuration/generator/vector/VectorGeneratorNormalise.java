@@ -16,8 +16,16 @@ public class VectorGeneratorNormalise extends VectorGenerator {
 
     private final VectorProvider value;
 
+    public VectorGeneratorNormalise(VectorGeneratorNormalise clone) {
+        value = new VectorProvider(clone.value);
+    }
+
     public VectorGeneratorNormalise(VectorProvider value) {
         this.value = value;
+    }
+
+    public VectorGeneratorNormalise(Vector value) {
+        this.value = new VectorProvider(value);
     }
 
     /**
@@ -43,5 +51,10 @@ public class VectorGeneratorNormalise extends VectorGenerator {
     @Override
     public void writeToConfig(ConfigurationSection section, String path) {
         value.writeToConfig(section, path);
+    }
+
+    @Override
+    public VectorGeneratorNormalise clone() {
+        return new VectorGeneratorNormalise(this);
     }
 }
