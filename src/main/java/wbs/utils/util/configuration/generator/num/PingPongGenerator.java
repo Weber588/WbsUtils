@@ -19,6 +19,15 @@ public class PingPongGenerator extends DoubleGenerator{
     private double step;
     private double progress;
 
+    public PingPongGenerator(PingPongGenerator clone) {
+        min = new NumProvider(clone.min);
+        max = new NumProvider(clone.max);
+        period = new NumProvider(clone.period);
+
+        progress = clone.progress;
+        step = clone.step;
+    }
+
     public PingPongGenerator(double min, double max, double period, double initialProgress) {
         this.min = new NumProvider(min);
         this.max = new NumProvider(max);
@@ -105,4 +114,8 @@ public class PingPongGenerator extends DoubleGenerator{
         period.writeToConfig(section, path + ".period");
     }
 
+    @Override
+    public PingPongGenerator clone() {
+        return new PingPongGenerator(this);
+    }
 }

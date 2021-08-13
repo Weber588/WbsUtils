@@ -14,6 +14,12 @@ public class ClampGenerator extends DoubleGenerator {
     private NumProvider max;
     private final NumProvider value;
 
+    public ClampGenerator(ClampGenerator clone) {
+        min = new NumProvider(clone.min);
+        max = new NumProvider(clone.max);
+        value = new NumProvider(clone.value);
+    }
+
     public ClampGenerator(double min, double max, double value) {
         this.min = new NumProvider(min);
         this.max = new NumProvider(max);
@@ -78,5 +84,10 @@ public class ClampGenerator extends DoubleGenerator {
         min.writeToConfig(section, path + ".min");
         max.writeToConfig(section, path + ".max");
         value.writeToConfig(section, path + ".period");
+    }
+
+    @Override
+    public ClampGenerator clone() {
+        return new ClampGenerator(this);
     }
 }

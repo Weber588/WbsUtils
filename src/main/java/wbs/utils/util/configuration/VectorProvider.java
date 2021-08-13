@@ -21,6 +21,17 @@ public class VectorProvider {
     private VectorGenerator generator;
     private boolean staticField = true;
 
+    public VectorProvider(VectorProvider clone) {
+        if (clone.staticField) {
+            x = new NumProvider(clone.x);
+            y = new NumProvider(clone.y);
+            z = new NumProvider(clone.z);
+        } else {
+            staticField = false;
+            generator = clone.generator.clone();
+        }
+    }
+
     /**
      * Create a static vector provider with the given vector
      * @param vector The static vector to return

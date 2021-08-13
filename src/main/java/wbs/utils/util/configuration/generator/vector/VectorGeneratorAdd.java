@@ -15,16 +15,20 @@ import java.util.List;
  */
 public class VectorGeneratorAdd extends VectorFunctionalGenerator {
 
+    public VectorGeneratorAdd(VectorGeneratorAdd clone) {
+        super(clone);
+    }
+
     public VectorGeneratorAdd(VectorProvider ... args) {
-        this.args.addAll(Arrays.asList(args));
+        super(args);
     }
 
     public VectorGeneratorAdd(List<Vector> args) {
-        args.forEach(arg -> this.args.add(new VectorProvider(arg)));
+        super(args);
     }
 
     public VectorGeneratorAdd(Vector ... args) {
-        Arrays.stream(args).forEach(arg -> this.args.add(new VectorProvider(arg)));
+        super(args);
     }
 
     /**
@@ -44,5 +48,10 @@ public class VectorGeneratorAdd extends VectorFunctionalGenerator {
             total.add(arg.val());
         }
         return total;
+    }
+
+    @Override
+    public VectorGeneratorAdd clone() {
+        return new VectorGeneratorAdd(this);
     }
 }

@@ -4,11 +4,29 @@ import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
+import java.util.List;
+
 /**
  * A functional generator that takes more than two NumProviders
  * and returns the maximum value
  */
 public class MaxGenerator extends FunctionalGenerator {
+
+    public MaxGenerator(NumProvider... args) {
+        super(args);
+    }
+
+    public MaxGenerator(List<Double> args) {
+        super(args);
+    }
+
+    public MaxGenerator(double ... args) {
+        super(args);
+    }
+
+    public MaxGenerator(MaxGenerator clone) {
+        super(clone);
+    }
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings
@@ -27,5 +45,10 @@ public class MaxGenerator extends FunctionalGenerator {
             max = Math.max(max, arg.val());
         }
         return max;
+    }
+
+    @Override
+    public MaxGenerator clone() {
+        return new MaxGenerator(this);
     }
 }

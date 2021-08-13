@@ -116,4 +116,5 @@ public abstract class DoubleGenerator {
         return value;
     }
 
+    public abstract DoubleGenerator clone();
 }

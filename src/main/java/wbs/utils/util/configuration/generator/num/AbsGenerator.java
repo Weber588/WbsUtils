@@ -47,5 +47,8 @@ public class AbsGenerator extends DoubleGenerator {
         value.writeToConfig(section, path);
     }
 
-
+    @Override
+    public AbsGenerator clone() {
+        return new AbsGenerator(new NumProvider(value));
+    }
 }

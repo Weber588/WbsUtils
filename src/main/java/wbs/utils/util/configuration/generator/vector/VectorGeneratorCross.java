@@ -12,16 +12,16 @@ import java.util.List;
  * A functional generator that accepts exactly two VectorProviders and
  * returns their cross product
  */
-public class VectorGeneratorCross extends VectorFunctionalGenerator{
+public class VectorGeneratorCross extends VectorBinaryFunctionalGenerator{
 
-    public VectorGeneratorCross(VectorProvider arg1, VectorProvider arg2) {
-        args.add(arg1);
-        args.add(arg2);
+    public VectorGeneratorCross(VectorGeneratorCross clone) {
+        super(clone);
     }
-
-    public VectorGeneratorCross(Vector arg1, Vector arg2) {
-        args.add(new VectorProvider(arg1));
-        args.add(new VectorProvider(arg2));
+    public VectorGeneratorCross(VectorProvider a, VectorProvider b) {
+        super(a, b);
+    }
+    public VectorGeneratorCross(Vector a, Vector b) {
+        super(a, b);
     }
 
     /**
@@ -31,11 +31,16 @@ public class VectorGeneratorCross extends VectorFunctionalGenerator{
      * @param directory The path taken through the config to get to this point, for logging purposes
      */
     public VectorGeneratorCross(ConfigurationSection section, WbsSettings settings, String directory) {
-        super(section, settings, directory, 2, 2);
+        super(section, settings, directory);
     }
 
     @Override
     protected Vector getNewValue() {
-        return args.get(0).val().crossProduct(args.get(1).val());
+        return a.val().crossProduct(b.val());
+    }
+
+    @Override
+    public VectorGeneratorCross clone() {
+        return new VectorGeneratorCross(this);
     }
 }

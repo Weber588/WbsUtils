@@ -12,6 +12,11 @@ public class RandomGenerator extends DoubleGenerator {
 
     private NumProvider min, max;
 
+    public RandomGenerator(RandomGenerator clone) {
+        min = new NumProvider(clone.min);
+        max = new NumProvider(clone.max);
+    }
+
     public RandomGenerator(double min, double max) {
         this.min = new NumProvider(min);
         this.max = new NumProvider(max);
@@ -56,4 +61,8 @@ public class RandomGenerator extends DoubleGenerator {
         max.writeToConfig(section, path + ".max");
     }
 
+    @Override
+    public RandomGenerator clone() {
+        return new RandomGenerator(this);
+    }
 }

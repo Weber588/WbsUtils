@@ -18,6 +18,15 @@ public class PulseGenerator extends DoubleGenerator {
     private double progress;
     private double step;
 
+    public PulseGenerator(PulseGenerator clone) {
+        min = new NumProvider(clone.min);
+        max = new NumProvider(clone.max);
+        period = new NumProvider(clone.period);
+
+        progress = clone.progress;
+        step = clone.step;
+    }
+
     public PulseGenerator(double min, double max, double period, double initialProgress) {
         this.min = new NumProvider(min);
         this.max = new NumProvider(max);
@@ -99,5 +108,10 @@ public class PulseGenerator extends DoubleGenerator {
         min.writeToConfig(section, path + ".min");
         max.writeToConfig(section, path + ".max");
         period.writeToConfig(section, path + ".period");
+    }
+
+    @Override
+    public PulseGenerator clone() {
+        return new PulseGenerator(this);
     }
 }

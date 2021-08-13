@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A type of VectorGenerator that takes some number of VectorProviders and
@@ -19,9 +20,27 @@ import java.util.Set;
  */
 public abstract class VectorFunctionalGenerator extends VectorGenerator {
 
-    protected final List<VectorProvider> args = new ArrayList<>();
+    protected List<VectorProvider> args = new ArrayList<>();
 
     public VectorFunctionalGenerator() {}
+
+    public VectorFunctionalGenerator(VectorFunctionalGenerator clone) {
+        args = clone.args.stream()
+                .map(VectorProvider::new)
+                .collect(Collectors.toList());
+    }
+
+    public VectorFunctionalGenerator(VectorProvider ... args) {
+        this.args.addAll(Arrays.asList(args));
+    }
+
+    public VectorFunctionalGenerator(List<Vector> args) {
+        args.forEach(arg -> this.args.add(new VectorProvider(arg)));
+    }
+
+    public VectorFunctionalGenerator(Vector ... args) {
+        Arrays.stream(args).forEach(arg -> this.args.add(new VectorProvider(arg)));
+    }
 
     /**
      * Create this type of generator from a given config

@@ -1,12 +1,15 @@
 package wbs.utils.util.configuration;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.configuration.generator.num.DoubleGenerator;
 import wbs.utils.util.plugin.WbsSettings;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -14,15 +17,26 @@ import java.util.Set;
  */
 public class NumProvider {
 
+    @Nullable
     private DoubleGenerator generator;
     private boolean staticField = true;
     private double staticValue = Double.MIN_VALUE;
+
+    public NumProvider(NumProvider clone) {
+        if (clone.staticField) {
+            staticValue = clone.staticValue;
+        } else {
+            generator = Objects.requireNonNull(clone.generator).clone();
+            staticField = false;
+        }
+    }
 
     /**
      * Create this provider with a given, pre-configured DoubleGenerator
      * @param generator The DoubleGenerator to generate numbers
      */
-    public NumProvider(DoubleGenerator generator) {
+    public NumProvider(@NotNull DoubleGenerator generator) {
+        Objects.requireNonNull(generator);
         this.generator = generator;
         staticField = false;
     }
@@ -88,8 +102,10 @@ public class NumProvider {
      * Generate a new value
      */
     public void refresh() {
-        if (!staticField)
+        if (!staticField) {
+            assert generator != null;
             generator.refresh();
+        }
     }
 
     /**
@@ -101,6 +117,7 @@ public class NumProvider {
             return staticValue;
         }
 
+        assert generator != null;
         return generator.getValue();
     }
 
@@ -113,6 +130,7 @@ public class NumProvider {
             return (int) staticValue;
         }
 
+        assert generator != null;
         return (int) generator.getValue();
     }
 
@@ -125,6 +143,7 @@ public class NumProvider {
         if (staticField) {
             section.set(path, staticValue);
         } else {
+            assert generator != null;
             generator.writeToConfig(section, path);
         }
     }

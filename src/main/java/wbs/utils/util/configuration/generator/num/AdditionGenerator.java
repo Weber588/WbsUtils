@@ -4,11 +4,29 @@ import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.util.configuration.NumProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
+import java.util.List;
+
 /**
  * A functional generator that takes any number of NumProviders and
  * returns the sum
  */
 public class AdditionGenerator extends FunctionalGenerator {
+
+    public AdditionGenerator(NumProvider ... args) {
+        super(args);
+    }
+
+    public AdditionGenerator(List<Double> args) {
+        super(args);
+    }
+
+    public AdditionGenerator(double ... args) {
+        super(args);
+    }
+
+    public AdditionGenerator(AdditionGenerator clone) {
+        super(clone);
+    }
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings
@@ -27,5 +45,10 @@ public class AdditionGenerator extends FunctionalGenerator {
             total += arg.val();
         }
         return total;
+    }
+
+    @Override
+    public AdditionGenerator clone() {
+        return new AdditionGenerator(this);
     }
 }

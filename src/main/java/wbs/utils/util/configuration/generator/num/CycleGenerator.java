@@ -19,6 +19,15 @@ public class CycleGenerator extends DoubleGenerator{
     private double progress;
     private double step;
 
+    public CycleGenerator(CycleGenerator clone) {
+        start = new NumProvider(clone.start);
+        end = new NumProvider(clone.end);
+        period = new NumProvider(clone.period);
+
+        progress = clone.progress;
+        step = clone.step;
+    }
+
     public CycleGenerator(double start, double end, double period, double initialProgress) {
         this.start = new NumProvider(start);
         this.end = new NumProvider(end);
@@ -81,5 +90,10 @@ public class CycleGenerator extends DoubleGenerator{
         start.writeToConfig(section, path + ".start");
         end.writeToConfig(section, path + ".end");
         period.writeToConfig(section, path + ".period");
+    }
+
+    @Override
+    public CycleGenerator clone() {
+        return new CycleGenerator(this);
     }
 }

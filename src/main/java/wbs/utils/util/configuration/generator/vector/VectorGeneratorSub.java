@@ -12,17 +12,18 @@ import java.util.List;
  * A functional generator that accepts exactly two VectorProviders and
  * returns the value of the first minus the value of the second
  */
-public class VectorGeneratorSub extends VectorFunctionalGenerator {
+public class VectorGeneratorSub extends VectorBinaryFunctionalGenerator {
 
-    public VectorGeneratorSub(VectorProvider arg1, VectorProvider arg2) {
-        args.add(arg1);
-        args.add(arg2);
+    public VectorGeneratorSub(VectorGeneratorSub clone) {
+        super(clone);
+    }
+    public VectorGeneratorSub(VectorProvider a, VectorProvider b) {
+        super(a, b);
+    }
+    public VectorGeneratorSub(Vector a, Vector b) {
+        super(a, b);
     }
 
-    public VectorGeneratorSub(Vector arg1, Vector arg2) {
-        args.add(new VectorProvider(arg1));
-        args.add(new VectorProvider(arg2));
-    }
 
     /**
      * Create this generator from a ConfigurationSection, logging errors in the given settings
@@ -31,11 +32,16 @@ public class VectorGeneratorSub extends VectorFunctionalGenerator {
      * @param directory The path taken through the config to get to this point, for logging purposes
      */
     public VectorGeneratorSub(ConfigurationSection section, WbsSettings settings, String directory) {
-        super(section, settings, directory, 2, 2);
+        super(section, settings, directory);
     }
 
     @Override
     protected Vector getNewValue() {
-        return args.get(0).val().subtract(args.get(1).val());
+        return a.val().subtract(b.val());
+    }
+
+    @Override
+    public VectorGeneratorSub clone() {
+        return new VectorGeneratorSub(this);
     }
 }

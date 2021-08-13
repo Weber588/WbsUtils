@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A type of DoubleGenerator that takes some number of NumProviders and
@@ -16,7 +17,13 @@ import java.util.Set;
  */
 public abstract class FunctionalGenerator extends DoubleGenerator {
 
-    protected final List<NumProvider> args = new ArrayList<>();
+    protected List<NumProvider> args = new ArrayList<>();
+
+    public FunctionalGenerator(FunctionalGenerator clone) {
+        args = clone.args.stream()
+                .map(NumProvider::new)
+                .collect(Collectors.toList());
+    }
 
     public FunctionalGenerator(NumProvider ... args) {
         this.args.addAll(Arrays.asList(args));

@@ -4,7 +4,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.WbsEnums;
-import wbs.utils.util.configuration.generator.num.*;
 import wbs.utils.util.plugin.WbsSettings;
 
 /**
@@ -17,7 +16,6 @@ public abstract class VectorGenerator {
      * Represents the subclasses of this generator.
      */
     public enum VectorGeneratorType {
-
         ADD, SUB, MUL, NORMALISE,
         CROSS, ROTATE
     }
@@ -96,5 +94,6 @@ public abstract class VectorGenerator {
         return value.clone();
     }
 
-
+    @Override
+    public abstract VectorGenerator clone();
 }
