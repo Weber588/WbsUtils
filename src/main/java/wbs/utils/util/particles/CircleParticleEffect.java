@@ -8,7 +8,7 @@ import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 
 /**
- * A particle effect that appears in a circle in some way
+ * A particle effect that has a radius, rotation, and axis of rotation
  */
 public abstract class CircleParticleEffect extends VelocityParticleEffect {
 
@@ -34,8 +34,9 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 			rotation = new NumProvider(0);
 		}
 
-		if (section.get("about") != null) {
-			about = new VectorProvider(section.getConfigurationSection("about"), settings, directory + "/about", upVector);
+		ConfigurationSection aboutSection = section.getConfigurationSection("about");
+		if (aboutSection != null) {
+			about = new VectorProvider(aboutSection, settings, directory + "/about", upVector);
 		} else {
 			about = new VectorProvider(upVector);
 		}
@@ -68,12 +69,15 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 	public double getRadius() {
 		return radius.val();
 	}
+	public NumProvider getRadiusProvider() {
+		return radius;
+	}
 	public CircleParticleEffect setRadius(double radius) {
 		this.radius = new NumProvider(radius);
 		return this;
 	}
 	public CircleParticleEffect setRadius(NumProvider radius) {
-		this.radius = radius;
+		this.radius = new NumProvider(radius);
 		return this;
 	}
 
@@ -82,6 +86,9 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 	 */
 	public Vector getAbout() {
 		return about.val();
+	}
+	public VectorProvider getAboutProvider() {
+		return about;
 	}
 
 	/**
@@ -95,10 +102,23 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 	}
 
 	/**
+	 * Sets the about vector provider directly
+	 * @param about The about vector provider
+	 * @return The same particle effect
+	 */
+	public CircleParticleEffect setAbout(VectorProvider about) {
+		this.about = new VectorProvider(about);
+		return this;
+	}
+
+	/**
 	 * @return The rotation in degrees
 	 */
 	public double getRotation() {
 		return rotation.val();
+	}
+	public NumProvider getRotationProvider() {
+		return rotation;
 	}
 	/**
 	 * @param rotation The rotation in degrees
@@ -115,7 +135,7 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 	 * @return The same particle effect
 	 */
 	public CircleParticleEffect setRotation(NumProvider rotation) {
-		this.rotation = rotation;
+		this.rotation = new NumProvider(rotation);
 		return this;
 	}
 

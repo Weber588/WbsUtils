@@ -175,10 +175,28 @@ public class ElectricParticleEffect extends WbsParticleEffect {
 	}
 
 	/**
+	 * Gets the radius provider directly
+	 * @return The radius provider
+	 */
+	public NumProvider getRadiusProvider() {
+		return radius;
+	}
+
+	/**
 	 * @param radius The radius within which arcs can appear
 	 * @return The same particle effect
 	 */
 	public ElectricParticleEffect setRadius(double radius) {
+		this.radius = new NumProvider(radius);
+		return this;
+	}
+
+	/**
+	 * Set the radius provider directly
+	 * @param radius The radius within which arcs can appear
+	 * @return The same particle effect
+	 */
+	public ElectricParticleEffect setRadius(NumProvider radius) {
 		this.radius = new NumProvider(radius);
 		return this;
 	}
@@ -191,10 +209,28 @@ public class ElectricParticleEffect extends WbsParticleEffect {
 	}
 
 	/**
+	 * Gets the speed provider directly
+	 * @return The speed provider
+	 */
+	public NumProvider getSpeedProvider() {
+		return speed;
+	}
+
+	/**
 	 * @param speed The speed of spawned particles in a random direction
 	 * @return The same particle effect
 	 */
 	public ElectricParticleEffect setSpeed(double speed) {
+		this.speed = new NumProvider(speed);
+		return this;
+	}
+
+	/**
+	 * Set the speed provider directly
+	 * @param speed The speed of spawned particles in a random direction
+	 * @return The same particle effect
+	 */
+	public ElectricParticleEffect setSpeed(NumProvider speed) {
 		this.speed = new NumProvider(speed);
 		return this;
 	}
@@ -207,10 +243,28 @@ public class ElectricParticleEffect extends WbsParticleEffect {
 	}
 
 	/**
+	 * Gets the arc length directly
+	 * @return The arc length provider
+	 */
+	public NumProvider getArcLengthProvider() {
+		return arcLength;
+	}
+
+	/**
 	 * @param arcLength How long the spawned arcs should be
 	 * @return The same particle effect
 	 */
 	public ElectricParticleEffect setArcLength(double arcLength) {
+		this.arcLength = new NumProvider(arcLength);
+		return this;
+	}
+
+	/**
+	 * Set the arc length directly
+	 * @param arcLength How long the spawned arcs should be
+	 * @return The same particle effect
+	 */
+	public ElectricParticleEffect setArcLength(NumProvider arcLength) {
 		this.arcLength = new NumProvider(arcLength);
 		return this;
 	}
@@ -227,6 +281,16 @@ public class ElectricParticleEffect extends WbsParticleEffect {
 	 * @return The same particle effect
 	 */
 	public ElectricParticleEffect setTicks(int ticks) {
+		this.ticks = new NumProvider(ticks);
+		return this;
+	}
+
+	/**
+	 * Set the ticks provider directly
+	 * @param ticks How many ticks to play the effect for
+	 * @return The same particle effect
+	 */
+	public ElectricParticleEffect setTicks(NumProvider ticks) {
 		this.ticks = new NumProvider(ticks);
 		return this;
 	}

@@ -217,10 +217,28 @@ public class LineParticleEffect extends WbsParticleEffect {
 	}
 
 	/**
+	 * Gets the radius provider directly
+	 * @return The radius provider
+	 */
+	public NumProvider getRadiusProvider() {
+		return radius;
+	}
+
+	/**
 	 * @param radius The thickness of the line
 	 * @return The same particle effect
 	 */
 	public LineParticleEffect setRadius(double radius) {
+		this.radius = new NumProvider(radius);
+		return this;
+	}
+
+	/**
+	 * Set the radius provider directly
+	 * @param radius The thickness of the line
+	 * @return The same particle effect
+	 */
+	public LineParticleEffect setRadius(NumProvider radius) {
 		this.radius = new NumProvider(radius);
 		return this;
 	}
@@ -233,10 +251,28 @@ public class LineParticleEffect extends WbsParticleEffect {
 	}
 
 	/**
+	 * Gets the speed provider directly
+	 * @return The speed provider
+	 */
+	public NumProvider getSpeedProvider() {
+		return speed;
+	}
+
+	/**
 	 * @param speed The speed spawned particles will go in a random direction
 	 * @return The same particle effect
 	 */
 	public LineParticleEffect setSpeed(double speed) {
+		this.speed = new NumProvider(speed);
+		return this;
+	}
+
+	/**
+	 * Set the speed provider directly
+	 * @param speed The speed spawned particles will go in a random direction
+	 * @return The same particle effect
+	 */
+	public LineParticleEffect setSpeed(NumProvider speed) {
 		this.speed = new NumProvider(speed);
 		return this;
 	}
@@ -287,6 +323,14 @@ public class LineParticleEffect extends WbsParticleEffect {
 	}
 
 	/**
+	 * Gets the end point provider directly
+	 * @return The end point provider
+	 */
+	public VectorProvider getEndProvider() {
+		return end;
+	}
+
+	/**
 	 * @param end The end point to use when {@link #setRandom(boolean)} has been set to false
 	 * @return The same particle effect
 	 */
@@ -295,11 +339,12 @@ public class LineParticleEffect extends WbsParticleEffect {
 		return this;
 	}
 	/**
+	 * Set the end provider directly
 	 * @param end The end point to use when {@link #setRandom(boolean)} has been set to false
 	 * @return The same particle effect
 	 */
 	public LineParticleEffect setEnd(VectorProvider end) {
-		this.end = end;
+		this.end = new VectorProvider(end);
 		return this;
 	}
 

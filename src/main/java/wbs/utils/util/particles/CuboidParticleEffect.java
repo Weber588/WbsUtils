@@ -143,6 +143,16 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 		return this;
 	}
 
+	/*
+	 * TODO: Change location params to blocks to better convey intent of outlining blocks,
+	 *  as opposed to the region between two corners.
+	 */
+
+	/*
+	 * TODO: Add location version to create cuboid region between two locations exactly,
+	 *  not adjusting for blocks.
+	 */
+
 	/**
 	 * Configure this effect to outline the cuboid region defined by corner1, corner2
 	 * and return the location to play at to center on those blocks.
@@ -222,12 +232,51 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 	}
 
 	/**
+	 * Set the provider for the region in the X axis
+	 * @param x The new size in the X axis
+	 * @return The same particle effect
+	 */
+	public CuboidParticleEffect setX(NumProvider x) {
+		this.x = new NumProvider(x);
+		return this;
+	}
+	/**
+	 * Set the size of the region in the Y axis
+	 * @param y The new size in the Y axis
+	 * @return The same particle effect
+	 */
+	public CuboidParticleEffect setY(NumProvider y) {
+		this.y = new NumProvider(y);
+		return this;
+	}
+	/**
+	 * Set the size of the region in the Z axis
+	 * @param z The new size in the Z axis
+	 * @return The same particle effect
+	 */
+	public CuboidParticleEffect setZ(NumProvider z) {
+		this.z = new NumProvider(z);
+		return this;
+	}
+
+	/**
 	 * Set the size of the region in the all 3 axes,
 	 * making the region a cube
 	 * @param size The new size in the all axes
 	 * @return The same particle effect
 	 */
 	public CuboidParticleEffect setXYZ(double size) {
+    	setX(size);
+    	setY(size);
+    	setZ(size);
+    	return this;
+	}
+	/**
+	 * Set the provider to be used for all
+	 * @param size The new size in the all axes
+	 * @return The same particle effect
+	 */
+	public CuboidParticleEffect setXYZ(NumProvider size) {
     	setX(size);
     	setY(size);
     	setZ(size);
@@ -257,10 +306,31 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 	}
 
 	/**
+	 * Set the rotation provider directly
+	 * @param rotation The rotation in degrees
+	 * @return The same particle effect
+	 */
+	public CuboidParticleEffect setRotation(NumProvider rotation) {
+		this.rotation = new NumProvider(rotation);
+		return this;
+	}
+
+
+	/**
 	 * @param about The vector about which to rotate
 	 * @return The same particle effect
 	 */
 	public CuboidParticleEffect setAbout(Vector about) {
+		this.about = new VectorProvider(about);
+		return this;
+	}
+
+	/**
+	 * Set the about vector provider directly
+	 * @param about The vector about which to rotate
+	 * @return The same particle effect
+	 */
+	public CuboidParticleEffect setAbout(VectorProvider about) {
 		this.about = new VectorProvider(about);
 		return this;
 	}

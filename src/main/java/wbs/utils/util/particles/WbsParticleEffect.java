@@ -214,7 +214,29 @@ public abstract class WbsParticleEffect {
 	public int getAmount() {
 		return (int) amount.val();
 	}
+
+	/**
+	 * Gets the amount provider directly.
+	 * @return The amount provider
+	 */
+	public NumProvider getAmountProvider() {
+		return amount;
+	}
+
+	/**
+	 * @param amount The new amount
+	 * @return The same particle effect
+	 */
 	public WbsParticleEffect setAmount(int amount) {
+		this.amount = new NumProvider(amount);
+		return this;
+	}
+
+	/**
+	 * @param amount The new amount provider
+	 * @return The same particle effect
+	 */
+	public WbsParticleEffect setAmount(NumProvider amount) {
 		this.amount = new NumProvider(amount);
 		return this;
 	}

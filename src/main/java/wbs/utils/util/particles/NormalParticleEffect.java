@@ -111,10 +111,28 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	}
 
 	/**
+	 * Gets the speed provider directly
+	 * @return The speed provider
+	 */
+	public NumProvider getSpeedProvider() {
+		return speed;
+	}
+
+	/**
 	 * @param speed The speed spawned particles will go in a random direction
 	 * @return The same particle effect
 	 */
 	public NormalParticleEffect setSpeed(double speed) {
+		this.speed = new NumProvider(speed);
+		return this;
+	}
+
+	/**
+	 * Set the speed provider directly
+	 * @param speed The speed spawned particles will go in a random direction
+	 * @return The same particle effect
+	 */
+	public NormalParticleEffect setSpeed(NumProvider speed) {
 		this.speed = new NumProvider(speed);
 		return this;
 	}
@@ -148,12 +166,52 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	}
 
 	/**
+	 * Set the X size provider directly
+	 * @param x The new size in the X axis
+	 * @return The same particle effect
+	 */
+	public NormalParticleEffect setX(NumProvider x) {
+		this.x = new NumProvider(x);
+		return this;
+	}
+	/**
+	 * Set the Y size provider directly
+	 * @param y The new size in the Y axis
+	 * @return The same particle effect
+	 */
+	public NormalParticleEffect setY(NumProvider y) {
+		this.y = new NumProvider(y);
+		return this;
+	}
+	/**
+	 * Set the Z size provider directly
+	 * @param z The new size in the Z axis
+	 * @return The same particle effect
+	 */
+	public NormalParticleEffect setZ(NumProvider z) {
+		this.z = new NumProvider(z);
+		return this;
+	}
+
+	/**
 	 * Set the size of the region in the all 3 axes,
 	 * making the region a cube
 	 * @param size The new size in the all axes
 	 * @return The same particle effect
 	 */
 	public NormalParticleEffect setXYZ(double size) {
+		setX(size);
+		setY(size);
+		setZ(size);
+		return this;
+	}
+
+	/**
+	 * Set the provider of all axes directly
+	 * @param size The new size in the all axes
+	 * @return The same particle effect
+	 */
+	public NormalParticleEffect setXYZ(NumProvider size) {
 		setX(size);
 		setY(size);
 		setZ(size);
@@ -192,6 +250,30 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	 */
 	public double getZ() {
 		return z.val();
+	}
+
+	/**
+	 * Gets the x provider directly
+	 * @return The x provider
+	 */
+	public NumProvider getXProvider() {
+		return x;
+	}
+
+	/**
+	 * Gets the y provider directly
+	 * @return The y provider
+	 */
+	public NumProvider getYProvider() {
+		return y;
+	}
+
+	/**
+	 * Gets the z provider directly
+	 * @return The z provider
+	 */
+	public NumProvider getZProvider() {
+		return z;
 	}
 
 	/*=============================*/

@@ -50,8 +50,9 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 			variation = new NumProvider(0);
 		}
 
-		if (section.get("direction") != null) {
-			direction = new VectorProvider(section.getConfigurationSection("direction"), settings, directory + "/direction", upVector);
+		ConfigurationSection directionSection = section.getConfigurationSection("direction");
+		if (directionSection != null) {
+			direction = new VectorProvider(directionSection, settings, directory + "/direction", upVector);
 		} else {
 			direction = new VectorProvider(upVector);
 		}
@@ -145,11 +146,18 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 	/*===============================*/
 	/*        GETTERS/SETTERS        */
 	/*===============================*/
-	
+
 	public double getSpeed() {
 		return speed.val();
 	}
+	public NumProvider getSpeedProvider() {
+		return speed;
+	}
 	public VelocityParticleEffect setSpeed(double speed) {
+		this.speed = new NumProvider(speed);
+		return this;
+	}
+	public VelocityParticleEffect setSpeed(NumProvider speed) {
 		this.speed = new NumProvider(speed);
 		return this;
 	}
@@ -157,14 +165,23 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 	public Vector getDirection() {
 		return direction.val();
 	}
+	public VectorProvider getDirectionProvider() {
+		return direction;
+	}
 	public VelocityParticleEffect setDirection(Vector direction) {
 		this.direction = new VectorProvider(direction);
 		return this;
 	}
+	public VelocityParticleEffect setDirection(VectorProvider direction) {
+		this.direction = new VectorProvider(direction);
+		return this;
+	}
 
-	// TODO: Make these return a copy of the NumProvider
 	public double getVariation() {
 		return variation.val();
+	}
+	public NumProvider getVariationProvider() {
+		return variation;
 	}
 	/**
 	 * @param variation The variation in direction when the
@@ -174,11 +191,20 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 		this.variation = new NumProvider(variation);
 		return this;
 	}
+	public VelocityParticleEffect setVariation(NumProvider variation) {
+		this.variation = new NumProvider(variation);
+		return this;
+	}
 
+	public boolean getRelative() {
+		return relative;
+	}
 	public VelocityParticleEffect setRelative(boolean relative) {
 		this.relative = relative;
 		return this;
 	}
+
+
 	/*=============================*/
 	/*        Serialization        */
 	/*=============================*/
