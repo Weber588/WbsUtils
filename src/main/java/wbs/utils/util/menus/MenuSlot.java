@@ -82,6 +82,13 @@ public class MenuSlot {
         this(plugin, material, displayName, false, lore);
     }
 
+    public MenuSlot(@NotNull WbsPlugin plugin,
+                    @NotNull Material material,
+                    @NotNull String displayName,
+                    @Nullable List<String> lore) {
+        this(plugin, material, displayName, false, lore);
+    }
+
     public MenuSlot(@NotNull WbsPlugin plugin, @NotNull ItemStack item) {
         this.plugin = plugin;
         this.item = item;
