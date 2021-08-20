@@ -1,7 +1,11 @@
 package wbs.utils.util.menus;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -9,44 +13,79 @@ import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.pluginhooks.PlaceholderAPIWrapper;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class MenuSlot {
 
     @NotNull
-    private ItemStack item;
+    protected ItemStack item;
 
     @Nullable
-    private Consumer<InventoryClickEvent> clickAction;
-    private boolean closeOnClick;
-    private boolean allowItemTaking;
+    protected Consumer<InventoryClickEvent> clickAction;
+    @Nullable
+    protected BiConsumer<WbsMenu, InventoryClickEvent> clickActionMenu;
+    protected boolean closeOnClick;
+    protected boolean allowItemTaking;
 
-    private boolean fillPlaceholders;
+    protected boolean fillPlaceholders;
 
-    private final WbsPlugin plugin;
+    protected final WbsPlugin plugin;
+
+    public MenuSlot(@NotNull WbsPlugin plugin,
+                    @NotNull Material material,
+                    @NotNull String displayName,
+                    boolean shiny,
+                    @Nullable List<String> lore) {
+        this.plugin = plugin;
+
+        item = new ItemStack(material);
+        ItemMeta meta = Bukkit.getItemFactory().getItemMeta(material);
+        if (meta == null) {
+            throw new IllegalArgumentException("Material must be able to store meta");
+        }
+        meta.setDisplayName(displayName);
+        meta.setLore(lore);
+
+        meta.addItemFlags(
+                ItemFlag.HIDE_POTION_EFFECTS,
+                ItemFlag.HIDE_DYE,
+                ItemFlag.HIDE_ATTRIBUTES);
+
+        if (shiny) {
+            meta.addEnchant(Enchantment.LOYALTY, 1, true);
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        }
+
+        item.setItemMeta(meta);
+
+        this.item = getFormattedItem(null);
+    }
+
+    public MenuSlot(@NotNull WbsPlugin plugin,
+                    @NotNull Material material,
+                    @NotNull String displayName,
+                    boolean shiny,
+                    @Nullable String ... lore) {
+        this(plugin, material, displayName, shiny, Arrays.asList(lore));
+    }
+
+    public MenuSlot(@NotNull WbsPlugin plugin,
+                    @NotNull Material material,
+                    @NotNull String displayName,
+                    @Nullable String ... lore) {
+        this(plugin, material, displayName, false, lore);
+    }
 
     public MenuSlot(@NotNull WbsPlugin plugin, @NotNull ItemStack item) {
         this.plugin = plugin;
         this.item = item;
         this.item = getFormattedItem(null);
-
-        ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
-
-        String displayName = meta.getDisplayName();
-        displayName = plugin.dynamicColourise(displayName);
-        meta.setDisplayName(displayName);
-
-        if (meta.hasLore()) {
-            List<String> newLore = new LinkedList<>();
-            for (String loreLine : Objects.requireNonNull(meta.getLore())) {
-                newLore.add(plugin.dynamicColourise(loreLine));
-            }
-            meta.setLore(newLore);
-        }
     }
 
     /**
@@ -78,7 +117,7 @@ public class MenuSlot {
         return formattedItem;
     }
 
-    private String formatString(@Nullable Player player, String string) {
+    protected String formatString(@Nullable Player player, String string) {
         if (fillPlaceholders && player != null) {
             string = PlaceholderAPIWrapper.setPlaceholders(player, string);
         }
@@ -97,6 +136,13 @@ public class MenuSlot {
     }
     public void setClickAction(@Nullable Consumer<InventoryClickEvent> clickAction) {
         this.clickAction = clickAction;
+    }
+
+    public @Nullable BiConsumer<WbsMenu, InventoryClickEvent> getClickActionMenu() {
+        return clickActionMenu;
+    }
+    public void setClickActionMenu(@Nullable BiConsumer<WbsMenu, InventoryClickEvent> clickActionMenu) {
+        this.clickActionMenu = clickActionMenu;
     }
 
     public boolean closeOnClick() {

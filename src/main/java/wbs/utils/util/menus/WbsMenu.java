@@ -10,14 +10,12 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.string.WbsStrings;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class WbsMenu implements Listener {
@@ -50,6 +48,47 @@ public class WbsMenu implements Listener {
         pm.registerEvents(this, plugin);
     }
 
+    /**
+     * Update the given slot for all players currently looking
+     * at this menu.
+     * @param slot The slot to update.
+     */
+    public void update(int slot) {
+        MenuSlot menuSlot = slots.get(slot);
+        if (menuSlot == null) {
+            return;
+        }
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (hasMenuOpen(player)) {
+                player.getOpenInventory().setItem(slot, menuSlot.getFormattedItem(player));
+            }
+        }
+    }
+
+    public void update(int row, int column) {
+        update(getSlotNumber(row, column));
+    }
+
+    /**
+     * Update all slots for all players currently viewing
+     * this menu
+     */
+    public void update() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (hasMenuOpen(player)) {
+                for (int i = 0; i < getMaxSlot(); i++) {
+                    MenuSlot menuSlot = slots.get(i);
+                    if (menuSlot == null) {
+                        continue;
+                    }
+
+                    player.getOpenInventory().setItem(i, menuSlot.getFormattedItem(player));
+                }
+            }
+        }
+    }
+
     private boolean unregister(Player cause) {
         InventoryClickEvent.getHandlerList().unregister(this);
         InventoryCloseEvent.getHandlerList().unregister(this);
@@ -77,10 +116,6 @@ public class WbsMenu implements Listener {
         return unregister(null);
     }
 
-    private int getMaxSlot() {
-        return rows * 9 - 1;
-    }
-
     /**
      * Set a menu slot for this
      * @param i The number of the slot
@@ -97,13 +132,16 @@ public class WbsMenu implements Listener {
         slots.put(i, slot);
     }
 
+    public void setSlot(int row, int column, MenuSlot slot) {
+        setSlot(row * 9 + column, slot);
+    }
+
     public void setUnregisterOnClose(boolean unregisterOnClose) {
         this.unregisterOnClose = unregisterOnClose;
     }
 
     private Inventory buildInventory(Player player) {
         Inventory inventory = Bukkit.createInventory(player, rows * 9, titleString);
-
 
         slots.forEach((slotNumber, slot) -> {
             ItemStack formattedItem = slot.getFormattedItem(player);
@@ -158,12 +196,33 @@ public class WbsMenu implements Listener {
 
             if (slot.getClickAction() != null)
                 slot.getClickAction().accept(event);
+            if (slot.getClickActionMenu() != null)
+                slot.getClickActionMenu().accept(this, event);
         }
     }
 
     // ============================== //
     //          Helper methods        //
     // ============================== //
+
+    /**
+     * Get the number of the last slot in this menu
+     * @return The maximum slot this menu may contain
+     */
+    protected int getMaxSlot() {
+        return rows * 9 - 1;
+    }
+
+    /**
+     * Get the slot number for a given row and column.
+     * @param row The row
+     * @param column The column
+     * @return The slot number that represents the slot
+     * at the given row and column
+     */
+    protected int getSlotNumber(int row, int column) {
+        return row * 9 + column;
+    }
 
     /**
      * Add a slot in the next available slot in the menu if any are available
@@ -207,6 +266,34 @@ public class WbsMenu implements Listener {
             if (i < 9 || i >= getMaxSlot() - 9) {
                 setSlot(i, slot);
             }
+        }
+    }
+
+    /**
+     * Fill a given row with the given slot.
+     * @param row The row to fill
+     * @param slot The slot to fill the given row with
+     */
+    public void setRow(int row, MenuSlot slot) {
+        if (row >= rows) {
+            throw new IndexOutOfBoundsException("Row id must be less between 0 (inclusive) and rows (exclusive)");
+        }
+        for (int i = 0; i < 9; i++) {
+            setSlot(i + row * 9, slot);
+        }
+    }
+
+    /**
+     * Fill a given column with the given slot.
+     * @param column The column to fill
+     * @param slot The slot to fill the given column with
+     */
+    public void setColumn(int column, MenuSlot slot) {
+        if (column < 0 || column >= 6) {
+            throw new IndexOutOfBoundsException("Column must be between 0 and 5 inclusive");
+        }
+        for (int i = 0; i < rows; i++) {
+            setSlot(i * 9 + column, slot);
         }
     }
 }
