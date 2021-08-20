@@ -1,5 +1,9 @@
 package wbs.utils.util.plugin;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -26,6 +30,14 @@ import wbs.utils.util.string.WbsStrings;
 public abstract class WbsPlugin extends JavaPlugin {
 
 	public Logger logger = getLogger();
+
+	public List<String> colouriseAll(Collection<String> collection) {
+		List<String> colourised = new LinkedList<>();
+
+		collection.forEach(element -> colourised.add(dynamicColourise(element)));
+
+		return colourised;
+	}
 
 	/**
 	 * Colourize based on the configured plugin colours

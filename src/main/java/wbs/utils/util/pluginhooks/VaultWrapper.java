@@ -37,25 +37,25 @@ public final class VaultWrapper {
         return eco.has(player, amount);
     }
 
-    public static double getMoney(OfflinePlayer player, double amount) {
+    public static double getMoney(OfflinePlayer player) {
         return eco.getBalance(player);
     }
 
-    public static EconomyResponse giveMoney(OfflinePlayer player, double amount) {
+    public static boolean giveMoney(OfflinePlayer player, double amount) {
         if (amount < 0) {
             return takeMoney(player, Math.abs(amount));
         }
 
-
-        return eco.depositPlayer(player, amount);
+        EconomyResponse response = eco.depositPlayer(player, amount);
+        return response.transactionSuccess();
     }
 
-    public static EconomyResponse takeMoney(OfflinePlayer player, double amount) {
+    public static boolean takeMoney(OfflinePlayer player, double amount) {
         if (amount < 0) {
             return giveMoney(player, amount);
         }
 
-
-        return eco.withdrawPlayer(player, amount);
+        EconomyResponse response = eco.withdrawPlayer(player, amount);
+        return response.transactionSuccess();
     }
 }
