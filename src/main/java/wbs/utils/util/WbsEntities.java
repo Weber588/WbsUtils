@@ -3,6 +3,7 @@ package wbs.utils.util;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
@@ -159,9 +160,9 @@ public final class WbsEntities {
 		}
 		return (9 * level) - 158;
 	}
-	
+
 	/**
-	 * Get all entities of a given LivingEntity subclass 
+	 * Get all entities of a given LivingEntity subclass
 	 * within a spherical region of a given location.
 	 * @param <T> The class of LivingEntity to be retrieved
 	 * @param loc The center of the selection.
@@ -170,40 +171,24 @@ public final class WbsEntities {
 	 * @param clazz The type of LivingEntity to be retrieved
 	 * @return A Set of LivingEntities within the radius specified with range.
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T extends Entity> Set<T> getNearbySpherical(Location loc, double radius, Set<T> exclude, Class<T> clazz) {
-		World world = loc.getWorld();
-		if (world == null) throw new IllegalArgumentException();
-		Collection<Entity> entities = world.getNearbyEntities(loc, radius, radius, radius);
-	
-		Set<Entity> nearby = new HashSet<>();
-		for (Entity targetEntity : entities) {
-			if (targetEntity.getLocation().distance(loc) <= radius) {
-				if (exclude == null || exclude.isEmpty()) {
-					nearby.add(targetEntity);
-				} else {
-					if (!exclude.contains(targetEntity)) {
-						nearby.add(targetEntity);
-					}
-				}
-			}
-		}
+		return getNearbySpherical(loc, radius, exclude, clazz, entity -> true);
+	}
 
-		Set<T> targets = new HashSet<>();
-		
-		if (!clazz.equals(Entity.class)) { // Don't need to repeat for this
-			for (Entity filterEntity : nearby) {
-				if (clazz.isInstance(filterEntity)) {
-					targets.add((T) filterEntity);
-				}
-			}
-		} else {
-			for (Entity filterEntity : nearby) {
-				targets.add((T) filterEntity);
-			}
-		}
-		
-		return targets;
+	/**
+	 * Get all entities of a given LivingEntity subclass
+	 * within a spherical region of a given location.
+	 * @param <T> The class of LivingEntity to be retrieved
+	 * @param loc The center of the selection.
+	 * @param radius The radius around the location to check in.
+	 * @param exclude A set of entities to ignore
+	 * @param clazz The type of LivingEntity to be retrieved
+	 * @param predicate A predicate to filter by before returning
+	 * @return A Set of LivingEntities within the radius specified with range.
+	 */
+	public static <T extends Entity> Set<T> getNearbySpherical(Location loc, double radius, Set<T> exclude, Class<T> clazz, Predicate<T> predicate) {
+		return getNearby(loc, radius, exclude, clazz,
+				entity -> entity.getLocation().distance(loc) <= radius);
 	}
 	
 	public static Set<LivingEntity> getNearbyLiving(Location loc, double range) {
@@ -233,6 +218,10 @@ public final class WbsEntities {
 		return getNearby(loc, range, excludeSet, clazz);
 	}
 
+	public static <T extends Entity> Set<T> getNearby(Location loc, double range, Set<T> exclude, Class<T> clazz) {
+		return getNearby(loc, range, exclude, clazz, entity -> true);
+	}
+
 	/**
 	 * Get all entities of a given LivingEntity subclass
 	 * within a cuboid radius of a given location.
@@ -245,13 +234,15 @@ public final class WbsEntities {
 	 * @return A Set of LivingEntities within the radius specified with range.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends Entity> Set<T> getNearby(Location loc, double range, Set<T> exclude, Class<T> clazz) {
+	public static <T extends Entity> Set<T> getNearby(Location loc, double range, Set<T> exclude, Class<T> clazz, Predicate<T> predicate) {
 		World world = loc.getWorld();
 		if (world == null) throw new IllegalArgumentException();
 		Collection<Entity> entities = world.getNearbyEntities(loc, range, range, range);
 	
 		Set<LivingEntity> nearbyLiving = new HashSet<>();
 		for (Entity targetEntity : entities) {
+			if (!predicate.test((T) targetEntity)) continue;
+
 			if (targetEntity instanceof LivingEntity) {
 				if (exclude == null || exclude.isEmpty()) {
 					nearbyLiving.add((LivingEntity) targetEntity);
