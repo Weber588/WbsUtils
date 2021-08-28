@@ -1,7 +1,6 @@
 package wbs.utils.util.plugin;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -17,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import wbs.utils.util.pluginhooks.PlaceholderAPIWrapper;
 import wbs.utils.util.string.WbsStrings;
 
 /**
@@ -27,6 +27,7 @@ import wbs.utils.util.string.WbsStrings;
  * the plugin.
  * @author Weber588
  */
+@SuppressWarnings("unused")
 public abstract class WbsPlugin extends JavaPlugin {
 
 	public Logger logger = getLogger();
@@ -64,6 +65,21 @@ public abstract class WbsPlugin extends JavaPlugin {
 	public void sendMessage(String message, CommandSender sender) {
 		message = dynamicColourise(message);
 		sender.sendMessage(prefix + ' ' +  colour + message);
+	}
+
+	/**
+	 * Same as {@link #sendMessage(String, CommandSender)}, but
+	 * automatically fills placeholders with PlaceholderAPI if sender
+	 * is a Player, and PlaceholderAPI is installed
+	 * @param message The message to send after filling any placeholders
+	 * @param sender The CommandSender to receive the message
+	 */
+	public void sendPlaceholderMessage(String message, CommandSender sender) {
+		if (sender instanceof Player) {
+			message = PlaceholderAPIWrapper.setPlaceholders((Player) sender, message);
+		}
+		message = dynamicColourise(message);
+		sender.sendMessage(prefix + ' ' + colour + message);
 	}
 	
 	/**
