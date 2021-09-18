@@ -6,7 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
  * Thrown when a key is required in a {@link ConfigurationSection} and it
  * was missing
  */
-public class MissingRequiredKeyException extends RuntimeException {
+public class MissingRequiredKeyException extends InvalidConfigurationException {
 
     public MissingRequiredKeyException() {}
 

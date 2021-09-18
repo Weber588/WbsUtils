@@ -41,6 +41,38 @@ public final class WbsMath {
 			return (Math.random() < percent/100);
 		}
 	}
+
+	/**
+	 * Linear interpolation from a to b, given
+	 * 0 <= t <= 1 representing the progress
+	 * from a to b, where t = 0 returns a and
+	 * t = 1 returns b
+	 * @param a The starting value
+	 * @param b The end value
+	 * @param t The progress from a to b
+	 * @return The value between a and b represented by t
+	 */
+	public static double lerp(double a, double b, double t) {
+		return ((b - a) * t) + a;
+	}
+
+	public static double clamp(double a, double b, double value) {
+		if (a > b) {
+			double temp = a;
+			a = b;
+			b = temp;
+		}
+		return Math.max(a, Math.min(b, value));
+	}
+
+	public static int clamp(int a, int b, int value) {
+		if (a > b) {
+			int temp = a;
+			a = b;
+			b = temp;
+		}
+		return Math.max(a, Math.min(b, value));
+	}
 	
 	/*==========*/
 	// Geometry

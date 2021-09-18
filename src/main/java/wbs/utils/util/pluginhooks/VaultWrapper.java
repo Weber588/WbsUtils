@@ -13,7 +13,7 @@ import wbs.utils.WbsUtils;
  * A simple wrapper for common Vault methods, to avoid
  * needing to set up Economy in every plugin
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
 public final class VaultWrapper {
     private VaultWrapper() {}
 
@@ -97,13 +97,14 @@ public final class VaultWrapper {
     public static boolean givePermission(Player player, String permission) {
         if (!arePermsSetup()) return false;
 
-        return perms.playerAdd(player, permission);
+        return perms.playerAdd(null, player, permission);
+
     }
 
     public static boolean removePermission(Player player, String permission) {
         if (!arePermsSetup()) return false;
 
-        return perms.playerRemove(player, permission);
+        return perms.playerRemove(null, player, permission);
     }
 
     public static String getGroup(Player player) {

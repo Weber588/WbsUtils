@@ -13,7 +13,7 @@ import wbs.utils.WbsUtils;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.WbsMath;
-import wbs.utils.util.configuration.NumProvider;
+import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 

@@ -11,7 +11,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.WbsMath;
-import wbs.utils.util.configuration.NumProvider;
+import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
 /**

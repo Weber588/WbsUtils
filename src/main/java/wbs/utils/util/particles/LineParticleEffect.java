@@ -10,8 +10,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import wbs.utils.util.WbsMath;
-import wbs.utils.util.configuration.NumProvider;
-import wbs.utils.util.configuration.VectorProvider;
+import wbs.utils.util.providers.NumProvider;
+import wbs.utils.util.providers.VectorProvider;
 import wbs.utils.util.plugin.WbsSettings;
 
 /**

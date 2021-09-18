@@ -11,6 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.string.WbsStrings;
 
@@ -224,23 +225,82 @@ public class WbsMenu implements Listener {
         return row * 9 + column;
     }
 
+    protected int getRow(int rawSlot) {
+        return rawSlot / 9;
+    }
+
+    protected int getColumn(int rawSlot) {
+        return rawSlot % 9;
+    }
+
     /**
      * Add a slot in the next available slot in the menu if any are available
      * @param slot The slot to add at the first unassigned slot
-     * @return Whether or not there was a free space to fill.
+     * @return True if the slot was added, false if no free slots were found.
      */
     public boolean setNextFreeSlot(MenuSlot slot) {
-        boolean slotFound = false;
+        return setNextFreeSlot(0, slot);
+    }
 
-        for (int i = 0; i <= getMaxSlot(); i++) {
+    /**
+     * Add a slot in the next available slot in the menu if any are available
+     * @param startingAt The slot to start checking from.
+     * @param slot The slot to add at the first unassigned slot
+     * @return True if the slot was added, false if no free slots were found.
+     */
+    public boolean setNextFreeSlot(int startingAt, MenuSlot slot) {
+        for (int i = startingAt; i <= getMaxSlot(); i++) {
             if (!slots.containsKey(i)) {
                 slots.put(i, slot);
-                slotFound = true;
-                break;
+                return true;
             }
         }
 
-        return slotFound;
+        return false;
+    }
+
+    /**
+     * Set the next free slot in a rectangular region bound by
+     * a minimum and maximum row and column.
+     * @param minRow The minimum row
+     * @param maxRow The maximum row
+     * @param minColumn The minimum column
+     * @param maxColumn The maximum column
+     * @param slot The slot to add
+     * @return True if the slot was added, false if no free slots were found.
+     */
+    public boolean setNextFreeSlot(int minRow, int maxRow, int minColumn, int maxColumn, MenuSlot slot) {
+        minRow = WbsMath.clamp(0, rows - 1, minRow);
+        maxRow = WbsMath.clamp(0, rows - 1, maxRow);
+        minColumn = WbsMath.clamp(0, 8, minColumn);
+        maxColumn = WbsMath.clamp(0, 8, maxColumn);
+
+        for (int row = minRow; row <= maxRow; row++) {
+            for (int column = minColumn; column <= maxColumn; column++) {
+                int slotNum = getSlotNumber(row, column);
+                if (!slots.containsKey(slotNum)) {
+                    slots.put(slotNum, slot);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Set the next free slot in a rectangular region defined by two corners,
+     * where the first slot is the upper left corner, and the second slot is the
+     * lower right corner.
+     * @param minSlotCorner The minimum corner, in the upper left of the region
+     * @param maxSlotCorner The maximum corner, in the lower right of the region
+     * @param slot The slot to add
+     * @return True if the slot was added, false if no free slots were found.
+     */
+    public boolean setNextFreeSlot(int minSlotCorner, int maxSlotCorner, MenuSlot slot) {
+        setNextFreeSlot(getRow(minSlotCorner), getRow(maxSlotCorner), getColumn(minSlotCorner), getColumn(maxSlotCorner), slot);
+
+        return false;
     }
 
     /**
@@ -276,7 +336,7 @@ public class WbsMenu implements Listener {
      */
     public void setRow(int row, MenuSlot slot) {
         if (row >= rows) {
-            throw new IndexOutOfBoundsException("Row id must be less between 0 (inclusive) and rows (exclusive)");
+            throw new IndexOutOfBoundsException("Row must be between 0 (inclusive) and rows (exclusive)");
         }
         for (int i = 0; i < 9; i++) {
             setSlot(i + row * 9, slot);
@@ -289,8 +349,8 @@ public class WbsMenu implements Listener {
      * @param slot The slot to fill the given column with
      */
     public void setColumn(int column, MenuSlot slot) {
-        if (column < 0 || column >= 6) {
-            throw new IndexOutOfBoundsException("Column must be between 0 and 5 inclusive");
+        if (column < 0 || column >= 9) {
+            throw new IndexOutOfBoundsException("Column must be between 0 and 8 inclusive");
         }
         for (int i = 0; i < rows; i++) {
             setSlot(i * 9 + column, slot);
