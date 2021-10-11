@@ -3,6 +3,8 @@ package wbs.utils.util.plugin;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -16,6 +18,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.pluginhooks.PlaceholderAPIWrapper;
 import wbs.utils.util.string.WbsStrings;
 
@@ -158,5 +162,60 @@ public abstract class WbsPlugin extends JavaPlugin {
 
 	@Override
 	public abstract void onEnable();
-	
+
+	/**
+	 * Runs a block of code asynchronously using a BukkitRunnable, and
+	 * returns the task Id. Once the task finishes, the callback runnable
+	 * is run in the main thread.
+	 * @param runnable The runnable to execute asynchronously
+	 * @param callback The runnable to execute synchronously on the main thread
+	 *                 after the async runnable executes
+	 * @return The Id of the task created
+	 */
+	public int runAsync(@NotNull Runnable runnable, @NotNull Runnable callback) {
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				runnable.run();
+				runSync(callback);
+			}
+		}.runTaskAsynchronously(this).getTaskId();
+	}
+
+	/**
+	 * Runs a block of code asynchronously using a BukkitRunnable, and
+	 * returns the task Id.
+	 * @param runnable The runnable to execute asynchronously
+	 * @return The Id of the task created
+	 */
+	public int runAsync(@NotNull Runnable runnable) {
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				runnable.run();
+			}
+		}.runTaskAsynchronously(this).getTaskId();
+	}
+
+	/**
+	 * Run a block of code in the main thread on the next tick,
+	 * where it's safe to do minecraft related operations.
+	 * @param runnable The block of code to run
+	 * @return The Id of the task created
+	 */
+	public int runSync(@NotNull Runnable runnable) {
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				runnable.run();
+			}
+		}.runTask(this).getTaskId();
+	}
+
+	public <T> int getAsync(@NotNull Supplier<T> getter, @NotNull Consumer<T> consumer) {
+		return runAsync(() -> {
+			T obj = getter.get();
+			runSync(() -> consumer.accept(obj));
+		});
+	}
 }
