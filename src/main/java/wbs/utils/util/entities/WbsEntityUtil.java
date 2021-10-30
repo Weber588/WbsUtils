@@ -1,6 +1,5 @@
 package wbs.utils.util.entities;
 
-import com.google.common.annotations.Beta;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -18,8 +17,9 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-@Beta
 @SuppressWarnings("unused")
 public final class WbsEntityUtil {
     private WbsEntityUtil() {}
@@ -54,6 +54,7 @@ public final class WbsEntityUtil {
      * @param range The maximum distance away from the entity the block may be
      * @return The target location. null if there was no block in range
      */
+    @Nullable
     public static Location getTargetPos(LivingEntity entity, double range) {
         World world = entity.getWorld();
         RayTraceResult result = world.rayTraceBlocks(entity.getEyeLocation(), getFacingVector(entity), range);
@@ -76,6 +77,7 @@ public final class WbsEntityUtil {
      * Gets a unit vector in the direction the entity is facing
      * @return The facing vector
      */
+    @NotNull
     public static Vector getFacingVector(Entity entity) {
         return getFacingVector(entity, 1);
     }
@@ -86,6 +88,7 @@ public final class WbsEntityUtil {
      * @param magnitude The scale of the resulting vector
      * @return The facing vector
      */
+    @NotNull
     public static Vector getFacingVector(Entity entity, double magnitude) {
         double x, y, z;
         double pitch = Math.toRadians(entity.getLocation().getPitch());
@@ -101,6 +104,7 @@ public final class WbsEntityUtil {
         return new Vector(x, y, z);
     }
 
+    @NotNull
     public static Vector getLocalUp(Entity entity) {
         double x, y, z;
         double pitch = entity.getLocation().getPitch();
@@ -225,6 +229,7 @@ public final class WbsEntityUtil {
      * @param target The target mob
      * @return The location half way up the given mob.
      */
+    @NotNull
     public static Location getMiddleLocation(Entity target) {
         double middleHeight = target.getHeight()/2;
         Location middleLoc = target.getLocation();
@@ -232,6 +237,7 @@ public final class WbsEntityUtil {
         return middleLoc;
     }
 
+    @Nullable
     public static ItemStack getItemInSlot(LivingEntity entity, EquipmentSlot slot) {
         EntityEquipment equipment = entity.getEquipment();
 

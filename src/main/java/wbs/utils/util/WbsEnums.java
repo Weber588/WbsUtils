@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -17,6 +18,16 @@ public final class WbsEnums {
 	private WbsEnums() {}
 
 	private static Map<Class<? extends Enum<?>>, String[]> stringArrays = new HashMap<>();
+
+	public static String joiningPrettyStrings(Class<? extends Enum<?>> type) {
+		return joiningPrettyStrings(type, ", ");
+	}
+
+	public static String joiningPrettyStrings(Class<? extends Enum<?>> type, String delimiter) {
+		return Arrays.stream(type.getEnumConstants())
+				.map(WbsEnums::toPrettyString)
+				.collect(Collectors.joining(delimiter));
+	}
 	
 	public static String toPrettyString(Enum<?> enumConstant) {
 		return WbsStrings.capitalizeAll(enumConstant.name().replace('_', ' '));
@@ -50,11 +61,11 @@ public final class WbsEnums {
 	/**
 	 * A common method for all enums since they can't have another base class
 	 * @param <T> Enum type
-	 * @param c Enum class
+	 * @param clazz Enum class
 	 * @param string The string that represents the value of the enum to return
 	 * @return corresponding enum, or null
 	 */
-	public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) {
+	public static <T extends Enum<T>> T getEnumFromString(Class<T> clazz, String string) {
 		
 		string = string.toUpperCase();
 		string = string.replaceAll(" ", "_");
@@ -62,7 +73,7 @@ public final class WbsEnums {
 
 		T value;
 		try {
-			value = Enum.valueOf(c, string.trim().toUpperCase());
+			value = Enum.valueOf(clazz, string.trim().toUpperCase());
 		} catch (IllegalArgumentException | NullPointerException e) {
 			return null;
 		}

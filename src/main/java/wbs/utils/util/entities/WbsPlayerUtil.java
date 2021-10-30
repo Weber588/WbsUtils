@@ -1,10 +1,8 @@
 package wbs.utils.util.entities;
 
-import com.google.common.annotations.Beta;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-@Beta
 @SuppressWarnings("unused")
 public final class WbsPlayerUtil {
     private WbsPlayerUtil() {}

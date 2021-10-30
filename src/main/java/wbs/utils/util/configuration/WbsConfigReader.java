@@ -9,7 +9,15 @@ import org.jetbrains.annotations.Nullable;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.InvalidWorldException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
+import wbs.utils.util.WbsEnums;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.string.WbsStrings;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * A static class to read configs and automatically provide errors to the WbsSettings object without external logic
@@ -92,6 +100,106 @@ public final class WbsConfigReader {
 
         return foundSection;
     }
+
+    /**
+     * Get a list of {@link T} from a String list
+     * @param section The section to read from
+     * @param field The name of the field that contains a String to parse as {@link T}
+     * @param settings The settings to log to if a value is invalid for the given enum class
+     * @param directory The path to the field for if settings is defined
+     * @param clazz The enum class to build from the given String
+     * @return A non-null enum value
+     */
+    public static <T extends Enum<T>> @NotNull T getRequiredEnum(@NotNull ConfigurationSection section, String field,
+                                                                 @Nullable WbsSettings settings, @Nullable String directory, Class<T> clazz) throws InvalidConfigurationException {
+        return Objects.requireNonNull(getEnum(section, field, settings, directory, clazz, true));
+    }
+
+    /**
+     * Get a list of {@link T} from a String list
+     * @param section The section to read from
+     * @param field The name of the field that contains a String to parse as {@link T}
+     * @param settings The settings to log to if a value is invalid for the given enum class
+     * @param directory The path to the field for if settings is defined
+     * @param clazz The enum class to build from the given String
+     * @return An enum that may be null
+     */
+    public static <T extends Enum<T>> @Nullable T getEnum(@NotNull ConfigurationSection section, String field,
+                                                                 @Nullable WbsSettings settings, @Nullable String directory, Class<T> clazz) throws InvalidConfigurationException {
+        return getEnum(section, field, settings, directory, clazz, false);
+    }
+
+    /**
+     * Get a list of {@link T} from a String list
+     * @param section The section to read from
+     * @param field The name of the field that contains a String to parse as {@link T}
+     * @param settings The settings to log to if a value is invalid for the given enum class
+     * @param directory The path to the field for if settings is defined
+     * @param clazz The enum class to build from the given String
+     * @param isRequired Whether or not to throw an exception if the field is missing
+     * @return An enum that may be null
+     */
+    private static <T extends Enum<T>> @Nullable T getEnum(@NotNull ConfigurationSection section, String field,
+                                                           @Nullable WbsSettings settings, @Nullable String directory, Class<T> clazz, boolean isRequired) throws InvalidConfigurationException {
+        String asString = section.getString(field);
+
+        if (asString == null) {
+            if (isRequired) {
+                if (settings != null) {
+                    settings.logError(WbsStrings.capitalize(field) + " is a required field. Please choose from the following: " +
+                            WbsEnums.joiningPrettyStrings(clazz), directory + "/" + field);
+                }
+                throw new MissingRequiredKeyException();
+            } else {
+                return null;
+            }
+        }
+
+        T instance = WbsEnums.getEnumFromString(clazz, asString);
+
+        if (instance == null) {
+            if (settings != null) {
+                settings.logError("Invalid " + field + ": " + asString + ". Please choose from the following: " +
+                        WbsEnums.joiningPrettyStrings(clazz), directory + "/" + field);
+            }
+            throw new InvalidConfigurationException();
+        }
+
+        return instance;
+    }
+
+    /**
+     * Get a list of {@link T} from a String list
+     * @param section The section to read from
+     * @param field The name of the field that contains the String list
+     * @param settings The settings to log to if a value is invalid for the given enum class
+     * @param directory The path to the field for if settings is defined
+     * @param clazz The enum class to build from the given String list
+     * @return A list of enum values that may be empty
+     */
+    public static <T extends Enum<T>> @NotNull List<T> getEnumList(@NotNull ConfigurationSection section, String field,
+                                                                    @Nullable WbsSettings settings, @Nullable String directory, Class<T> clazz) {
+        List<String> asStringList = section.getStringList(field);
+        List<T> enumList = new LinkedList<>();
+        String chooseFromListPrompt = "Please choose from the following: " + WbsEnums.joiningPrettyStrings(clazz);
+
+        for (String asString : asStringList) {
+            T instance = WbsEnums.getEnumFromString(clazz, asString);
+
+            if (instance == null) {
+                if (settings != null) {
+                    settings.logError("Invalid " + field + ": " + asString + ". " + chooseFromListPrompt, directory + "/" + field);
+                }
+                continue;
+            }
+
+            enumList.add(instance);
+        }
+
+        return enumList;
+    }
+
+
 
     /**
      * Check if a config is null, and if it is, log it against the current settings

@@ -27,8 +27,13 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * @deprecated Use {@link wbs.utils.util.entities.WbsEntityUtil} or {@link wbs.utils.util.entities.WbsPlayerUtil}
+ */
 @SuppressWarnings("unused")
+@Deprecated()
 public final class WbsEntities {
 	private WbsEntities() {}
 	
@@ -573,7 +578,8 @@ public final class WbsEntities {
 		middleLoc.setY(middleLoc.getY() + middleHeight);
 		return middleLoc;
 	}
-	
+
+	@Nullable
 	public static ItemStack getItemInSlot(LivingEntity entity, EquipmentSlot slot) {
 		EntityEquipment equipment = entity.getEquipment();
 

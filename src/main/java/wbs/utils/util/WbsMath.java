@@ -3,13 +3,63 @@ package wbs.utils.util;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public final class WbsMath {
 	private WbsMath() {}
+
+	//==========//
+	//  Chance  //
+	//==========//
+
+	/**
+	 * Returns true with a chance of a specified percentage
+	 * @param percent The percent chance of success
+	 * @return True with a percent% chance.
+	 */
+	public static boolean chance(double percent) {
+		if (percent <= 0) {
+			return false;
+		} else if (percent >= 100) {
+			return true;
+		} else {
+			return (Math.random() < percent/100);
+		}
+	}
+
+	/**
+	 * Gets a weighted value from a set
+	 * @param weightedMap A map of values to their weights
+	 * @return A random value from the key set of the provided map, weighted by
+	 * the value.
+	 * @deprecated Use {@link WbsCollectionUtil#getRandomWeighted(Map)}
+	 */
+	@Deprecated
+	@NotNull
+	public static <T, N extends Number> T getRandomWeighted(Map<T, N> weightedMap) {
+		if (weightedMap.isEmpty()) throw new IllegalArgumentException("Map is empty.");
+
+		double weight = 0;
+		for (T value : weightedMap.keySet()) {
+			weight += weightedMap.get(value).doubleValue();
+		}
+
+		double current = 0;
+		double random = Math.random() * weight;
+		for (T value : weightedMap.keySet()) {
+			current += weightedMap.get(value).doubleValue();
+			if (current >= random) {
+				return value;
+			}
+		}
+
+		throw new AssertionError("Weighted map calculation failed to select a value.");
+	}
 
 	/*==========*/
 	// Misc
@@ -25,21 +75,6 @@ public final class WbsMath {
 	 */
 	public static double roundTo(double number, int decimalPlaces) {
 		return Math.round(number * (Math.pow(10, decimalPlaces)))/Math.pow(10, decimalPlaces);
-	}
-	
-	/**
-	 * Returns true with a chance of a specified percentage
-	 * @param percent The percent chance of success
-	 * @return True with a percent% chance.
-	 */
-	public static boolean chance(double percent) {
-		if (percent <= 0) {
-			return false;
-		} else if (percent >= 100) {
-			return true;
-		} else {
-			return (Math.random() < percent/100);
-		}
 	}
 
 	/**
