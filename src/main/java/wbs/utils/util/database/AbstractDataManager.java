@@ -6,7 +6,7 @@ import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Represents an object that can be used to save & retrieve {@link WbsRecord}s from
@@ -16,6 +16,7 @@ import java.util.function.Function;
  * @param <T> The type that can be saved to the database.
  * @param <K> The type used as the primary key in the database.
  */
+@SuppressWarnings("unused")
 public abstract class AbstractDataManager<T extends RecordProducer, K> {
 
     protected final WbsPlugin plugin;
@@ -34,6 +35,13 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
             return size() > cacheSize;
         }
     };
+
+    protected Map<K, T> getCache() {
+        return cache;
+    }
+    protected WbsTable getDefaultTable() {
+        return defaultTable;
+    }
 
     /**
      * Set the number of objects that are cached in active memory to prevent
@@ -66,7 +74,7 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
     public T get(K key) {
         if (cache.containsKey(key)) return cache.get(key);
 
-        WbsRecord record = select(key);
+        WbsRecord record = select(Collections.singletonList(key));
 
         T found;
         if (record != null) {
@@ -109,16 +117,23 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
     /**
      * Write all cached values to the database
      */
+    public void saveCacheAsync() {
+        saveAsync(new LinkedList<>(cache.values()));
+    }
+
+    /**
+     * Write all cached values to the database
+     */
     public void saveCache() {
-        save(new LinkedList<>(cache.values()));
+        if (!cache.isEmpty()) save(new LinkedList<>(cache.values()));
     }
 
     /**
      * Write a collection of objects to the database asynchronously.
      * @param toInsert The objects to insert
      */
-    public void save(Collection<T> toInsert) {
-        save(toInsert, () -> {});
+    public void saveAsync(Collection<T> toInsert) {
+        saveAsync(toInsert, () -> {});
     }
 
     /**
@@ -127,16 +142,17 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
      * @param toInsert The objects to insert.
      * @param callback A callback to run once the operation is complete.
      */
-    public void save(Collection<T> toInsert, Runnable callback) {
-        plugin.runAsync(
-                () -> {
-                    // TODO: Batch this properly
-                    for (T insert : toInsert) {
-                        WbsRecord record = insert.toRecord();
-                        record.upsert(defaultTable);
-                    }
-                }, callback
-        );
+    public void saveAsync(Collection<T> toInsert, Runnable callback) {
+        plugin.runAsync(() -> save(toInsert), callback);
+    }
+
+    public void save(Collection<T> toInsert) {
+        if (toInsert.isEmpty()) return;
+        List<WbsRecord> records =
+                toInsert.stream()
+                        .map(RecordProducer::toRecord)
+                        .collect(Collectors.toList());
+        defaultTable.upsert(records);
     }
 
     /**
@@ -145,8 +161,8 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
      * @return The found record, or null if none found.
      */
     @Nullable
-    protected WbsRecord select(K key) {
-        List<WbsRecord> records = defaultTable.selectOnField(defaultTable.getPrimaryKey(), key);
+    protected WbsRecord select(List<K> keys) {
+        List<WbsRecord> records = defaultTable.selectOnFields(defaultTable.getPrimaryKeys(), keys);
         if (records.isEmpty()) {
             return null;
         } else {

@@ -51,7 +51,6 @@ public class WbsField {
         String creationPhrase = "`" + fieldName + "` " + type;
 
         if (notNull) creationPhrase += " NOT NULL";
-        if (primaryKey) creationPhrase += " PRIMARY KEY";
 
         return creationPhrase;
     }

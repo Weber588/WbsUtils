@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -33,12 +34,12 @@ public class WbsRecord {
 
         for (int i = 1; i < metaData.getColumnCount() + 1; i++) {
             String tableName = metaData.getTableName(i);
-            String fieldName = metaData.getColumnName(i);
+            String fieldName = metaData.getColumnName(i).split(":")[0];
 
             WbsField field = database.getField(tableName, fieldName);
 
             if (field == null) {
-                throw new WbsDatabaseException("WbsField not defined on table " + tableName + " for field " + fieldName);
+                throw new WbsDatabaseException("WbsField not defined on table \"" + tableName + "\" for field \"" + fieldName + "\"");
             }
 
             setField(field, set.getObject(i));
@@ -94,7 +95,7 @@ public class WbsRecord {
     }
 
     public boolean upsert(WbsTable table) {
-        return table.upsert(this);
+        return table.upsert(Collections.singletonList(this));
     }
 
     /**
@@ -104,7 +105,7 @@ public class WbsRecord {
      * @return True if the record was inserted without issue, false if an error was encountered.
      */
     public boolean insert(WbsTable table) {
-        return table.insert(this);
+        return table.insert(Collections.singletonList(this));
     }
 
     /**
@@ -123,7 +124,7 @@ public class WbsRecord {
     }
 
     public boolean update(WbsTable table) {
-        return table.update(this, table.getPrimaryKey().getFieldName() + " = ?");
+        return table.update(Collections.singletonList(this));
     }
 
     public boolean hasValue(WbsField field) {
@@ -153,5 +154,9 @@ public class WbsRecord {
             }
         }
         return true;
+    }
+
+    public int size() {
+        return fields.size();
     }
 }

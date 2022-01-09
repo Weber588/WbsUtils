@@ -6,6 +6,7 @@ import wbs.utils.exceptions.WbsDatabaseException;
 
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -15,13 +16,16 @@ public class WbsTable {
     private final String tableName;
     private final WbsDatabase database;
 
-    public WbsTable(WbsDatabase database, String tableName, @NotNull WbsField primaryKey) {
+    public WbsTable(WbsDatabase database, String tableName, @NotNull WbsField ... primaryKey) {
         this.database = database;
         this.tableName = tableName;
-        // Primary key is always the first field
+
         addField(primaryKey);
-        primaryKey.setPrimaryKey(true);
-        primaryKey.setNotNull(true);
+
+        for (WbsField primary : primaryKey) {
+            primary.setPrimaryKey(true);
+            primary.setNotNull(true);
+        }
 
         database.addTable(this);
     }
@@ -68,29 +72,49 @@ public class WbsTable {
                 .map(WbsField::getCreationPhrase)
                 .collect(Collectors.joining(", "));
 
+        query += ", PRIMARY KEY (";
+
+        query += fields.stream()
+                .filter(WbsField::isPrimaryKey)
+                .map(WbsField::getFieldName)
+                .collect(Collectors.joining(", "));
+
+        query += ")";
         query += ");";
+
         return query;
     }
-
     public String getInsertStatement() {
+        return getInsertStatement(1);
+    }
+
+    public String getInsertStatement(int amount) {
+        if (amount < 1) throw new IllegalArgumentException("Amount to insert must be positive.");
+
         String query = "INSERT INTO " + tableName + " (";
 
         query += fields.stream()
                 .map(WbsField::getFieldName)
                 .collect(Collectors.joining(", "));
 
-        query += ") VALUES (";
+        query += ") VALUES ";
 
-        query += fields.stream()
+        String valueQuery = "(" + fields.stream()
                 .map(field -> "?")
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining(", ")) + ")";
+
+        StringBuilder fullValues = new StringBuilder();
+        for (int i = 0; i < amount; i++) {
+            fullValues.append(valueQuery).append(", ");
+        }
+        query += fullValues.substring(0, fullValues.length() - 3);
 
         query += ")";
 
         return query;
     }
 
-    public String getUpdateStatement(String whereClaus) {
+    public String getUpdateStatement(@NotNull String whereClaus) {
         String query = "UPDATE " + tableName + " SET ";
 
         query += fields.stream()
@@ -103,7 +127,7 @@ public class WbsTable {
     }
 
     @NotNull
-    public List<WbsRecord> selectOnField(WbsField field, Object match) {
+    public List<WbsRecord> selectOnField(@NotNull WbsField field, @Nullable Object match) {
         List<WbsRecord> records = new ArrayList<>();
 
         String query = getSelectQuery(field.getFieldName() + " = ?");
@@ -121,106 +145,296 @@ public class WbsTable {
         return records;
     }
 
-    public boolean upsert(WbsRecord record) {
-        String query = getSelectQuery(getPrimaryKey().getFieldName() + " = ?");
+    @NotNull
+    public List<WbsRecord> selectOnFields(Collection<WbsField> fields, Collection<?> matches) {
+        if (fields.size() != matches.size()) {
+            throw new IllegalArgumentException("Number of fields must match number of matches.");
+        }
 
-        boolean recordExists;
+        if (fields.size() == 0) {
+            throw new IllegalArgumentException("At least one field must be provided.");
+        }
+
+        List<WbsRecord> records = new ArrayList<>();
+
+        String fieldsString = fields.stream()
+                .map(WbsField::getFieldName)
+                .collect(Collectors.joining(", "));
+
+        String where = fields.stream()
+                .map(field -> field.getFieldName() + " = ?")
+                .collect(Collectors.joining(" AND "));
+
+        String query = getSelectQuery(fieldsString, where);
+
         try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(query))
         {
-            statement.setObject(1, record.getValue(getPrimaryKey()));
+            int i = 1;
+            for (Object match : matches) {
+                statement.setObject(i, match);
+                i++;
+            }
+
+            records = database.select(statement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return records;
+    }
+
+    /**
+     * Inserts the given map of objects.
+     * @param records The record to insert, with all fields populated.
+     * @return True if the upsert was successful, false if any key was missing or no records were provided
+     */
+    public boolean upsert(List<WbsRecord> records) {
+        if (records.isEmpty()) return false;
+
+        String keyQuery = getPrimaryKeyQuery();
+
+        String whereClause = "(" +
+                records.stream()
+                        .map(record -> keyQuery)
+                        .collect(Collectors.joining(") OR ("))
+                + ")";
+
+        String query = getSelectQuery(whereClause);
+
+        try (Connection connection = database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query))
+        {
+
+            int paramIndex = 1;
+            for (WbsRecord record : records) {
+                for (WbsField primaryKey : getPrimaryKeys()) {
+                    statement.setObject(paramIndex, record.getValue(primaryKey));
+                    paramIndex++;
+                }
+            }
 
             ResultSet set = statement.executeQuery();
 
-            recordExists = set.next();
+            List<WbsRecord> update = new LinkedList<>();
+            List<WbsRecord> insert = new LinkedList<>();
 
-            if (recordExists) {
-                return update(record, connection);
-            } else {
-                return insert(record, connection);
+            while (set.next()) {
+                ResultSetMetaData metaData = set.getMetaData();
+
+                Map<WbsField, Object> keyValues = new HashMap<>();
+                for (int i = 1; i < metaData.getColumnCount() + 1; i++) {
+                    String tableName = metaData.getTableName(i);
+                    String fieldName = metaData.getColumnName(i).split(":")[0];
+
+                    WbsField field = database.getField(tableName, fieldName);
+
+                    if (field == null) {
+                        throw new WbsDatabaseException("WbsField not defined on table \"" + tableName + "\" for field \"" + fieldName + "\"");
+                    }
+
+                    if (field.isPrimaryKey()) {
+                        keyValues.put(field, set.getObject(i));
+                    }
+                }
+
+                WbsRecord match = null;
+
+                recordIter: for (WbsRecord record : records) {
+                    for (WbsField primaryKey : getPrimaryKeys()) {
+                        if (!Objects.equals(record.getValue(primaryKey), keyValues.get(primaryKey))) {
+                            continue recordIter;
+                        }
+                    }
+
+                    match = record;
+                    break;
+                }
+
+                if (match == null) {
+                    throw new WbsDatabaseException("Record outside provided set matched in primary key selection.");
+                }
+
+                update.add(match);
             }
+
+            for (WbsRecord record : records) {
+                if (!update.contains(record)) {
+                    insert.add(record);
+                }
+            }
+
+            boolean updateSucceeded = true;
+            if (!update.isEmpty()) {
+                updateSucceeded = update(update, connection, getPrimaryKeyQuery());
+            }
+
+            boolean insertSucceeded = true;
+            if (!insert.isEmpty()) {
+                insertSucceeded = insert(insert, connection);
+            }
+
+            return updateSucceeded && insertSucceeded;
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (WbsDatabaseException e) {
-            database.getPlugin().logger.info("Failed to upsert. Query: " + e.getQuery());
-            assert e.getWrapped() != null;
-            e.getWrapped().printStackTrace();
+            Logger logger = database.getPlugin().logger;
+            e.forEach((sqlEx, exceptionQuery) -> {
+                logger.info("Failed to upsert. Query: " + exceptionQuery);
+                sqlEx.printStackTrace();
+            });
         }
         return false;
     }
 
     /**
      * Inserts the given map of objects.
-     * @param record The record to insert, with all fields populated.
-     * @return True if the insert was successful, false if any key was missing.
+     * @param records The record to insert, with all fields populated.
+     * @return True if the insert was successful, false if any key was missing or no records were provided
      */
-    public boolean insert(WbsRecord record) {
+    public boolean insert(List<WbsRecord> records) {
+        if (records.isEmpty()) return false;
+
         try (Connection connection = database.getConnection()){
-            return insert(record, connection);
+            return insert(records, connection);
         } catch (SQLException e) {
             database.getPlugin().logger.info("Failed to insert; connection error.");
             e.printStackTrace();
         } catch (WbsDatabaseException e) {
-            database.getPlugin().logger.info("Failed to insert. Query: " + e.getQuery());
-            assert e.getWrapped() != null;
-            e.getWrapped().printStackTrace();
+            Logger logger = database.getPlugin().logger;
+            e.forEach((sqlEx, exceptionQuery) -> {
+                logger.info("Failed to upsert. Query: " + exceptionQuery);
+                sqlEx.printStackTrace();
+            });
         }
         return false;
     }
 
-    public boolean insert(WbsRecord record, Connection connection) throws WbsDatabaseException {
+    public boolean insert(List<WbsRecord> records, Connection connection) throws WbsDatabaseException {
+        if (records.isEmpty()) return false;
+
         String query = getInsertStatement();
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            return runWithRecord(record, statement);
+            return runWithRecord(records, statement);
         } catch (SQLException e) {
             throw new WbsDatabaseException(e, query);
         }
     }
 
-    public boolean update(WbsRecord record) {
-        return update(record, getPrimaryKey().getFieldName() + " = ?");
+    public boolean update(List<WbsRecord> records) {
+        return update(records, getPrimaryKeyQuery());
     }
 
     /**
-     * Inserts the given map of objects.
-     * @param record The record to insert, with all fields populated.
-     * @return True if the insert was successful, false if any key was missing.
+     * Updates the given list of records using the provided whereClause.
+     * @param records The records to update, with all fields populated.
+     * @param whereClause The where condition to update on, with fields populated for each record individually,
+     *                    in the same order as the fields are declared on the table. To use complex conditions
+     *                    that use fields in another order, or more than once, perform a direct query.
+     * @return True if the update was successful, false if any key was missing or no records were provided.
      */
-    public boolean update(WbsRecord record, String whereClause) {
+    public boolean update(List<WbsRecord> records, String whereClause) {
+        if (records.isEmpty()) return false;
+
         try (Connection connection = database.getConnection()){
-            return update(record, connection, whereClause);
+            return update(records, connection, whereClause);
         } catch (SQLException e) {
             database.getPlugin().logger.info("Failed to update; connection error.");
             e.printStackTrace();
         } catch (WbsDatabaseException e) {
-            database.getPlugin().logger.info("Failed to update. Query: " + e.getQuery());
-            assert e.getWrapped() != null;
-            e.getWrapped().printStackTrace();
+            Logger logger = database.getPlugin().logger;
+            e.forEach((sqlEx, exceptionQuery) -> {
+                logger.info("Failed to update. Query: " + exceptionQuery);
+                sqlEx.printStackTrace();
+            });
         }
         return false;
     }
 
-    public boolean update(WbsRecord record, Connection connection) throws WbsDatabaseException {
-        return update(record, connection, getPrimaryKey().getFieldName() + " = ?");
+    /**
+     * Updates the given list of records using the provided whereClause. The given connection is not closed,
+     * allowing for batching.
+     * @param records The records to update, with all fields populated.
+     * @param connection The connection to use for all queries performed.
+     * @param whereClause The where condition to update on, with fields populated for each record individually,
+     *                    in the same order as the fields are declared on the table. To use complex conditions
+     *                    that use fields in another order, or more than once, perform a direct query.
+     * @return True if the update was successful, false if any key was missing or no records were provided.
+     */
+    public boolean update(List<WbsRecord> records, Connection connection, String whereClause) throws WbsDatabaseException {
+        if (records.isEmpty()) return false;
+        WbsDatabaseException finalException = new WbsDatabaseException();
+
+        boolean allSucceeded = true;
+        for (WbsRecord record : records) {
+            try {
+                allSucceeded &= update(record, connection, whereClause);
+            } catch (WbsDatabaseException e) {
+                e.forEach(finalException::addQueryException);
+            }
+        }
+
+        if (!finalException.getQueryExceptions().isEmpty()) {
+            throw finalException;
+        }
+
+        return allSucceeded;
     }
 
+    /**
+     * Performs an update using a single record for the fields, using the given where clause.
+     * The given connection is not closed, allowing for batching.
+     * @param record The records to update, with all fields populated.
+     * @param connection The connection to use for all queries performed.
+     * @param whereClause The where condition to update on, with fields populated for each record individually,
+     *                    in the same order as the fields are declared on the table. To use complex conditions
+     *                    that use fields in another order, or more than once, perform a direct query.
+     * @return True if the update was successful, false if any key was missing or no records were provided.
+     */
     public boolean update(WbsRecord record, Connection connection, String whereClause) throws WbsDatabaseException {
         String query = getUpdateStatement(whereClause);
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            return runWithRecord(record, statement);
+            int index = 1;
+            ParameterMetaData metaData = statement.getParameterMetaData();
+
+            while (index < metaData.getParameterCount()) {
+                for (WbsField field : fields) {
+                    if (index > metaData.getParameterCount()) break;
+                    boolean hasDefault = field.getDefaultValue() != null;
+                    boolean fieldMissing = !record.hasValue(field) && field.requiresNotNull();
+
+                    if (fieldMissing) {
+                        if (hasDefault) {
+                            field.prepare(statement, index, field.getDefaultValue());
+                        } else {
+                            database.getPlugin().logger.info("Missing required field: " + field.getFieldName());
+                            return false;
+                        }
+                    } else {
+                        field.prepare(statement, index, record.getValue(field));
+                    }
+
+                    index++;
+                }
+            }
+
+            statement.executeUpdate();
+            return true;
         } catch (SQLException e) {
             throw new WbsDatabaseException(e, query);
         }
     }
 
-    private boolean runWithRecord(WbsRecord record, PreparedStatement statement) throws SQLException {
+    private boolean runWithRecord(List<WbsRecord> records, PreparedStatement statement) throws SQLException {
         // Prepared statements aren't zero-indexed; they start at 1
         int index = 1;
 
         ParameterMetaData metaData = statement.getParameterMetaData();
 
-        while (index <= metaData.getParameterCount()) {
+        int recordIndex = 0;
+        while (index <= metaData.getParameterCount() && recordIndex < records.size()) {
+            WbsRecord record = records.get(recordIndex);
             for (WbsField field : fields) {
                 if (index > metaData.getParameterCount()) {
                     break;
@@ -241,7 +455,10 @@ public class WbsTable {
 
                 index++;
             }
+            recordIndex++;
         }
+
+        database.getPlugin().logger.info("runWithRecord preparedStatement: " + statement);
 
         statement.executeUpdate();
         return true;
@@ -270,8 +487,14 @@ public class WbsTable {
         return null;
     }
 
-    public WbsField getPrimaryKey() {
-        return fields.get(0);
+    public String getPrimaryKeyQuery() {
+        return getPrimaryKeys().stream()
+                .map(key -> key.getFieldName() + " = ?")
+                .collect(Collectors.joining(" AND "));
+    }
+
+    public List<WbsField> getPrimaryKeys() {
+        return fields.stream().filter(WbsField::isPrimaryKey).collect(Collectors.toList());
     }
 
     public List<WbsField> getFields() {
