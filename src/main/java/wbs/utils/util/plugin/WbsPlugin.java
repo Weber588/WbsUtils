@@ -14,6 +14,8 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatMessageType;
@@ -35,6 +37,11 @@ import wbs.utils.util.string.WbsStrings;
 public abstract class WbsPlugin extends JavaPlugin {
 
 	public Logger logger = getLogger();
+	public PluginManager pluginManager = Bukkit.getPluginManager();
+
+	protected void registerListener(Listener listener) {
+		pluginManager.registerEvents(listener, this);
+	}
 
 	public List<String> colouriseAll(Collection<String> collection) {
 		List<String> colourised = new LinkedList<>();
