@@ -118,7 +118,7 @@ public final class WbsStringify {
 	private static String formatDateDiff(Calendar fromDate, Calendar toDate) {
 	        boolean future = false;
 	        if (toDate.equals(fromDate)) {
-	            return "now";
+	            return "0 seconds";
 	        }
 	        if (toDate.after(fromDate)) {
 	            future = true;

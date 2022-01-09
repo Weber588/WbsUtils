@@ -52,7 +52,7 @@ public final class WbsCollectionUtil {
         int current = 0;
         for (T t : collection) {
             current++;
-            if (index >= current) {
+            if (index <= current) {
                 return t;
             }
         }
