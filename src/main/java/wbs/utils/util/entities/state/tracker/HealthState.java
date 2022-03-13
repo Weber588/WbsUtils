@@ -1,15 +1,14 @@
 package wbs.utils.util.entities.state.tracker;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
-public class HealthState implements EntityState<LivingEntity> {
+public class HealthState implements EntityState<LivingEntity>, ConfigurationSerializable {
 
     private double health = 20;
 
@@ -40,5 +39,26 @@ public class HealthState implements EntityState<LivingEntity> {
     public @NotNull Set<Class<? extends EntityState<?>>> restoreAfter() {
         // Capture before potion effects are removed, and restore after they are. This allows absorption to maintain health.
         return new HashSet<>(Collections.singletonList(PotionEffectsState.class));
+    }
+
+    // Serialization
+    private static final String HEALTH = "health";
+
+    public static HealthState deserialize(Map<String, Object> args) {
+        Object health = args.get(HEALTH);
+        if (health instanceof Double) {
+            return new HealthState((double) health);
+        }
+        return new HealthState();
+    }
+
+    @NotNull
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put(HEALTH, health);
+
+        return map;
     }
 }

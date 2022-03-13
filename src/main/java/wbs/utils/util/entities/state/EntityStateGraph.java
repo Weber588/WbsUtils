@@ -6,7 +6,7 @@ import wbs.utils.exceptions.CyclicDependencyException;
 
 import java.util.*;
 
-class EntityStateGraph<T extends Entity> {
+class EntityStateGraph<T extends Entity> implements Iterable<EntityState<? super T>> {
 
     private final List<EntityStateNode> nodes = new LinkedList<>();
 
@@ -73,6 +73,24 @@ class EntityStateGraph<T extends Entity> {
         }
 
         resolved.add(node);
+    }
+
+    @NotNull
+    @Override
+    public Iterator<EntityState<? super T>> iterator() {
+        return new Iterator<EntityState<? super T>>() {
+            final Iterator<EntityStateNode> nodeIterator = nodes.iterator();
+
+            @Override
+            public boolean hasNext() {
+                return nodeIterator.hasNext();
+            }
+
+            @Override
+            public EntityState<? super T> next() {
+                return nodeIterator.next().entityState;
+            }
+        };
     }
 
     private class EntityStateNode {

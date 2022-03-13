@@ -1,16 +1,15 @@
 package wbs.utils.util.entities.state.tracker;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
-public class AllowFlightState implements EntityState<Player> {
-
+public class AllowFlightState implements EntityState<Player>, ConfigurationSerializable {
     private boolean allowFlight = false;
 
     public AllowFlightState() {}
@@ -31,5 +30,26 @@ public class AllowFlightState implements EntityState<Player> {
     @Override
     public @NotNull Set<Class<? extends EntityState<?>>> restoreAfter() {
         return new HashSet<>(Collections.singletonList(GameModeState.class));
+    }
+
+    // Serialization
+    private static final String ALLOW_FLIGHT = "allow-flight";
+
+    public static AllowFlightState deserialize(Map<String, Object> args) {
+        Object allowFlight = args.get(ALLOW_FLIGHT);
+        if (allowFlight instanceof Boolean) {
+            return new AllowFlightState(allowFlight == Boolean.TRUE);
+        }
+        return new AllowFlightState();
+    }
+
+    @NotNull
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put(ALLOW_FLIGHT, allowFlight);
+
+        return map;
     }
 }

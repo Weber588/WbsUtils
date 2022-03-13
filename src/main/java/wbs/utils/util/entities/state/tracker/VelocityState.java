@@ -1,17 +1,16 @@
 package wbs.utils.util.entities.state.tracker;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.entities.state.EntityState;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
-public class VelocityState implements EntityState<Entity> {
+public class VelocityState implements EntityState<Entity>, ConfigurationSerializable {
 
     @Nullable
     private Vector velocity;
@@ -45,5 +44,26 @@ public class VelocityState implements EntityState<Entity> {
     public @NotNull Set<Class<? extends EntityState<?>>> restoreAfter() {
         // Teleporting clears velocity, so restore afterwards
         return new HashSet<>(Collections.singletonList(LocationState.class));
+    }
+
+    // Serialization
+    private static final String VELOCITY = "velocity";
+
+    public static VelocityState deserialize(Map<String, Object> args) {
+        Object velocity = args.get(VELOCITY);
+        if (velocity instanceof Vector) {
+            return new VelocityState((Vector) velocity);
+        }
+        return new VelocityState();
+    }
+
+    @NotNull
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put(VELOCITY, velocity);
+
+        return map;
     }
 }

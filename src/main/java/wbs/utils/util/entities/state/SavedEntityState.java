@@ -1,9 +1,13 @@
 package wbs.utils.util.entities.state;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
+import wbs.utils.WbsUtils;
 import wbs.utils.util.entities.state.tracker.*;
 
-import java.util.Collection;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Represents a snapshot of an entity, tracking only specific qualities.
@@ -11,7 +15,7 @@ import java.util.Collection;
  * before returning them to their former state later.
  */
 @SuppressWarnings({"unused", "UnusedReturnValue"})
-public class SavedEntityState<T extends Entity> {
+public class SavedEntityState<T extends Entity> implements ConfigurationSerializable {
 
     private final EntityStateGraph<T> graph = new EntityStateGraph<>();
 
@@ -65,6 +69,12 @@ public class SavedEntityState<T extends Entity> {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
+    private SavedEntityState<?> trackUnsafe(EntityState<?> toTrack) {
+        graph.addTracker((EntityState<? super T>) toTrack);
+        return this;
+    }
+
     /**
      * Add a new state to track, only if another of the same
      * class has not been added.
@@ -96,5 +106,56 @@ public class SavedEntityState<T extends Entity> {
     public SavedEntityState<T> restoreState(T target) {
         graph.restoreState(target);
         return this;
+    }
+
+    // Serialization
+    public static SavedEntityState<?> deserialize(Map<String, Object> args) {
+        Object stateNames = args.get("tracked-types");
+
+        SavedEntityState<? extends Entity> savedState = new SavedEntityState<>();
+
+        Logger logger = WbsUtils.getInstance().logger;
+
+        if (stateNames instanceof List) {
+            for (Object check : (List<?>) stateNames) {
+                if (check instanceof String) {
+                    String escapedName = (String) check;
+                    EntityState<? extends Entity> state = EntityStateManager.deserialize(escapedName, args);
+
+                    if (state == null) {
+                        logger.warning("An entity state failed to deserialize: " +
+                                EntityStateManager.unescapeClassName(escapedName));
+                        continue;
+                    }
+
+                    try {
+                        savedState.trackUnsafe(state);
+                    } catch (ClassCastException e) {
+                        logger.warning("An entity state failed to deserialize (invalid subclass): " +
+                                EntityStateManager.unescapeClassName(escapedName));
+                    }
+                }
+            }
+        }
+
+        return savedState;
+    }
+
+    @NotNull
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        List<String> stateNames = new LinkedList<>();
+
+        for (EntityState<? super T> state : graph) {
+            if (state instanceof ConfigurationSerializable) {
+                map.putAll(((ConfigurationSerializable) state).serialize());
+                stateNames.add(EntityStateManager.getEscapedClassName(state.getClass()));
+            }
+        }
+
+        map.put("tracked-types", stateNames);
+
+        return map;
     }
 }

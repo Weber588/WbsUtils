@@ -1,17 +1,16 @@
 package wbs.utils.util.entities.state.tracker;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.entities.state.EntityState;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
-public class InventoryState implements EntityState<Player> {
+public class InventoryState implements EntityState<Player>, ConfigurationSerializable {
 
     @Nullable
     private ItemStack[] contents;
@@ -70,5 +69,36 @@ public class InventoryState implements EntityState<Player> {
     public @NotNull Set<Class<? extends EntityState<?>>> restoreAfter() {
         // As some world/region plugins manage inventories on teleport, restore after & capture before loc change.
         return new HashSet<>(Collections.singletonList(LocationState.class));
+    }
+
+    // Serialization
+    private static final String CONTENTS = "contents";
+    private static final String ITEM_SLOT = "item-slot";
+
+    public static InventoryState deserialize(Map<String, Object> args) {
+        InventoryState state = new InventoryState();
+
+        Object contents = args.get(CONTENTS);
+        if (contents instanceof ItemStack[]) {
+            state.setContents((ItemStack[]) contents);
+        }
+
+        Object itemSlot = args.get(ITEM_SLOT);
+        if (itemSlot instanceof Integer) {
+            state.setItemSlot((int) itemSlot);
+        }
+
+        return state;
+    }
+
+    @NotNull
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put(CONTENTS, contents);
+        map.put(ITEM_SLOT, itemSlot);
+
+        return map;
     }
 }

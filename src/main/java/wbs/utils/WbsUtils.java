@@ -2,6 +2,7 @@ package wbs.utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
+import wbs.utils.util.entities.state.EntityStateManager;
 import wbs.utils.util.particles.WbsParticleEffect;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.pluginhooks.PluginHookManager;
@@ -13,13 +14,24 @@ public class WbsUtils extends WbsPlugin {
 	public static WbsUtils getInstance() {
 		return instance;
 	}
+
+	private boolean isLoaded = false;
 	
 	public WbsUtils() {
 		instance = this;
 	}
 
 	@Override
+	public void onLoad() {
+		EntityStateManager.registerNativeDeserializers();
+
+		isLoaded = true;
+	}
+
+	@Override
 	public void onEnable() {
+		EntityStateManager.registerConfigurableClasses();
+
 		WbsParticleEffect.setPlugin(this);
 
 		PluginCommand reloadCommand = getCommand("utilsreload");
@@ -44,4 +56,8 @@ public class WbsUtils extends WbsPlugin {
     public void onDisable() {
     	
     }
+
+	public boolean isLoaded() {
+		return isLoaded;
+	}
 }
