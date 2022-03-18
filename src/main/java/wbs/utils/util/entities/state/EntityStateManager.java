@@ -22,6 +22,8 @@ public final class EntityStateManager {
     private EntityStateManager() {}
 
     public static void registerNativeDeserializers() {
+
+
         register(AllowFlightState.class, AllowFlightState::deserialize);
         register(FallDistanceState.class, FallDistanceState::deserialize);
         register(FireTicksState.class, FireTicksState::deserialize);
@@ -29,6 +31,7 @@ public final class EntityStateManager {
         register(GameModeState.class, GameModeState::deserialize);
         register(HealthState.class, HealthState::deserialize);
         register(HungerState.class, HungerState::deserialize);
+        register(InventoryState.class, InventoryState::deserialize);
         register(InvulnerableState.class, InvulnerableState::deserialize);
         register(LocationState.class, LocationState::deserialize);
         register(PotionEffectsState.class, PotionEffectsState::deserialize);
@@ -63,6 +66,10 @@ public final class EntityStateManager {
 
     @SuppressWarnings("unchecked")
     public static void registerConfigurableClasses() {
+        ConfigurationSerialization.registerClass(SavedEntityState.class);
+        ConfigurationSerialization.registerClass(SavedLivingEntityState.class);
+        ConfigurationSerialization.registerClass(SavedPlayerState.class);
+
         for (Class<?> entityStateClass : registeredClasses.values()) {
             if (ConfigurationSerializable.class.isAssignableFrom(entityStateClass)) {
                 ConfigurationSerialization.registerClass((Class<? extends ConfigurationSerializable>) entityStateClass);
@@ -74,12 +81,16 @@ public final class EntityStateManager {
     public static EntityState<?> deserialize(String escapedClassName, Map<String, Object> map) {
         Class<? extends EntityState<?>> clazz = registeredClasses.get(escapedClassName);
 
-        if (clazz == null) return null;
+        if (clazz == null) {
+            WbsUtils.getInstance().logger.warning("Registered class not found: " + escapedClassName);
+            return null;
+        }
 
         Function<Map<String, Object>, ? extends EntityState<?>> deserializer =
                 deserializers.get(clazz);
 
         if (deserializer == null) {
+            WbsUtils.getInstance().logger.warning("Deserializer not found for class " + escapedClassName);
             return null;
         }
 
@@ -87,10 +98,10 @@ public final class EntityStateManager {
     }
 
     static String getEscapedClassName(Class<?> obj) {
-        return obj.getCanonicalName().replace(".", "|");
+        return obj.getCanonicalName();//.replace(".", "|");
     }
 
     static String unescapeClassName(String escapedClassName) {
-        return escapedClassName.replace("|", ".");
+        return escapedClassName;//.replace("|", ".");
     }
 }

@@ -1,8 +1,10 @@
 package wbs.utils.util.entities.state;
 
+import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.bukkit.entity.Player;
 import wbs.utils.util.entities.state.tracker.*;
 
+@DelegateDeserialization(SavedEntityState.class)
 @SuppressWarnings("unused")
 public class SavedPlayerState<T extends Player> extends SavedLivingEntityState<T> {
     @Override

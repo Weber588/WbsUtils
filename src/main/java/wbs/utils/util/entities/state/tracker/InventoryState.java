@@ -79,8 +79,34 @@ public class InventoryState implements EntityState<Player>, ConfigurationSeriali
         InventoryState state = new InventoryState();
 
         Object contents = args.get(CONTENTS);
-        if (contents instanceof ItemStack[]) {
-            state.setContents((ItemStack[]) contents);
+        if (contents instanceof Map) {
+            Map<?, ?> contentsMap = (Map<?, ?>) contents;
+
+            int maxIndex = 0;
+            for (Object i : contentsMap.keySet()) {
+                if (i instanceof Integer) {
+                    int index = (int) i;
+
+                    if (index > maxIndex) {
+                        maxIndex = index;
+                    }
+                }
+            }
+
+            ItemStack[] contentsArray = new ItemStack[maxIndex + 1];
+
+            for (Object i : contentsMap.keySet()) {
+                if (i instanceof Integer) {
+                    int index = (int) i;
+                    Object value = contentsMap.get(i);
+                    if (value instanceof ItemStack) {
+                        ItemStack item = (ItemStack) value;
+                        contentsArray[index] = item;
+                    }
+                }
+            }
+
+            state.setContents(contentsArray);
         }
 
         Object itemSlot = args.get(ITEM_SLOT);
@@ -96,7 +122,17 @@ public class InventoryState implements EntityState<Player>, ConfigurationSeriali
     public Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
 
-        map.put(CONTENTS, contents);
+        Map<Integer, ItemStack> contentMap = new HashMap<>();
+
+        int index = 0;
+        for (ItemStack item : contents) {
+            if (item != null) {
+                contentMap.put(index, item);
+            }
+            index++;
+        }
+
+        map.put(CONTENTS, contentMap);
         map.put(ITEM_SLOT, itemSlot);
 
         return map;

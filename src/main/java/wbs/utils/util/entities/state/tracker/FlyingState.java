@@ -1,6 +1,5 @@
 package wbs.utils.util.entities.state.tracker;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
