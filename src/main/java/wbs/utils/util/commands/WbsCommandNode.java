@@ -75,10 +75,25 @@ public abstract class WbsCommandNode extends WbsSubcommand {
                 return true;
             }
 
-            // TODO: Make this support multi-arg nodes
-            sendUsage("<arg>.&r Please choose from one of the following: &h" + getLabelsString(sender), sender, label, args);
+            return onCommandNoArgs(sender, label, args, start);
         }
 
+        return true;
+    }
+
+    /**
+     * Theoretically should never be called, only being implemented here since the start version is implemented, and
+     * implementing subclasses shouldn't be able to implement this (as they might expect it to be called).
+     */
+    @Override
+    protected final boolean onCommand(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+        throw new IllegalStateException("This method should be unreachable. " +
+                "If you're seeing this error message, please report this error.");
+    }
+
+    protected boolean onCommandNoArgs(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, int start) {
+        // TODO: Make this support multi-arg nodes
+        sendUsage("<arg>.&r Please choose from one of the following: &h" + getLabelsString(sender), sender, label, args);
         return true;
     }
 

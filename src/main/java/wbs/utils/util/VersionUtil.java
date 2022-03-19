@@ -39,10 +39,11 @@ public final class VersionUtil {
         return Bukkit.getPluginManager().getPlugin(pluginName) != null;
     }
 
+    @SuppressWarnings("unchecked")
     public static String getReadableVersion(Player player) {
         if (!PluginHookManager.isViaVersionInstalled()) return "1." + getVersion();
 
-        ViaAPI api = Via.getAPI(); // Get the API
+        ViaAPI<Player> api = Via.getAPI(); // Get the API
         int protocolVer = api.getPlayerVersion(player); // Get the protocol version
 
         ProtocolVersion versionForPlayer = ProtocolVersion.getProtocol(protocolVer);

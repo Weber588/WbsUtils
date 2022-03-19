@@ -101,7 +101,7 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
 
         for (WbsSubcommand subcommand : subcommandMap.values()) {
             if (subcommand.getLabel().equalsIgnoreCase(args[0])) {
-                return subcommand.onCommandCheckPermission(sender, label, args);
+                return subcommand.onCommandCheckPermission(sender, label, args, 1);
             }
         }
 
@@ -110,7 +110,7 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
         for (WbsSubcommand subcommand : subcommandMap.values()) {
             for (String alias : subcommand.getAliases()) {
                 if (alias.equalsIgnoreCase(args[0])) {
-                    return subcommand.onCommandCheckPermission(sender, label, args);
+                    return subcommand.onCommandCheckPermission(sender, label, args, 1);
                 }
             }
         }
@@ -128,7 +128,7 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
 
     protected final boolean runDefaultCommand(CommandSender sender, String label, String[] args) {
         if (defaultCommand != null && checkPermission(sender, defaultCommand.getPermission())) {
-            return defaultCommand.onCommandCheckPermission(sender, label, args);
+            return defaultCommand.onCommandCheckPermission(sender, label, args, 1);
         }
         return false;
     }

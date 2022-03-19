@@ -41,7 +41,7 @@ public abstract class WbsSubcommand extends WbsMessenger {
      * @return false if the command failed unexpectedly, true otherwise
      */
     protected boolean onCommand(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
-        return onCommand(sender, label, args, 1);
+        throw new CommandNotImplementedException();
     }
 
     /**
@@ -53,23 +53,9 @@ public abstract class WbsSubcommand extends WbsMessenger {
      * @return false if the command failed unexpectedly, true otherwise
      */
     protected boolean onCommand(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args, int start) {
-        throw new CommandNotImplementedException();
+        return onCommand(sender, label, args);
     }
 
-    /**
-     * Check this command's permission, and if successful, run the implementing class's onCommand
-     * method
-     * @param sender The sender that ran the command
-     * @param label The alias used to run this command
-     * @param args The arguments provided
-     * @return false if the command failed unexpectedly, true otherwise
-     */
-    protected final boolean onCommandCheckPermission(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
-        if (checkPermission(sender, permission)) {
-            return onCommand(sender, label, args);
-        }
-        return true;
-    }
     /**
      * Check this command's permission, and if successful, run the implementing class's onCommand
      * method
