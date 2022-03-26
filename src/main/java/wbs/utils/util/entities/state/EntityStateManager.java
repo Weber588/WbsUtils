@@ -22,8 +22,6 @@ public final class EntityStateManager {
     private EntityStateManager() {}
 
     public static void registerNativeDeserializers() {
-
-
         register(AllowFlightState.class, AllowFlightState::deserialize);
         register(FallDistanceState.class, FallDistanceState::deserialize);
         register(FireTicksState.class, FireTicksState::deserialize);
@@ -35,6 +33,7 @@ public final class EntityStateManager {
         register(InvulnerableState.class, InvulnerableState::deserialize);
         register(LocationState.class, LocationState::deserialize);
         register(PotionEffectsState.class, PotionEffectsState::deserialize);
+        register(RemainingAirState.class, RemainingAirState::deserialize);
         register(SaturationState.class, SaturationState::deserialize);
         register(VelocityState.class, VelocityState::deserialize);
         register(XPState.class, XPState::deserialize);
