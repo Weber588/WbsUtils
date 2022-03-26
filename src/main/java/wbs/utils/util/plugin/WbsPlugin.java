@@ -1,5 +1,6 @@
 package wbs.utils.util.plugin;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +8,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -19,9 +22,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.pluginhooks.PlaceholderAPIWrapper;
 import wbs.utils.util.string.WbsStrings;
 
@@ -33,7 +36,7 @@ import wbs.utils.util.string.WbsStrings;
  * the plugin.
  * @author Weber588
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public abstract class WbsPlugin extends JavaPlugin {
 
 	public Logger logger = getLogger();
@@ -43,12 +46,26 @@ public abstract class WbsPlugin extends JavaPlugin {
 		pluginManager.registerEvents(listener, this);
 	}
 
-	public List<String> colouriseAll(Collection<String> collection) {
-		List<String> colourised = new LinkedList<>();
+	private ChatColor colour = ChatColor.GREEN;
+	private ChatColor highlight = ChatColor.BLUE;
+	private ChatColor errorColour = ChatColor.RED;
+	public String prefix;
 
-		collection.forEach(element -> colourised.add(dynamicColourise(element)));
+	@Override
+	public abstract void onEnable();
 
-		return colourised;
+	/**
+	 * Set the displays used throughout the plugin for formatting
+	 * @param newPrefix The prefix to appear before standard messages
+	 * @param newColour The new default plugin colour
+	 * @param newHighlight The new highlight colour
+	 * @param newErrorColour The new errors colour
+	 */
+	public void setDisplays(String newPrefix, ChatColor newColour, ChatColor newHighlight, ChatColor newErrorColour) {
+		prefix = ChatColor.translateAlternateColorCodes('&', newPrefix);
+		colour = newColour;
+		highlight = newHighlight;
+		errorColour = newErrorColour;
 	}
 
 	/**
@@ -65,6 +82,22 @@ public abstract class WbsPlugin extends JavaPlugin {
 		return string;
 	}
 
+	public List<String> colouriseAll(Collection<String> collection) {
+		List<String> colourised = new LinkedList<>();
+
+		collection.forEach(element -> colourised.add(dynamicColourise(element)));
+
+		return colourised;
+	}
+
+	@NotNull
+	public TextComponent formatAsTextComponent(@NotNull String message) {
+		message = dynamicColourise(colour + message);
+		BaseComponent[] components = TextComponent.fromLegacyText(message);
+
+		return new TextComponent(components);
+	}
+
 	/**
 	 * Send a formatted message with "&amp;" colour codes,
 	 * where "&amp;w" becomes the configured error colour,
@@ -79,6 +112,48 @@ public abstract class WbsPlugin extends JavaPlugin {
 	}
 
 	/**
+	 * Get a {@link MessageBuilder} that allows a message to be built using plugin-specific
+	 * formatting, and supports chat events.
+	 * @param message The base message to appear after the prefix.
+	 * @param sender The CommandSender to receive the message
+	 * @return The message builder.
+	 */
+	public MessageBuilder buildMessage(String message, CommandSender sender) {
+		return new MessageBuilder(prefix, sender).append(" " + colour + message);
+	}
+
+	/**
+	 * Get a {@link MessageBuilder} that allows a message to be built using plugin-specific
+	 * formatting, and supports chat events.
+	 * @param message The base message to appear after the prefix.
+	 * @return The message builder.
+	 */
+	public MessageBuilder buildMessage(String message) {
+		return new MessageBuilder(prefix).append(" " + colour + message);
+	}
+
+	/**
+	 * Get a {@link MessageBuilder} that allows a message to be built using plugin-specific
+	 * formatting, and supports chat events.
+	 * @param message The message to appear with the plugin's default colour.
+	 * @param sender The CommandSender to receive the message
+	 * @return The message builder.
+	 */
+	public MessageBuilder buildMessageNoPrefix(String message, CommandSender sender) {
+		return new MessageBuilder(colour + message, sender);
+	}
+
+	/**
+	 * Get a {@link MessageBuilder} that allows a message to be built using plugin-specific
+	 * formatting, and supports chat events.
+	 * @param message The message to appear with the plugin's default colour.
+	 * @return The message builder.
+	 */
+	public MessageBuilder buildMessageNoPrefix(String message) {
+		return new MessageBuilder(colour + message);
+	}
+
+	/**
 	 * Same as {@link #sendMessage(String, CommandSender)}, but
 	 * automatically fills placeholders with PlaceholderAPI if sender
 	 * is a Player, and PlaceholderAPI is installed
@@ -89,8 +164,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 		if (sender instanceof Player) {
 			message = PlaceholderAPIWrapper.setPlaceholders((Player) sender, message);
 		}
-		message = dynamicColourise(message);
-		sender.sendMessage(prefix + ' ' + colour + message);
+		sendMessage(message, sender);
 	}
 	
 	/**
@@ -114,7 +188,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 	public void broadcast(String message) {
 		message = dynamicColourise(message);
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			player.sendMessage(prefix + ' ' +  colour + message);
+			sendMessage(message, player);
 		}
 	}
 	
@@ -147,28 +221,85 @@ public abstract class WbsPlugin extends JavaPlugin {
 			}
 		}
 	}
-	
-	private ChatColor colour = ChatColor.GREEN;
-	private ChatColor highlight = ChatColor.BLUE;
-	private ChatColor errorColour = ChatColor.RED;
-	public String prefix;
 
-	/**
-	 * Set the displays used throughout the plugin for formatting
-	 * @param newPrefix The prefix to appear before standard messages
-	 * @param newColour The new default plugin colour
-	 * @param newHighlight The new highlight colour
-	 * @param newErrorColour The new errors colour
-	 */
-	public void setDisplays(String newPrefix, ChatColor newColour, ChatColor newHighlight, ChatColor newErrorColour) {
-		prefix = ChatColor.translateAlternateColorCodes('&', newPrefix);
-		colour = newColour;
-		highlight = newHighlight;
-		errorColour = newErrorColour;
+	public class MessageBuilder {
+		private final List<TextComponent> components = new LinkedList<>();
+		@SuppressWarnings("NotNullFieldNotInitialized") // initialized via the append method
+		@NotNull
+		private TextComponent mostRecent;
+		private final List<CommandSender> recipients = new LinkedList<>();
+		public MessageBuilder(String message) {
+			append(message);
+		}
+		public MessageBuilder(String message, CommandSender sender) {
+			this(message);
+			recipients.add(sender);
+		}
+
+		public MessageBuilder addRecipient(CommandSender ... senders) {
+			recipients.addAll(Arrays.asList(senders));
+			return this;
+		}
+
+		public MessageBuilder append(String string) {
+			return append(formatAsTextComponent(string));
+		}
+		public MessageBuilder append(TextComponent text) {
+			mostRecent = text;
+			components.add(text);
+			return this;
+		}
+
+		public MessageBuilder prepend(String string) {
+			return prepend(formatAsTextComponent(string));
+		}
+		public MessageBuilder prepend(TextComponent text) {
+			mostRecent = text;
+			components.add(0, text);
+			return this;
+		}
+
+		public MessageBuilder onHover(HoverEvent onHover) {
+			mostRecent.setHoverEvent(onHover);
+			return this;
+		}
+		public MessageBuilder addHoverText(String string) {
+			Text text = new Text(new TextComponent[] { formatAsTextComponent(string) });
+			HoverEvent onHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, text);
+			return onHover(onHover);
+		}
+
+		public MessageBuilder onClick(ClickEvent onClick) {
+			mostRecent.setClickEvent(onClick);
+			return this;
+		}
+		public MessageBuilder addClickCommand(String command) {
+			ClickEvent onClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
+			return onClick(onClick);
+		}
+		public MessageBuilder addClickCommandSuggestion(String command) {
+			ClickEvent onClick = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command);
+			return onClick(onClick);
+		}
+
+		public TextComponent[] getComponentArray() {
+			return components.toArray(new TextComponent[0]);
+		}
+
+		public void send() {
+			TextComponent[] componentArray = getComponentArray();
+			for (CommandSender sender : recipients) {
+				sender.spigot().sendMessage(componentArray);
+			}
+		}
+
+		public void broadcast() {
+			TextComponent[] componentArray = getComponentArray();
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				player.spigot().sendMessage(componentArray);
+			}
+		}
 	}
-
-	@Override
-	public abstract void onEnable();
 
 	/**
 	 * Runs a block of code asynchronously using a BukkitRunnable, and
