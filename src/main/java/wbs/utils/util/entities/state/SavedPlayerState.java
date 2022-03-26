@@ -6,7 +6,7 @@ import wbs.utils.util.entities.state.tracker.*;
 
 @DelegateDeserialization(SavedEntityState.class)
 @SuppressWarnings("unused")
-public class SavedPlayerState<T extends Player> extends SavedLivingEntityState<T> {
+public class SavedPlayerState extends SavedLivingEntityState<Player> {
     @Override
     public void trackAll() {
         super.trackAll();

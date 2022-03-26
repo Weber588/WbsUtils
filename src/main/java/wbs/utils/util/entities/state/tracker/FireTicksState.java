@@ -5,10 +5,7 @@ import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class FireTicksState implements EntityState<Entity>, ConfigurationSerializable {
@@ -40,7 +37,8 @@ public class FireTicksState implements EntityState<Entity>, ConfigurationSeriali
 
     @Override
     public @NotNull Set<Class<? extends EntityState<?>>> restoreAfter() {
-        return new HashSet<>();
+        // Process after location changes, to avoid being re-ignited when standing in lava
+        return new HashSet<>(Collections.singletonList(LocationState.class));
     }
 
     // Serialization
