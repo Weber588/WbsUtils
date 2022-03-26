@@ -16,6 +16,8 @@ public class WbsTable {
     private final String tableName;
     private final WbsDatabase database;
 
+    private boolean debugMode = false;
+
     public WbsTable(WbsDatabase database, String tableName, @NotNull WbsField ... primaryKey) {
         this.database = database;
         this.tableName = tableName;
@@ -53,6 +55,10 @@ public class WbsTable {
             if (connection == null) return;
 
             PreparedStatement statement = connection.prepareStatement(query);
+
+            if (debugMode) {
+                database.getPlugin().logger.info("addFieldIfNotExists: " + statement);
+            }
 
             statement.execute();
             statement.close();
@@ -137,6 +143,10 @@ public class WbsTable {
         {
             statement.setObject(1, match);
 
+            if (debugMode) {
+                database.getPlugin().logger.info("selectOnField: " + statement);
+            }
+
             records = database.select(statement);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -157,7 +167,7 @@ public class WbsTable {
 
         List<WbsRecord> records = new ArrayList<>();
 
-        String fieldsString = fields.stream()
+        String fieldsString = this.fields.stream()
                 .map(WbsField::getFieldName)
                 .collect(Collectors.joining(", "));
 
@@ -174,6 +184,10 @@ public class WbsTable {
             for (Object match : matches) {
                 statement.setObject(i, match);
                 i++;
+            }
+
+            if (debugMode) {
+                database.getPlugin().logger.info("selectOnField: " + statement);
             }
 
             records = database.select(statement);
@@ -212,6 +226,10 @@ public class WbsTable {
                     statement.setObject(paramIndex, record.getValue(primaryKey));
                     paramIndex++;
                 }
+            }
+
+            if (debugMode) {
+                database.getPlugin().logger.info("upsert (insert/update sort): " + statement);
             }
 
             ResultSet set = statement.executeQuery();
@@ -398,7 +416,7 @@ public class WbsTable {
             int index = 1;
             ParameterMetaData metaData = statement.getParameterMetaData();
 
-            while (index < metaData.getParameterCount()) {
+            while (index <= metaData.getParameterCount()) {
                 for (WbsField field : fields) {
                     if (index > metaData.getParameterCount()) break;
                     boolean hasDefault = field.getDefaultValue() != null;
@@ -417,6 +435,10 @@ public class WbsTable {
 
                     index++;
                 }
+            }
+
+            if (debugMode) {
+                database.getPlugin().logger.info("update: " + statement);
             }
 
             statement.executeUpdate();
@@ -458,7 +480,9 @@ public class WbsTable {
             recordIndex++;
         }
 
-        database.getPlugin().logger.info("runWithRecord preparedStatement: " + statement);
+        if (debugMode) {
+            database.getPlugin().logger.info("runWithRecord: " + statement);
+        }
 
         statement.executeUpdate();
         return true;
@@ -499,5 +523,13 @@ public class WbsTable {
 
     public List<WbsField> getFields() {
         return new ArrayList<>(fields);
+    }
+
+    public boolean inDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
     }
 }

@@ -4,6 +4,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.plugin.WbsPlugin;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -28,6 +31,9 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
 
     private final WbsTable defaultTable;
 
+    protected VolatileCacheType volatileCacheType = VolatileCacheType.WEAK;
+    private final Map<K, Reference<T>> volatileCache = new HashMap<>();
+
     private int cacheSize = 25;
     private final Map<K, T> cache = new LinkedHashMap<K, T>() {
         @Override
@@ -37,7 +43,27 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
     };
 
     protected Map<K, T> getCache() {
-        return cache;
+        Map<K, T> mergedCache = new HashMap<>(cache);
+
+        if (volatileCacheType != VolatileCacheType.DISABLED) {
+            Set<K> toRemove = new HashSet<>();
+
+            for (K volatileKey : volatileCache.keySet()) {
+                Reference<T> ref = volatileCache.get(volatileKey);
+                T value = ref.get();
+                if (value != null) {
+                    mergedCache.putIfAbsent(volatileKey, value);
+                } else {
+                    toRemove.add(volatileKey);
+                }
+            }
+
+            for (K volatileKey : toRemove) {
+                volatileCache.remove(volatileKey);
+            }
+        }
+
+        return mergedCache;
     }
     protected WbsTable getDefaultTable() {
         return defaultTable;
@@ -47,6 +73,9 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
      * Set the number of objects that are cached in active memory to prevent
      * unneeded calls to the database. Changing the cache size while populated
      * with more entries than the new size will not remove excess entries.
+     * <br/>
+     * This is the number of records guaranteed to exist in the cache once populated,
+     * however more may be stored as {@link SoftReference}s.
      * @param size The new size of the cache.
      */
     public void setCacheSize(int size) {
@@ -58,8 +87,9 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
      * @return The number of entries the cache contained prior to being cleared.
      */
     public int clearCache() {
-        int size = cache.size();
+        int size = getCache().size();
         cache.clear();
+        volatileCache.clear();
         return size;
     }
 
@@ -72,7 +102,8 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
      */
     @NotNull
     public T get(K key) {
-        if (cache.containsKey(key)) return cache.get(key);
+        Map<K, T> mergedCache = getCache();
+        if (mergedCache.containsKey(key)) return mergedCache.get(key);
 
         WbsRecord record = select(Collections.singletonList(key));
 
@@ -84,6 +115,18 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
         }
 
         cache.put(key, found);
+
+        switch (volatileCacheType) {
+            case SOFT:
+                volatileCache.put(key, new SoftReference<>(found));
+                break;
+            case WEAK:
+                volatileCache.put(key, new WeakReference<>(found));
+                break;
+            case DISABLED:
+                break;
+        }
+
         return found;
     }
 
@@ -94,7 +137,7 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
      */
     @Nullable
     public T getCached(K key) {
-        return cache.get(key);
+        return getCache().get(key);
     }
 
     /**
@@ -106,8 +149,9 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
      * accept it in the callback.
      */
     public int getAsync(K key, @NotNull Consumer<T> callback) {
-        if (cache.containsKey(key)) {
-            callback.accept(cache.get(key));
+        Map<K, T> mergedCache = getCache();
+        if (mergedCache.containsKey(key)) {
+            callback.accept(mergedCache.get(key));
             return -1;
         }
 
@@ -125,7 +169,9 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
      * Write all cached values to the database
      */
     public void saveCache() {
-        if (!cache.isEmpty()) save(new LinkedList<>(cache.values()));
+        Map<K, T> mergedCache = getCache();
+        if (!mergedCache.isEmpty())
+            save(new LinkedList<>(mergedCache.values()));
     }
 
     /**
@@ -186,4 +232,10 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
      */
     @NotNull
     protected abstract T produceDefault(K key);
+
+    public enum VolatileCacheType {
+        SOFT,
+        WEAK,
+        DISABLED
+    }
 }
