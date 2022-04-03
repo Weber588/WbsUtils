@@ -35,6 +35,8 @@ public class WbsField {
             case DOUBLE:
                 statement.setDouble(index, (Double) value);
                 break;
+            case BOOLEAN: // Also prepare booleans as integers
+                statement.setInt(index, (Boolean) value ? 1 : 0);
         }
     }
 

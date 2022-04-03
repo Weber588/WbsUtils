@@ -17,6 +17,7 @@ public class WbsRecord {
 
     private final WbsDatabase database;
     private final Map<WbsField, Object> fields = new HashMap<>();
+    private final Map<String, Object> anonymousFields = new HashMap<>();
 
     public WbsRecord(WbsDatabase database) {
         this.database = database;
@@ -39,10 +40,10 @@ public class WbsRecord {
             WbsField field = database.getField(tableName, fieldName);
 
             if (field == null) {
-                throw new WbsDatabaseException("WbsField not defined on table \"" + tableName + "\" for field \"" + fieldName + "\"");
+                anonymousFields.put(fieldName, set.getObject(i));
+            } else {
+                setField(field, set.getObject(i));
             }
-
-            setField(field, set.getObject(i));
         }
     }
 
@@ -92,6 +93,10 @@ public class WbsRecord {
 
     public Object getOrDefault(WbsField field) {
         return fields.getOrDefault(field, field.getDefaultValue());
+    }
+
+    public Object getAnonymousField(String anonName) {
+        return anonymousFields.get(anonName);
     }
 
     public boolean upsert(WbsTable table) {
