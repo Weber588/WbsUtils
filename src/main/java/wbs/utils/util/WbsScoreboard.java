@@ -101,9 +101,13 @@ public class WbsScoreboard {
      * @return True if the player's scoreboard changed.
      */
     public boolean showToPlayer(Player player) {
-        if (player.getScoreboard().equals(scoreboard)) return false;
+        if (isBeingViewedBy(player)) return false;
 
         player.setScoreboard(scoreboard);
         return true;
+    }
+
+    public boolean isBeingViewedBy(Player player) {
+        return player.getScoreboard().equals(scoreboard);
     }
 }
