@@ -116,8 +116,11 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * formatting, and supports chat events.
 	 * @param message The base message to appear after the prefix.
 	 * @param sender The CommandSender to receive the message
+	 * @deprecated Use {@link #buildMessage(String)} and pass sender in when
+	 * sending
 	 * @return The message builder.
 	 */
+	@Deprecated
 	public MessageBuilder buildMessage(String message, CommandSender sender) {
 		return new MessageBuilder(prefix, sender).append(" " + colour + message);
 	}
@@ -128,8 +131,8 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * @param message The base message to appear after the prefix.
 	 * @return The message builder.
 	 */
-	public MessageBuilder buildMessage(String message) {
-		return new MessageBuilder(prefix).append(" " + colour + message);
+	public WbsMessageBuilder buildMessage(String message) {
+		return new WbsMessageBuilder(this, prefix).append(" " + colour + message);
 	}
 
 	/**
@@ -137,8 +140,11 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * formatting, and supports chat events.
 	 * @param message The message to appear with the plugin's default colour.
 	 * @param sender The CommandSender to receive the message
+	 * @deprecated Use {@link #buildMessageNoPrefix(String)} and pass sender in when
+	 * sending
 	 * @return The message builder.
 	 */
+	@Deprecated
 	public MessageBuilder buildMessageNoPrefix(String message, CommandSender sender) {
 		return new MessageBuilder(colour + message, sender);
 	}
@@ -149,8 +155,8 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * @param message The message to appear with the plugin's default colour.
 	 * @return The message builder.
 	 */
-	public MessageBuilder buildMessageNoPrefix(String message) {
-		return new MessageBuilder(colour + message);
+	public WbsMessageBuilder buildMessageNoPrefix(String message) {
+		return new WbsMessageBuilder(this,colour + message);
 	}
 
 	/**
@@ -222,6 +228,10 @@ public abstract class WbsPlugin extends JavaPlugin {
 		}
 	}
 
+	/**
+	 * @deprecated Use {@link WbsMessageBuilder} and {@link WbsMessage} instead.
+	 */
+	@Deprecated
 	public class MessageBuilder {
 		private final List<TextComponent> components = new LinkedList<>();
 		@SuppressWarnings("NotNullFieldNotInitialized") // initialized via the append method
@@ -244,6 +254,9 @@ public abstract class WbsPlugin extends JavaPlugin {
 		public MessageBuilder append(String string) {
 			return append(formatAsTextComponent(string));
 		}
+		public MessageBuilder appendRaw(String string) {
+			return append(new TextComponent(string));
+		}
 		public MessageBuilder append(TextComponent text) {
 			mostRecent = text;
 			components.add(text);
@@ -252,6 +265,9 @@ public abstract class WbsPlugin extends JavaPlugin {
 
 		public MessageBuilder prepend(String string) {
 			return prepend(formatAsTextComponent(string));
+		}
+		public MessageBuilder prependRaw(String string) {
+			return prepend(new TextComponent(string));
 		}
 		public MessageBuilder prepend(TextComponent text) {
 			mostRecent = text;
@@ -265,6 +281,13 @@ public abstract class WbsPlugin extends JavaPlugin {
 		}
 		public MessageBuilder addHoverText(String string) {
 			Text text = new Text(new TextComponent[] { formatAsTextComponent(string) });
+			return addHoverText(text);
+		}
+		public MessageBuilder addHoverTextRaw(String string) {
+			Text text = new Text(string);
+			return addHoverText(text);
+		}
+		public MessageBuilder addHoverText(Text text) {
 			HoverEvent onHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, text);
 			return onHover(onHover);
 		}
@@ -286,11 +309,21 @@ public abstract class WbsPlugin extends JavaPlugin {
 			return components.toArray(new TextComponent[0]);
 		}
 
-		public void send() {
+		@SafeVarargs
+		public final <T extends CommandSender> void send(T... receivers) {
+			List<CommandSender> receiverList = new LinkedList<>(Arrays.asList(receivers));
+			send(receiverList);
+		}
+
+		public void send(Collection<? extends CommandSender> receivers) {
 			TextComponent[] componentArray = getComponentArray();
-			for (CommandSender sender : recipients) {
+			for (CommandSender sender : receivers) {
 				sender.spigot().sendMessage(componentArray);
 			}
+		}
+
+		public void send() {
+			send(recipients);
 		}
 
 		public void broadcast() {
