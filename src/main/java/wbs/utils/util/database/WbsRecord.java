@@ -50,40 +50,37 @@ public class WbsRecord {
     public boolean setField(WbsField field, Object value) {
         if (value == null) return false;
 
-        if (field.getType() == WbsFieldType.BOOLEAN && value instanceof Integer) {
-            fields.put(field, ((Integer) value) == 1);
-            return true;
-        }
-
-        if (field.getType() == WbsFieldType.STRING) {
-            fields.put(field, value.toString());
-            return true;
-        }
-
-        if (field.getType().getFieldType() != value.getClass()) {
-            throw new IllegalArgumentException("Invalid type for field " + field.getFieldName() + "; " +
-                    "Type is specified as " + field.getType() + ", but " + value.getClass().getSimpleName() + " given.");
-        }
-
-        fields.put(field, value);
+        fields.put(field, parseValue(field, value));
         return true;
     }
 
-    public <T> T getValue(WbsField field, Class<T> clazz) {
-        if (field.getType().getFieldType() != clazz) {
-            throw new IllegalArgumentException("Invalid type for field " + field.getFieldName() + "; " +
-                    "Type is specified as " + field.getType() + ", but " + clazz.getSimpleName() + " given.");
+    private Object parseValue(WbsField field, Object object) {
+        if (object == null) return null;
+
+        Object value = object;
+
+        if (field.getType().getFieldType() != value.getClass()) {
+            if (field.getType() == WbsFieldType.STRING) {
+                value = String.valueOf(value);
+            } else if (field.getType() == WbsFieldType.DOUBLE && value instanceof Integer) {
+                Integer intVal = (Integer) value;
+                value = new Double(intVal);
+            } else if (field.getType() == WbsFieldType.BOOLEAN && value instanceof Integer) {
+                value = ((Integer) value) == 1;
+            } else {
+                throw new IllegalArgumentException("Invalid type for field " + field.getFieldName() + "; " +
+                        "Type is specified as " + field.getType() + ", but " + value.getClass().getSimpleName() + " given.");
+            }
         }
 
-        return clazz.cast(fields.get(field));
+        return value;
+    }
+
+    public <T> T getValue(WbsField field, Class<T> clazz) {
+        return clazz.cast(parseValue(field, fields.get(field)));
     }
 
     public <T> T getOrDefault(WbsField field, Class<T> clazz) {
-        if (field.getType().getFieldType() != clazz) {
-            throw new IllegalArgumentException("Invalid type for field " + field.getFieldName() + "; " +
-                    "Type is specified as " + field.getType() + ", but " + clazz.getSimpleName() + " given.");
-        }
-
         return clazz.cast(getOrDefault(field));
     }
 
@@ -92,7 +89,7 @@ public class WbsRecord {
     }
 
     public Object getOrDefault(WbsField field) {
-        return fields.getOrDefault(field, field.getDefaultValue());
+        return parseValue(field, fields.getOrDefault(field, field.getDefaultValue()));
     }
 
     public Object getAnonymousField(String anonName) {

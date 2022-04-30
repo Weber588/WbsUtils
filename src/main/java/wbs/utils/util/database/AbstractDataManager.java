@@ -2,6 +2,7 @@ package wbs.utils.util.database;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import wbs.utils.WbsUtils;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.lang.ref.Reference;
@@ -42,7 +43,7 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
         }
     };
 
-    protected Map<K, T> getCache() {
+    public Map<K, T> getCache() {
         Map<K, T> mergedCache = new HashMap<>(cache);
 
         if (volatileCacheType != VolatileCacheType.DISABLED) {
@@ -93,6 +94,21 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
         return size;
     }
 
+    protected void addToCache(K key, T value) {
+        cache.put(key, value);
+
+        switch (volatileCacheType) {
+            case SOFT:
+                volatileCache.put(key, new SoftReference<>(value));
+                break;
+            case WEAK:
+                volatileCache.put(key, new WeakReference<>(value));
+                break;
+            case DISABLED:
+                break;
+        }
+    }
+
     /**
      * Synchronously get a record based on it's key. It's recommended
      * to use {@link #getAsync(Object, Consumer)} to avoid freezing the server,
@@ -114,18 +130,7 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
             found = produceDefault(key);
         }
 
-        cache.put(key, found);
-
-        switch (volatileCacheType) {
-            case SOFT:
-                volatileCache.put(key, new SoftReference<>(found));
-                break;
-            case WEAK:
-                volatileCache.put(key, new WeakReference<>(found));
-                break;
-            case DISABLED:
-                break;
-        }
+        addToCache(key, found);
 
         return found;
     }

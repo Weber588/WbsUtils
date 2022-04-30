@@ -36,10 +36,20 @@ public class WbsTable {
         fields.addAll(Arrays.asList(field));
     }
 
+    public boolean removeField(WbsField field) {
+        return fields.remove(field);
+    }
+
     private String getAddFieldQuery(WbsField field) {
         return "ALTER TABLE " + tableName + " ADD " + field.getCreationPhrase();
     }
 
+    /**
+     * Add a new field, updating the underlying database.
+     * @param field The field to add
+     * @return True if the field was added successfully, or false if the field failed to
+     * add for any reason.
+     */
     public boolean addNewField(WbsField field) {
         if (database.queryWithoutReturns(getAddFieldQuery(field))) {
             fields.add(field);
@@ -49,10 +59,15 @@ public class WbsTable {
         }
     }
 
-    public void addFieldIfNotExists(WbsField field) {
+    /**
+     * Adds a field if it doesn't already exist.
+     * @param field The field to try adding.
+     * @return True if the field now exists, regardless of if it existed previously. False if there was an error.
+     */
+    public boolean addFieldIfNotExists(WbsField field) {
         String query = getAddFieldQuery(field);
         try (Connection connection = database.getConnection()) {
-            if (connection == null) return;
+            if (connection == null) return false;
 
             PreparedStatement statement = connection.prepareStatement(query);
 
@@ -61,13 +76,67 @@ public class WbsTable {
             }
 
             statement.execute();
+
+            addField(field);
+
             statement.close();
+            return true;
         } catch (SQLException e) {
             // TODO: Find a way to do this properly.
             if (e.getMessage().contains("duplicate column")) {
                 // Add field, it already exists
                 addField(field);
+                return true;
+            } else {
+                e.printStackTrace();
+                return false;
             }
+        }
+    }
+
+    private String getAlterColumnQuery(WbsField field) {
+        return "ALTER TABLE " + tableName + " ALTER COLUMN " + field.getCreationPhrase();
+    }
+
+    /**
+     * Update the definition of a field.<br/>
+     * Note that this change is potentially destructive, as it require
+     * @param field The field to update
+     * @return True if the field was updated (or already existed as-is),
+     * false if an error occurred or if the field didn't exist to be updated
+     */
+    public boolean updateField(WbsField field) {
+        WbsField existingField = getField(field.getFieldName());
+
+        if (existingField == null) {
+            return false;
+        }
+
+        // If creation phrases match, no need to update - return true;
+        if (existingField.getCreationPhrase().equalsIgnoreCase(field.getCreationPhrase())) {
+            return true;
+        }
+
+        String query = getAlterColumnQuery(field);
+        try (Connection connection = database.getConnection()) {
+            if (connection == null) return false;
+
+            PreparedStatement statement = connection.prepareStatement(query);
+
+            if (debugMode) {
+                database.getPlugin().logger.info("updateField: " + statement);
+            }
+
+            statement.execute();
+
+            addField(field);
+            removeField(existingField);
+
+            statement.close();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
