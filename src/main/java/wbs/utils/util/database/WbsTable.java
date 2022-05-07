@@ -400,7 +400,7 @@ public class WbsTable {
     public boolean insert(List<WbsRecord> records, Connection connection) throws WbsDatabaseException {
         if (records.isEmpty()) return false;
 
-        String query = getInsertStatement();
+        String query = getInsertStatement(records.size());
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             return runWithRecord(records, statement);
         } catch (SQLException e) {
