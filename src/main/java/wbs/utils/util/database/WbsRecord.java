@@ -67,6 +67,8 @@ public class WbsRecord {
                 value = new Double(intVal);
             } else if (field.getType() == WbsFieldType.BOOLEAN && value instanceof Integer) {
                 value = ((Integer) value) == 1;
+            } else if (field.getType() == WbsFieldType.LONG && value instanceof Integer) {
+                value = (long) (int) value;
             } else {
                 throw new IllegalArgumentException("Invalid type for field " + field.getFieldName() + "; " +
                         "Type is specified as " + field.getType() + ", but " + value.getClass().getSimpleName() + " given.");

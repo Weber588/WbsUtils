@@ -1,5 +1,8 @@
 package wbs.utils.util.database;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -25,19 +28,7 @@ public class WbsField {
     }
 
     public void prepare(PreparedStatement statement, int index, Object value) throws SQLException {
-        switch (type) {
-            case STRING:
-                statement.setString(index, (String) value);
-                break;
-            case INT:
-                statement.setInt(index, (Integer) value);
-                break;
-            case DOUBLE:
-                statement.setDouble(index, (Double) value);
-                break;
-            case BOOLEAN: // Also prepare booleans as integers
-                statement.setInt(index, (Boolean) value ? 1 : 0);
-        }
+        type.prepare(statement, index, value, this);
     }
 
 
@@ -75,7 +66,12 @@ public class WbsField {
         return notNull;
     }
 
+    @NotNull
     public Object getDefaultValue() {
+        if (defaultValue == null) {
+            return type.getDefaultValue();
+        }
+
         return defaultValue;
     }
 
