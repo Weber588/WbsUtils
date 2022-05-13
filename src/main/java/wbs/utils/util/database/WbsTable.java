@@ -203,9 +203,16 @@ public class WbsTable {
 
     @NotNull
     public List<WbsRecord> selectOnField(@NotNull WbsField field, @Nullable Object match) {
+        return selectOnField(field, match, null);
+    }
+
+    @NotNull
+    public List<WbsRecord> selectOnField(@NotNull WbsField field, @Nullable Object match, @Nullable CollateFunction collate) {
         List<WbsRecord> records = new ArrayList<>();
 
-        String query = getSelectQuery(field.getFieldName() + " = ?");
+        String whereClaus = field.getFieldName() + " = ?";
+        if (collate != null) whereClaus += " COLLATE " + collate;
+        String query = getSelectQuery(whereClaus);
 
         try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(query))
