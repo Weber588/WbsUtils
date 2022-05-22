@@ -4,12 +4,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.providers.DataProvider;
 
 /**
  * A generator that returns a single double until {@link #refresh()} is called,
  * at which point it calculates a new value.
  */
-public abstract class DoubleGenerator {
+public abstract class DoubleGenerator implements DataProvider {
 
     /**
      * Represents the subclasses of this generator.

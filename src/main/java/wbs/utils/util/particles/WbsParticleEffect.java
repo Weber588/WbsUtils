@@ -11,6 +11,7 @@ import org.bukkit.util.Vector;
 
 import wbs.utils.WbsUtils;
 import wbs.utils.exceptions.InvalidConfigurationException;
+import wbs.utils.util.providers.Refreshable;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.providers.NumProvider;
@@ -111,6 +112,9 @@ public abstract class WbsParticleEffect {
 	 */
 	protected void refreshProviders() {
 		amount.refresh();
+		if (options instanceof Refreshable) {
+			((Refreshable) options).refresh();
+		}
 	}
 
 	/**

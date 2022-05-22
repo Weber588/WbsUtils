@@ -1,9 +1,12 @@
 package wbs.utils.util.providers;
 
+import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
+import wbs.utils.util.WbsColours;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.providers.generator.vector.VectorGenerator;
@@ -14,7 +17,7 @@ import java.util.Set;
 /**
  * Represents a vector that may either be static, or change over time
  */
-public class VectorProvider {
+public class VectorProvider implements DataProvider {
 
     private NumProvider x, y, z;
 
@@ -60,7 +63,7 @@ public class VectorProvider {
      *                  logging purposes
      * @param defaultVector The default vector to use in case any NumProviders are malformed
      */
-    public VectorProvider(ConfigurationSection section, WbsSettings settings, String directory, Vector defaultVector) {
+    public VectorProvider(ConfigurationSection section, WbsSettings settings, String directory, @NotNull Vector defaultVector) {
         if (section.get("x") != null) {
             WbsConfigReader.requireNotNull(section, "x", settings, directory);
             WbsConfigReader.requireNotNull(section, "y", settings, directory);
@@ -156,6 +159,52 @@ public class VectorProvider {
      */
     public double getZ() {
         return val().getZ();
+    }
+
+    /**
+     * @return The current x component as an int
+     */
+    public int getIntX() {
+        return val().getBlockX();
+    }
+    /**
+     * @return The current y component as an int
+     */
+    public int getIntY() {
+        return val().getBlockY();
+    }
+    /**
+     * @return The current z component as an int
+     */
+    public int getIntZ() {
+        return val().getBlockZ();
+    }
+
+    /**
+     * Get this vector as a {@link Color}, taking the int components of
+     * x y z as r g b in the range 0-255
+     * @return The {@link Color} represented by the current vector
+     */
+    public Color colourVal255() {
+        return Color.fromRGB(getIntX(), getIntY(), getIntZ());
+    }
+
+    /**
+     * Get this vector as a {@link Color}, taking the doubles x y z as r g b in the range 0-1
+     * @return The {@link Color} represented by the current vector
+     */
+    public Color colourValDecimal() {
+        return Color.fromRGB((int) Math.round(getX() * 255),
+                (int) Math.round(getY() * 255),
+                (int) Math.round(getZ() * 255));
+    }
+
+    /**
+     * Get this vector as a {@link Color}, taking the doubles x y z as hue, saturation, brightness in the range 0-1
+     * @return The {@link Color} represented by the current vector
+     */
+    public Color colourValHSB() {
+        return WbsColours.fromHSB(getX(), getY(), getZ());
     }
 
     /**

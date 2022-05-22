@@ -5,12 +5,13 @@ import org.bukkit.util.Vector;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.providers.DataProvider;
 
 /**
  * A generator that returns a single Vector until {@link #refresh()} is called,
  * at which point it calculates a new value.
  */
-public abstract class VectorGenerator {
+public abstract class VectorGenerator implements DataProvider {
 
     /**
      * Represents the subclasses of this generator.

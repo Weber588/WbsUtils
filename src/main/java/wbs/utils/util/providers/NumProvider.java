@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * Represents a number (typically a double) that may either be static, or change over time
  */
-public class NumProvider {
+public class NumProvider implements DataProvider {
 
     @Nullable
     private DoubleGenerator generator;
