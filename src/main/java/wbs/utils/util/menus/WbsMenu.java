@@ -22,7 +22,7 @@ import java.util.Map;
 public class WbsMenu implements Listener {
 
     protected final WbsPlugin plugin;
-    private final int rows;
+    protected final int rows;
 
     private final String titleString;
 
