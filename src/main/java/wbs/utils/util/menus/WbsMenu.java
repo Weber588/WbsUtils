@@ -11,12 +11,15 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.string.WbsStrings;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class WbsMenu implements Listener {
@@ -28,7 +31,13 @@ public class WbsMenu implements Listener {
 
     private final Map<Integer, MenuSlot> slots = new HashMap<>();
 
+    private boolean isRegistered = false;
     private boolean unregisterOnClose = false;
+
+    @Nullable
+    protected Consumer<InventoryCloseEvent> closeAction;
+    @Nullable
+    protected BiConsumer<WbsMenu, InventoryCloseEvent> closeActionMenu;
 
     /**
      * @param plugin The plugin to register this menu to
@@ -45,8 +54,7 @@ public class WbsMenu implements Listener {
 
         titleString = plugin.dynamicColourise(title) + WbsStrings.getInvisibleString(plugin.getName() + ":" + id);
 
-        PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(this, plugin);
+        register();
     }
 
     /**
@@ -91,6 +99,9 @@ public class WbsMenu implements Listener {
     }
 
     private boolean unregister(Player cause) {
+        if (!isRegistered) {
+            return false;
+        }
         InventoryClickEvent.getHandlerList().unregister(this);
         InventoryCloseEvent.getHandlerList().unregister(this);
 
@@ -100,10 +111,11 @@ public class WbsMenu implements Listener {
 
             if (hasMenuOpen(player)) {
                 player.closeInventory();
-                plugin.sendMessage("&wMenu was unregistered!", player);
                 wasOpen = true;
             }
         }
+
+        isRegistered = false;
 
         return wasOpen;
     }
@@ -115,6 +127,19 @@ public class WbsMenu implements Listener {
      */
     public boolean unregister() {
         return unregister(null);
+    }
+
+    public boolean isRegistered() {
+        return isRegistered;
+    }
+
+    public void register() {
+        if (!isRegistered) {
+            PluginManager pm = Bukkit.getPluginManager();
+            pm.registerEvents(this, plugin);
+
+            isRegistered = true;
+        }
     }
 
     /**
@@ -154,6 +179,8 @@ public class WbsMenu implements Listener {
     }
 
     public void showTo(Player player) {
+        register();
+
         Inventory inventory = buildInventory(player);
 
         player.openInventory(inventory);
@@ -171,7 +198,23 @@ public class WbsMenu implements Listener {
     public void onClose(InventoryCloseEvent event) {
         if (isMenu(event.getView())) {
             if (unregisterOnClose) unregister((Player) event.getPlayer());
+
+            if (closeAction != null) {
+                closeAction.accept(event);
+            }
+
+            if (closeActionMenu != null) {
+                closeActionMenu.accept(this, event);
+            }
         }
+    }
+
+    public void setCloseAction(@Nullable Consumer<InventoryCloseEvent> closeAction) {
+        this.closeAction = closeAction;
+    }
+
+    public void setCloseActionMenu(@Nullable BiConsumer<WbsMenu, InventoryCloseEvent> closeActionMenu) {
+        this.closeActionMenu = closeActionMenu;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsPlugin;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,6 +38,8 @@ public abstract class PagedMenu<T> extends WbsMenu {
     protected final int maxSlots;
     protected final int rowStart;
     protected final int page;
+
+    protected final List<MenuSlot> pageSlots = new ArrayList<>();
 
     public PagedMenu(WbsPlugin plugin,
                      Collection<T> toDisplay,
@@ -85,6 +88,8 @@ public abstract class PagedMenu<T> extends WbsMenu {
 
         for (T display : onPage) {
             MenuSlot slot = getSlot(display);
+
+            pageSlots.add(slot);
 
             setNextFreeSlot(rowStart, rowStart + (maxRows - 1), minColumn, maxColumn, slot);
         }
