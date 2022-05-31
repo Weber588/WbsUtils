@@ -65,9 +65,6 @@ public abstract class PagedMenu<T> extends WbsMenu {
 
         lastPageNumber = toDisplay.size() / maxSlots;
 
-        MenuSlot outlineSlot = new MenuSlot(plugin, Material.BLUE_STAINED_GLASS_PANE, "&r");
-        setOutline(outlineSlot);
-
         List<T> onPage = new LinkedList<>();
 
         int index = 0;
