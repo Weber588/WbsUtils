@@ -39,7 +39,7 @@ public abstract class PagedMenu<T> extends WbsMenu {
     protected final int rowStart;
     protected final int page;
 
-    protected final List<MenuSlot> pageSlots = new ArrayList<>();
+    protected final List<PageSlot<? extends T>> pageSlots = new ArrayList<>();
 
     public PagedMenu(WbsPlugin plugin,
                      Collection<T> toDisplay,
@@ -84,7 +84,7 @@ public abstract class PagedMenu<T> extends WbsMenu {
         }
 
         for (T display : onPage) {
-            MenuSlot slot = getSlot(display);
+            PageSlot<? extends T> slot = getSlot(display);
 
             pageSlots.add(slot);
 
@@ -114,14 +114,14 @@ public abstract class PagedMenu<T> extends WbsMenu {
         MenuSlot slot = new MenuSlot(plugin, material, display);
 
         slot.setClickActionMenu((menu, click) -> {
-            PagedMenu<T> prevPage = getPage(page);
+            PagedMenu<? extends T> prevPage = getPage(page);
             prevPage.showTo((Player) click.getWhoClicked());
         });
 
         return slot;
     }
 
-    protected abstract MenuSlot getSlot(T display);
+    protected abstract PageSlot<? extends T> getSlot(T display);
 
-    protected abstract PagedMenu<T> getPage(int page);
+    protected abstract PagedMenu<? extends T> getPage(int page);
 }

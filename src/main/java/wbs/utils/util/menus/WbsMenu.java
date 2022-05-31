@@ -352,9 +352,21 @@ public class WbsMenu implements Listener {
      * @param slot The slot to use as an outline
      */
     public void setOutline(MenuSlot slot) {
+        setOutline(slot, true);
+    }
+
+    /**
+     * Helper method to set the outline of the menu to a specific slot.
+     * On 1 or 2 row menus, this will fill the entire menu.
+     * @param slot The slot to use as an outline
+     * @param override True to override existing slots, false to only fill empty slots
+     */
+    public void setOutline(MenuSlot slot, boolean override) {
         for (int i = 0; i <= getMaxSlot(); i++) {
             if (i < 9 || i >= getMaxSlot() - 9 || i % 9 == 0 || i % 9 == 8) {
-                setSlot(i, slot);
+                if (override || slots.get(i) == null) {
+                    setSlot(i, slot);
+                }
             }
         }
     }
