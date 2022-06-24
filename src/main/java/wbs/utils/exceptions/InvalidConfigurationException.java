@@ -1,6 +1,7 @@
 package wbs.utils.exceptions;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Thrown when a {@link ConfigurationSection} is either malformed and not valid
@@ -8,8 +9,20 @@ import org.bukkit.configuration.ConfigurationSection;
  */
 public class InvalidConfigurationException extends RuntimeException {
 
+    @Nullable
+    private String directory;
+
     public InvalidConfigurationException() {}
     public InvalidConfigurationException(String msg) {
         super(msg);
+    }
+    public InvalidConfigurationException(String msg, @Nullable String directory) {
+        super(msg);
+        this.directory = directory;
+    }
+
+    @Nullable
+    public String getDirectory() {
+        return directory;
     }
 }
