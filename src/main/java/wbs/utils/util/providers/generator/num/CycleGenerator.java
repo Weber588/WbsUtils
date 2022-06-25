@@ -80,7 +80,12 @@ public class CycleGenerator extends DoubleGenerator{
     @Override
     protected double getNewValue() {
         progress += step;
-        if (progress > 1) progress -= 1;
+
+        if (Double.isFinite(progress)) {
+            progress %= 1;
+        } else {
+            progress = 0;
+        }
 
         return (end.val() - start.val()) * progress + start.val();
     }

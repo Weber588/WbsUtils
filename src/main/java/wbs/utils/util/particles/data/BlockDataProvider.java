@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
-import wbs.utils.util.providers.DataProvider;
+import wbs.utils.util.providers.Provider;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
-public class BlockDataProvider implements BlockData, DataProvider {
+public class BlockDataProvider implements BlockData, Provider {
 
     @NotNull
     private BlockData current;

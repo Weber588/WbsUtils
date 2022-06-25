@@ -5,13 +5,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.WbsEnums;
-import wbs.utils.util.providers.DataProvider;
+import wbs.utils.util.providers.Provider;
 
 import java.util.LinkedList;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class ItemStackProvider extends ItemStack implements DataProvider {
+public class ItemStackProvider extends ItemStack implements Provider {
 
     private int index = 0;
     private final List<Material> dataList = new LinkedList<>();

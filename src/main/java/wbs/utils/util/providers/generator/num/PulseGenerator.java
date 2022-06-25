@@ -98,7 +98,11 @@ public class PulseGenerator extends DoubleGenerator {
     protected double getNewValue() {
         progress += step;
 
-        progress %= 1;
+        if (Double.isFinite(progress)) {
+            progress %= 1;
+        } else {
+            progress = 0;
+        }
 
         return (Math.sin(progress * 2 * Math.PI) / 2 + 0.5) * (max.val() - min.val()) + min.val();
     }

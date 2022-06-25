@@ -98,7 +98,12 @@ public class PingPongGenerator extends DoubleGenerator{
     @Override
     protected double getNewValue() {
         progress += step;
-        if (progress > 2) progress -= 2;
+
+        if (Double.isFinite(progress)) {
+            progress %= 2;
+        } else {
+            progress = 0;
+        }
 
         if (progress <= 1) {
             return (max.val() - min.val()) * progress + min.val();

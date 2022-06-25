@@ -7,6 +7,7 @@ import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.configuration.WbsConfigReader;
+import wbs.utils.util.providers.generator.GeneratorManager;
 import wbs.utils.util.providers.generator.num.DoubleGenerator;
 import wbs.utils.util.plugin.WbsSettings;
 
@@ -16,7 +17,7 @@ import java.util.Set;
 /**
  * Represents a number (typically a double) that may either be static, or change over time
  */
-public class NumProvider implements DataProvider {
+public class NumProvider implements Provider {
 
     @Nullable
     private DoubleGenerator generator;
@@ -89,13 +90,14 @@ public class NumProvider implements DataProvider {
                 settings.logError("You must specify either a provider or a number.", directory);
                 throw new MissingRequiredKeyException();
             } else if (providerKeys.size() > 1) {
-                settings.logError("Too many sections. Choose a single provider from the following: " + String.join(", ", WbsEnums.toStringList(DoubleGenerator.GeneratorType.class)), directory);
+                settings.logError("Too many sections. Choose a single provider from the following: "
+                        + String.join(", ", GeneratorManager.getRegisteredIds()), directory);
                 throw new InvalidConfigurationException();
             }
 
             String typeString = (String) providerKeys.toArray()[0];
 
-            generator = DoubleGenerator.buildGenerator(typeString, providerSection.getConfigurationSection(typeString), settings, directory);
+            generator = GeneratorManager.getGenerator(typeString, providerSection.getConfigurationSection(typeString), settings, directory);
         }
     }
 
@@ -132,7 +134,12 @@ public class NumProvider implements DataProvider {
         }
 
         assert generator != null;
-        return (int) generator.getValue();
+        double generatorVal = generator.getValue();
+        if (Double.isInfinite(generatorVal)) {
+            if (generatorVal == Double.POSITIVE_INFINITY) return Integer.MAX_VALUE;
+            if (generatorVal == Double.NEGATIVE_INFINITY) return Integer.MIN_VALUE;
+        }
+        return (int) generatorVal;
     }
 
     /**

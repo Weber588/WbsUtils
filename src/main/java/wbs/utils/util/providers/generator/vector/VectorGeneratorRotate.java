@@ -90,7 +90,11 @@ public class VectorGeneratorRotate extends VectorGenerator {
     protected Vector getNewValue() {
         progress += step;
 
-        progress %= 1;
+        if (Double.isFinite(progress)) {
+            progress %= 1;
+        } else {
+            progress = 0;
+        }
 
         // Rotate around the y axis, and then rotate to the about vector
         double x = Math.sin((progress + 0.25) * 2 * Math.PI) * radius.val();

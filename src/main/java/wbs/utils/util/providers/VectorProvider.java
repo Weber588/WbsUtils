@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Represents a vector that may either be static, or change over time
  */
-public class VectorProvider implements DataProvider {
+public class VectorProvider implements Provider {
 
     private NumProvider x, y, z;
 
