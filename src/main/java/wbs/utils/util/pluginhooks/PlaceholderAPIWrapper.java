@@ -1,16 +1,16 @@
 package wbs.utils.util.pluginhooks;
 
-import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * Simple wrapper for PlaceholderAPI that allows plugins to safely
@@ -22,7 +22,8 @@ public final class PlaceholderAPIWrapper {
 
 	private static final PluginManager manager = Bukkit.getPluginManager();
 	public static boolean isActive() {
-		return manager.getPlugin("PlaceholderAPI") != null;
+		Plugin papi = manager.getPlugin("PlaceholderAPI");
+		return papi != null && papi.isEnabled();
 	}
 	
 	public static String setPlaceholders(Player player, String text) {
@@ -38,45 +39,8 @@ public final class PlaceholderAPIWrapper {
 			return false;
 		}
 
-		SimplePlaceholder simplePlaceholder = new SimplePlaceholder(plugin, author) {
-			@Override
-			public String onRequest(OfflinePlayer player, String params) {
-				return function.apply(player, params);
-			}
-		};
+		SimplePlaceholder simplePlaceholder = new SimplePlaceholder(plugin, author, function);
 
 		return simplePlaceholder.register();
-	}
-
-	private static abstract class SimplePlaceholder extends PlaceholderExpansion {
-		private final JavaPlugin plugin;
-		private final String author;
-
-		private SimplePlaceholder(JavaPlugin plugin, String author) {
-			this.plugin = plugin;
-			this.author = author;
-		}
-
-		public abstract String onRequest(OfflinePlayer player, String params);
-
-		@Override
-		public String getIdentifier() {
-			return plugin.getName();
-		}
-
-		@Override
-		public String getAuthor() {
-			return author;
-		}
-
-		@Override
-		public String getVersion() {
-			return "1.0.0";
-		}
-
-		@Override
-		public String getRequiredPlugin() {
-			return plugin.getName();
-		}
 	}
 }

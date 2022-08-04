@@ -68,6 +68,18 @@ public abstract class WbsPlugin extends JavaPlugin {
 		errorColour = newErrorColour;
 	}
 
+	public ChatColor getColour() {
+		return colour;
+	}
+
+	public ChatColor getHighlight() {
+		return highlight;
+	}
+
+	public ChatColor getErrorColour() {
+		return errorColour;
+	}
+
 	/**
 	 * Colourize based on the configured plugin colours
 	 * @param string The string to colourize
