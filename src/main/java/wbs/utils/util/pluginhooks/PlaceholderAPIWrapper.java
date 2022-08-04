@@ -4,11 +4,16 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.plugin.java.JavaPlugin;
+import wbs.utils.util.plugin.WbsPlugin;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -22,8 +27,11 @@ public final class PlaceholderAPIWrapper {
 
 	private static final PluginManager manager = Bukkit.getPluginManager();
 	public static boolean isActive() {
-		return manager.getPlugin("PlaceholderAPI") != null;
+		Plugin papi = manager.getPlugin("PlaceholderAPI");
+		return papi != null && papi.isEnabled();
 	}
+
+	private static final Map<JavaPlugin, SimplePlaceholder> registered = new HashMap<>();
 	
 	public static String setPlaceholders(Player player, String text) {
 		if (isActive()) {
@@ -38,14 +46,46 @@ public final class PlaceholderAPIWrapper {
 			return false;
 		}
 
+		if (registered.containsKey(plugin)) {
+			registered.get(plugin).unregister();
+		}
+
 		SimplePlaceholder simplePlaceholder = new SimplePlaceholder(plugin, author) {
 			@Override
 			public String onRequest(OfflinePlayer player, String params) {
-				return function.apply(player, params);
+				String result = function.apply(player, params);
+
+				if (result == null && plugin instanceof WbsPlugin) {
+					return parseWbsPluginPlaceholder((WbsPlugin) plugin, player, params);
+				}
+
+				return result;
 			}
 		};
 
+		registered.put(plugin, simplePlaceholder);
+
 		return simplePlaceholder.register();
+	}
+
+	private static String parseWbsPluginPlaceholder(WbsPlugin plugin, OfflinePlayer player, String params) {
+		if (params.equalsIgnoreCase("prefix")) {
+			return plugin.prefix;
+		}
+
+		if (params.equalsIgnoreCase("formatting_colour")) {
+			return plugin.getColour().toString();
+		}
+
+		if (params.equalsIgnoreCase("formatting_highlight")) {
+			return plugin.getHighlight().toString();
+		}
+
+		if (params.equalsIgnoreCase("formatting_error")) {
+			return plugin.getErrorColour().toString();
+		}
+
+		return null;
 	}
 
 	private static abstract class SimplePlaceholder extends PlaceholderExpansion {
