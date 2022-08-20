@@ -94,10 +94,14 @@ public final class WbsEntityUtil {
         double pitch = Math.toRadians(entity.getLocation().getPitch());
         double yaw = Math.toRadians(entity.getLocation().getYaw());
 
-        y = (magnitude * Math.sin(0 - pitch));
-
-        double planeMagnitude = Math.min(magnitude, Math.abs(y / Math.tan(0 - pitch)));
-
+        double planeMagnitude;
+        if (pitch == 0) {
+            y = 0;
+            planeMagnitude = magnitude;
+        } else {
+            y = (magnitude * Math.sin(0 - pitch));
+            planeMagnitude = Math.min(magnitude, Math.abs(y / Math.tan(0 - pitch)));
+        }
         x = planeMagnitude * Math.cos(yaw + (Math.PI/2));
         z = planeMagnitude * Math.sin(yaw + (Math.PI/2));
 
