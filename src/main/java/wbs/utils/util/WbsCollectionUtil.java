@@ -54,10 +54,10 @@ public final class WbsCollectionUtil {
         int index = new Random().nextInt(collection.size());
         int current = 0;
         for (T t : collection) {
-            current++;
-            if (index <= current) {
+            if (index == current) {
                 return t;
             }
+            current++;
         }
         throw new AssertionError("Random selection failed to select a value.");
     }
