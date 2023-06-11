@@ -64,7 +64,7 @@ public final class WbsCollectionUtil {
 
     /**
      * Choose a pseudo random element from the provided map of values to chances, ignoring elements contained
-     * in the history list provided.<p/>
+     * in the history list provided.<p>
      * This method makes use of the {@link #getRandomWeighted(Map)} method.
      * @param weightedMap A non-empty map of values to their weights
      * @param history A list forming a subset of the keys in the weighted map, already chosen randomly previously,
@@ -122,7 +122,7 @@ public final class WbsCollectionUtil {
 
     /**
      * Choose a pseudo random element from the provided map of values to chances, ignoring elements contained
-     * in the history list provided.<p/>
+     * in the history list provided.<p>
      * This method makes use of the {@link #getRandomWeighted(Map)} method.
      * @param supplier A generator that returns
      * @param size The amount of unique possibilities that may be produced by supplier, usually the size of the

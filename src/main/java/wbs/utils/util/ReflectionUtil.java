@@ -23,11 +23,11 @@ public final class ReflectionUtil {
      * @param getterName The name of the method to invoke
      * @param <T> The return type
      * @return The result of invoking the method, or null if:
-     * <l>
+     * <ul>
      *     <li>The result of the invocation was itself null, or</li>
      *     <li>The method specified by the given name did not exist on the object, or</li>
      *     <li>Another, unspecified exception is thrown</li>
-     * </l>
+     * </ul>
      */
     @SuppressWarnings("unchecked")
     @Nullable

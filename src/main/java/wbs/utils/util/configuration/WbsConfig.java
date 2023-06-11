@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Similar to {@link ConfigurationSection}, but with support
  * for runtime configuration and class-specific options
- * with an annotation system. <p/>
+ * with an annotation system. <p>
  * Also serves as a wrapper for ConfigurationSections.
  */
 @Beta

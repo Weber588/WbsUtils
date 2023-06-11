@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
- * Represents an object that can be used to save & retrieve {@link WbsRecord}s from
- * a database. <p/>
+ * Represents an object that can be used to save &amp; retrieve {@link WbsRecord}s from
+ * a database. <p>
  * Retrieves from a given table by default, but can be extended to read complex objects
  * across multiple.
  * @param <T> The type that can be saved to the database.

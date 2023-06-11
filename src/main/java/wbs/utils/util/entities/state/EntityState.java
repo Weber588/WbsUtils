@@ -7,13 +7,13 @@ import java.util.Set;
 
 /**
  * Represents a capture of some property of an entity, such
- * as health.<p/>
+ * as health.<p>
  * The data captured in EntityStates should be immutable to the
  * game loop; that is, after capturing, it shouldn't matter what
  * happens to the captured entity. When an entity is restored,
  * the tracked state should be identical to the moment it was
  * captured, unless the EntityState object was directly interacted
- * with.<p/>
+ * with.<p>
  * As an example, a captured ItemStack should appear the same
  * after being restored as it did when captured, even if the
  * original ItemStack had it's amount or ItemMeta changed.

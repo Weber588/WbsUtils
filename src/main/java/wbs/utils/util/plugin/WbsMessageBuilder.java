@@ -83,7 +83,7 @@ public class WbsMessageBuilder {
     /**
      * Set the formatting of the most recently added component to the formatting that would
      * be created from the legacy text provided, taking into account custom plugin codes.
-     * @param legacyFormatting Legacy formatting text, such as "&1" for blue or "&o" for italics.
+     * @param legacyFormatting Legacy formatting text, such as "&amp;1" for blue or "&amp;o" for italics.
      */
     public WbsMessageBuilder setFormatting(String legacyFormatting) {
         TextComponent legacyComponent = plugin.formatAsTextComponent(legacyFormatting + "_");

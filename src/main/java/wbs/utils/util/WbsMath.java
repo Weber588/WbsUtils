@@ -79,7 +79,7 @@ public final class WbsMath {
 
 	/**
 	 * Linear interpolation from a to b, given
-	 * 0 <= t <= 1 representing the progress
+	 * 0 &le; t &le; 1 representing the progress
 	 * from a to b, where t = 0 returns a and
 	 * t = 1 returns b
 	 * @param a The starting value

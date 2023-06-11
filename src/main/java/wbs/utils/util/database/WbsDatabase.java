@@ -124,7 +124,7 @@ public class WbsDatabase {
 
     /**
      * Runs a query directly, auto-closing the connection used and
-     * returning a list of WbsRecords from the results of the query. <p/>
+     * returning a list of WbsRecords from the results of the query. <p>
      * <b>This method does not close the given statement automatically.</b>
      * @param query The prepared statement to run.
      * @return A list of the results which may be empty. The list will also be

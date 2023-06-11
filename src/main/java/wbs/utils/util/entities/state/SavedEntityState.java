@@ -31,7 +31,7 @@ public class SavedEntityState<T extends Entity> implements ConfigurationSerializ
      * Add all known states that aren't already being tracked.
      * If using an extending class, such as {@link SavedPlayerState},
      * additional states are tracked for the implementing classes entity type.
-     * <p/>
+     * <p>
      * Note that this does not use a concrete way of finding subclasses; the classpath
      * is not scanned, and the generic parameter isn't used. This is manually
      * implemented and will not reflect new changes without updating, including
