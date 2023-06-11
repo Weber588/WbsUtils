@@ -112,6 +112,12 @@
             <artifactId>PlotSquared-Core</artifactId>
             <version>6.6.3</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bstats</groupId>
+                    <artifactId>bstats-bukkit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- PlotSquared Bukkit API -->
@@ -124,6 +130,10 @@
                 <exclusion>
                     <artifactId>PlotSquared-Core</artifactId>
                     <groupId>*</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bstats</groupId>
+                    <artifactId>bstats-bukkit</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
