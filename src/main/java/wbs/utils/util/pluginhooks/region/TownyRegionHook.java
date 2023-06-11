@@ -7,10 +7,12 @@ import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 
 public class TownyRegionHook extends WbsRegionHook {
 
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final Towny towny;
     public TownyRegionHook() {
         towny = PluginHookManager.getTowny();
@@ -26,7 +28,7 @@ public class TownyRegionHook extends WbsRegionHook {
 
     @Override
     public boolean canDealDamage(Entity attacker, Entity victim) {
-        return CombatUtil.preventDamageCall(towny, attacker, victim);
+        return CombatUtil.preventDamageCall(attacker, victim, EntityDamageEvent.DamageCause.ENTITY_ATTACK);
     }
 
     @Override
