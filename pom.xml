@@ -46,7 +46,7 @@
         <!-- PlotSquared -->
         <repository>
             <id>intellectualsites snapshots</id>
-            <url>https://mvn.intellectualsites.com/content/repositories/snapshots/</url>
+            <url>https://mvnrepository.com/artifact/com.plotsquared</url>
         </repository>
 
         <repository>
@@ -110,7 +110,7 @@
         <dependency>
             <groupId>com.plotsquared</groupId>
             <artifactId>PlotSquared-Core</artifactId>
-            <version>6.2.2</version>
+            <version>6.6.3</version>
             <scope>provided</scope>
         </dependency>
 
