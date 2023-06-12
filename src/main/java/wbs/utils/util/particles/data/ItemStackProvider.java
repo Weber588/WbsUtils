@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  *  Provider that extends {@link ItemStack} for the purpose of allowing
- *  particle data to be refreshed & written to a config.
+ *  particle data to be refreshed and written to a config.
  */
 @Beta
 @SuppressWarnings("unused")

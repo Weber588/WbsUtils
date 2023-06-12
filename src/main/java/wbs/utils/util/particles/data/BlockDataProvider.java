@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 /**
  *  Provider that implements {@link BlockData} for the purpose of allowing
- *  particle data to be refreshed & written to a config.
+ *  particle data to be refreshed and written to a config.
  */
 @Beta
 @SuppressWarnings("unused")

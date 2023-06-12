@@ -18,7 +18,7 @@ import java.util.function.Function;
 
 /**
  *  Provider that implements {@link org.bukkit.Particle.DustOptions} for the purpose of allowing
- *  particle data to be refreshed & written to a config.
+ *  particle data to be refreshed and written to a config.
  */
 @Beta
 @SuppressWarnings("unused")
