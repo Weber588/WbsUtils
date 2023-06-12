@@ -10,6 +10,10 @@ import wbs.utils.util.plugin.WbsSettings;
  */
 public class DivisionGenerator extends BinaryFunctionalGenerator {
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public DivisionGenerator(DivisionGenerator clone) {
         super(clone);
     }

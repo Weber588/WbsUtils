@@ -18,6 +18,10 @@ public class PulseGenerator extends DoubleGenerator {
     private double progress;
     private double step;
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public PulseGenerator(PulseGenerator clone) {
         min = new NumProvider(clone.min);
         max = new NumProvider(clone.max);
@@ -54,8 +58,6 @@ public class PulseGenerator extends DoubleGenerator {
      * @param directory The path taken through the config to get to this point, for logging purposes
      */
     public PulseGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
-        super(section, settings, directory);
-
         WbsConfigReader.requireNotNull(section, "min", settings, directory);
         WbsConfigReader.requireNotNull(section, "max", settings, directory);
         WbsConfigReader.requireNotNull(section, "period", settings, directory);

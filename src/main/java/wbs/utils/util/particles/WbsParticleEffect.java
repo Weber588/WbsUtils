@@ -101,6 +101,7 @@ public abstract class WbsParticleEffect {
 	 * Generate the particle set based on current settings.
 	 * Call this before the first time it is run, or call
 	 * buildAndRun each time to run based on current settings.
+	 * @return The same object.
 	 */
 	public abstract WbsParticleEffect build();
 
@@ -119,6 +120,10 @@ public abstract class WbsParticleEffect {
 
 	/**
 	 * Run and regenerate the point set based on new settings.
+	 * @param particle The particle type to use
+	 * @param loc The location at which to run the effect.
+	 * @return The same object.
+	 * @see #play(Particle, Location)
 	 */
 	public final WbsParticleEffect buildAndPlay(Particle particle, Location loc) {
 		build();
@@ -136,6 +141,7 @@ public abstract class WbsParticleEffect {
 	 * location.
 	 * @param particle The particle type to use
 	 * @param loc The location at which to run the effect.
+	 * @return The same object.
 	 */
 	public abstract WbsParticleEffect play(Particle particle, Location loc);
 
@@ -147,6 +153,7 @@ public abstract class WbsParticleEffect {
 	 * @param particle The particle type to use
 	 * @param loc The location at which to run the effect.
 	 * @param player The only play who will see it
+	 * @return The same object.
 	 */
 	public abstract WbsParticleEffect play(Particle particle, Location loc, Player player);
 
@@ -247,6 +254,7 @@ public abstract class WbsParticleEffect {
 
 	/**
 	 * @param options The particle specific options - different for redstone, falling dust etc
+	 * @return The same object.
 	 */
 	public WbsParticleEffect setOptions(Object options) {
 		this.options = options;

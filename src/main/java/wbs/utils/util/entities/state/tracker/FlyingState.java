@@ -1,12 +1,18 @@
 package wbs.utils.util.entities.state.tracker;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
 
 import java.util.*;
 
+/**
+ * An {@link EntityState} that captures whether or not an {@link Player} is currently
+ * flying.
+ * @see Player#isFlying()
+ */
 @SuppressWarnings("unused")
 public class FlyingState implements EntityState<Player>, ConfigurationSerializable {
 

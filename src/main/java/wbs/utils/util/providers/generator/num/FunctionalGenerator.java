@@ -19,6 +19,10 @@ public abstract class FunctionalGenerator extends DoubleGenerator {
 
     protected List<NumProvider> args = new ArrayList<>();
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public FunctionalGenerator(FunctionalGenerator clone) {
         args = clone.args.stream()
                 .map(NumProvider::new)
@@ -38,11 +42,10 @@ public abstract class FunctionalGenerator extends DoubleGenerator {
     }
 
     /**
-     * Create this type of generator from a given config
-     * @param section The section to read from
+     * Create this generator from a ConfigurationSection, logging errors in the given settings
+     * @param section The section where this generator is defined
      * @param settings The settings to log errors against
-     * @param directory The path taken through the section to reach this provider, for
-     *                  logging purposes
+     * @param directory The path taken through the config to get to this point, for logging purposes
      */
     public FunctionalGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
         this(section, settings, directory, 0, Integer.MAX_VALUE);
@@ -69,8 +72,6 @@ public abstract class FunctionalGenerator extends DoubleGenerator {
      * @param maxArgs The maximum number of arguments this generator is defined on
      */
     public FunctionalGenerator(ConfigurationSection section, WbsSettings settings, String directory, int minArgs, int maxArgs) {
-        super(section, settings, directory);
-
         Set<String> keys = section.getKeys(false);
 
         if (keys.size() < minArgs) {

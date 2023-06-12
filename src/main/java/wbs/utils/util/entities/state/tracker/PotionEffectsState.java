@@ -9,6 +9,10 @@ import wbs.utils.util.entities.state.EntityState;
 
 import java.util.*;
 
+/**
+ * An {@link EntityState} that captures a {@link LivingEntity}'s currently active potion effects.
+ * @see LivingEntity#getActivePotionEffects()
+ */
 @SuppressWarnings("unused")
 public class PotionEffectsState implements EntityState<LivingEntity>, ConfigurationSerializable {
 

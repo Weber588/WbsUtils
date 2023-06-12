@@ -14,6 +14,10 @@ public class ClampGenerator extends DoubleGenerator {
     private NumProvider max;
     private final NumProvider value;
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public ClampGenerator(ClampGenerator clone) {
         min = new NumProvider(clone.min);
         max = new NumProvider(clone.max);
@@ -41,8 +45,6 @@ public class ClampGenerator extends DoubleGenerator {
      * @param directory The path taken through the config to get to this point, for logging purposes
      */
     public ClampGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
-        super(section, settings, directory);
-
         WbsConfigReader.requireNotNull(section, "min", settings, directory);
         WbsConfigReader.requireNotNull(section, "max", settings, directory);
         WbsConfigReader.requireNotNull(section, "value", settings, directory);

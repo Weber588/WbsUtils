@@ -1,7 +1,9 @@
 package wbs.utils.util.particles.data;
 
+import com.google.common.annotations.Beta;
 import org.bukkit.Color;
 import org.bukkit.Particle;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.exceptions.InvalidConfigurationException;
@@ -14,6 +16,11 @@ import wbs.utils.util.providers.VectorProvider;
 
 import java.util.function.Function;
 
+/**
+ *  Provider that implements {@link org.bukkit.Particle.DustOptions} for the purpose of allowing
+ *  particle data to be refreshed & written to a config.
+ */
+@Beta
 @SuppressWarnings("unused")
 public class DustOptionsProvider extends Particle.DustOptions implements Provider {
 
@@ -37,6 +44,13 @@ public class DustOptionsProvider extends Particle.DustOptions implements Provide
         this(colourProvider, new NumProvider(size), type);
     }
 
+    /**
+     * @param section The config to read from.
+     * @param path The path within the given config section to read from.
+     * @param settings The settings for logging purposes.
+     * @param directory The path taken so far, for logging purposes.
+     * @throws InvalidConfigurationException If the config is misconfigured in an unrecoverable way.
+     */
     public DustOptionsProvider(ConfigurationSection section, String path, WbsSettings settings, String directory) throws InvalidConfigurationException {
         super(Color.RED, 1);
 

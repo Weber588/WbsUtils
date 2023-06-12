@@ -11,10 +11,17 @@ public class AbsGenerator extends DoubleGenerator {
 
     private final NumProvider value;
 
+    /**
+     * @param value A static value to be used to create an (also) static {@link NumProvider},
+     *              which this generator operates on.
+     */
     public AbsGenerator(double value) {
         this.value = new NumProvider(value);
     }
 
+    /**
+     * @param value A {@link NumProvider} to operate on.
+     */
     public AbsGenerator(NumProvider value) {
         this.value = value;
     }
@@ -26,8 +33,6 @@ public class AbsGenerator extends DoubleGenerator {
      * @param directory The path taken through the config to get to this point, for logging purposes
      */
     public AbsGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
-        super(section, settings, directory);
-
         // Kind of hacky way of creating a num provider on itself
         value = new NumProvider(section.getParent(), section.getName(), settings, directory);
     }

@@ -33,6 +33,12 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 
 	protected boolean relative = false;
 
+	/**
+	 * Create this effect from a {@link ConfigurationSection}, logging errors in the given settings
+	 * @param section The section where this effect is defined
+	 * @param settings The settings to log errors against
+	 * @param directory The path taken through the config to get to this point, for logging purposes
+	 */
 	public VelocityParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
 		super(section, settings, directory);
 
@@ -181,22 +187,40 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 	public NumProvider getVariationProvider() {
 		return variation;
 	}
+
 	/**
 	 * @param variation The variation in direction when the
 	 * particles have speed.
+	 * @return The same object.
 	 */
 	public VelocityParticleEffect setVariation(double variation) {
 		this.variation = new NumProvider(variation);
 		return this;
 	}
+
+	/**
+	 * @param variation The variation in direction when the
+	 * particles have speed.
+	 * @return The same object.
+	 */
 	public VelocityParticleEffect setVariation(NumProvider variation) {
 		this.variation = new NumProvider(variation);
 		return this;
 	}
 
+	/**
+	 * @return Whether or not the velocity is relative to the origin of the
+	 * particle effect.
+	 */
 	public boolean getRelative() {
 		return relative;
 	}
+
+	/**
+	 * @param relative Whether or not this effect should be relative to the
+	 *                 origin of the particle effect.
+	 * @return The same object.
+	 */
 	public VelocityParticleEffect setRelative(boolean relative) {
 		this.relative = relative;
 		return this;

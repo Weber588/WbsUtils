@@ -13,6 +13,10 @@ import java.util.List;
  */
 public class VectorGeneratorAdd extends VectorFunctionalGenerator {
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public VectorGeneratorAdd(VectorGeneratorAdd clone) {
         super(clone);
     }

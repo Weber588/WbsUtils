@@ -12,6 +12,10 @@ public class RandomGenerator extends DoubleGenerator {
 
     private NumProvider min, max;
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public RandomGenerator(RandomGenerator clone) {
         min = new NumProvider(clone.min);
         max = new NumProvider(clone.max);
@@ -24,9 +28,13 @@ public class RandomGenerator extends DoubleGenerator {
         enforceMinMax();
     }
 
+    /**
+     * Create this generator from a ConfigurationSection, logging errors in the given settings
+     * @param section The section where this generator is defined
+     * @param settings The settings to log errors against
+     * @param directory The path taken through the config to get to this point, for logging purposes
+     */
     public RandomGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
-        super(section, settings, directory);
-
         WbsConfigReader.requireNotNull(section, "min", settings, directory);
         WbsConfigReader.requireNotNull(section, "max", settings, directory);
 

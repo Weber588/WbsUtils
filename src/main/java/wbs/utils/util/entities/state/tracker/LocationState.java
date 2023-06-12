@@ -12,6 +12,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * An {@link EntityState} that captures an {@link Entity}'s current location.
+ * @see Entity#getLocation()
+ */
 @SuppressWarnings("unused")
 public class LocationState implements EntityState<Entity>, ConfigurationSerializable {
 

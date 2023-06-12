@@ -9,6 +9,10 @@ import wbs.utils.util.entities.state.EntityState;
 
 import java.util.*;
 
+/**
+ * An {@link EntityState} that captures an {@link Entity}'s current velocity.
+ * @see Entity#getVelocity()
+ */
 @SuppressWarnings("unused")
 public class VelocityState implements EntityState<Entity>, ConfigurationSerializable {
 

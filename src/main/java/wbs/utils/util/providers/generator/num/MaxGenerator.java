@@ -24,6 +24,10 @@ public class MaxGenerator extends FunctionalGenerator {
         super(args);
     }
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public MaxGenerator(MaxGenerator clone) {
         super(clone);
     }

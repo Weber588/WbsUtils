@@ -24,6 +24,10 @@ public class NumProvider implements Provider {
     private boolean staticField = true;
     private double staticValue = Double.MIN_VALUE;
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public NumProvider(NumProvider clone) {
         if (clone.staticField) {
             staticValue = clone.staticValue;

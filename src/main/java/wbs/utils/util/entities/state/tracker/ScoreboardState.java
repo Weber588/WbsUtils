@@ -9,6 +9,11 @@ import wbs.utils.util.entities.state.EntityState;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * An {@link EntityState} that captures which {@link Scoreboard} a {@link Player} is
+ * currently viewing.
+ * @see Player#getScoreboard()
+ */
 @SuppressWarnings("unused")
 public class ScoreboardState implements EntityState<Player> {
 

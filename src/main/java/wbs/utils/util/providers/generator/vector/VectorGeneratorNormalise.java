@@ -12,6 +12,10 @@ public class VectorGeneratorNormalise extends VectorGenerator {
 
     private final VectorProvider value;
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public VectorGeneratorNormalise(VectorGeneratorNormalise clone) {
         value = new VectorProvider(clone.value);
     }

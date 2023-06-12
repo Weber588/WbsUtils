@@ -21,6 +21,10 @@ public class VectorGeneratorRotate extends VectorGenerator {
     private double progress;
     private double step;
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public VectorGeneratorRotate(VectorGeneratorRotate clone) {
         about = new VectorProvider(clone.about);
         period = new NumProvider(clone.period);

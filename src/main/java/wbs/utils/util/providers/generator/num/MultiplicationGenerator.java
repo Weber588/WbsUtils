@@ -24,6 +24,10 @@ public class MultiplicationGenerator extends FunctionalGenerator {
         super(args);
     }
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public MultiplicationGenerator(MultiplicationGenerator clone) {
         super(clone);
     }

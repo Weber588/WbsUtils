@@ -2,6 +2,7 @@ package wbs.utils.util.entities.state.tracker;
 
 import org.bukkit.GameMode;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,6 +10,10 @@ import wbs.utils.util.entities.state.EntityState;
 
 import java.util.*;
 
+/**
+ * An {@link EntityState} that captures the game mode a {@link Player} is currently in.
+ * @see Player#getGameMode()
+ */
 @SuppressWarnings("unused")
 public class GameModeState implements EntityState<Player>, ConfigurationSerializable {
 

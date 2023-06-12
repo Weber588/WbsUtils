@@ -19,6 +19,10 @@ public class PingPongGenerator extends DoubleGenerator{
     private double step;
     private double progress;
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public PingPongGenerator(PingPongGenerator clone) {
         min = new NumProvider(clone.min);
         max = new NumProvider(clone.max);
@@ -55,8 +59,6 @@ public class PingPongGenerator extends DoubleGenerator{
      * @param directory The path taken through the config to get to this point, for logging purposes
      */
     public PingPongGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
-        super(section, settings, directory);
-
         WbsConfigReader.requireNotNull(section, "min", settings, directory);
         WbsConfigReader.requireNotNull(section, "max", settings, directory);
         WbsConfigReader.requireNotNull(section, "period", settings, directory);

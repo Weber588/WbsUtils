@@ -2,11 +2,16 @@ package wbs.utils.util.entities.state.tracker;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
 
 import java.util.*;
 
+/**
+ * An {@link EntityState} that captures a {@link LivingEntity}'s current health.
+ * @see LivingEntity#getHealth()
+ */
 @SuppressWarnings("unused")
 public class HealthState implements EntityState<LivingEntity>, ConfigurationSerializable {
 

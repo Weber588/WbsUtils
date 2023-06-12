@@ -24,6 +24,10 @@ public class MinGenerator extends FunctionalGenerator {
         super(args);
     }
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public MinGenerator(MinGenerator clone) {
         super(clone);
     }

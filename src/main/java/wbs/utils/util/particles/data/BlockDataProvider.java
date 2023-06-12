@@ -1,5 +1,6 @@
 package wbs.utils.util.particles.data;
 
+import com.google.common.annotations.Beta;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.SoundGroup;
@@ -16,6 +17,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ *  Provider that implements {@link BlockData} for the purpose of allowing
+ *  particle data to be refreshed & written to a config.
+ */
+@Beta
 @SuppressWarnings("unused")
 public class BlockDataProvider implements BlockData, Provider {
 
@@ -29,6 +35,11 @@ public class BlockDataProvider implements BlockData, Provider {
         current = dataList.get(0);
     }
 
+    /**
+     * @param section The config to read from.
+     * @param path The path within the given config section to read from.
+     * @throws InvalidConfigurationException If the config is misconfigured in an unrecoverable way.
+     */
     public BlockDataProvider(ConfigurationSection section, String path) throws InvalidConfigurationException {
         String currentString = section.getString(path + ".current");
         if (currentString == null)

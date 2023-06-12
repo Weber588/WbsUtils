@@ -10,6 +10,10 @@ import wbs.utils.util.plugin.WbsSettings;
  */
 public class ModuloGenerator extends BinaryFunctionalGenerator {
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public ModuloGenerator(ModuloGenerator clone) {
         super(clone);
     }

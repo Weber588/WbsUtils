@@ -2,6 +2,7 @@ package wbs.utils.util.entities.state.tracker;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
 
@@ -10,6 +11,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * An {@link EntityState} that captures an {@link Entity}'s current distance fallen, used
+ * for damage calculations (among other uses).
+ * @see Entity#getFallDistance()
+ */
 @SuppressWarnings("unused")
 public class FallDistanceState implements EntityState<Entity>, ConfigurationSerializable {
 

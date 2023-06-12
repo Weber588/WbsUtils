@@ -10,6 +10,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * An {@link EntityState} that captures whether or not an {@link Entity}
+ * is currently invulnerable.
+ * @see Entity#isInvulnerable()
+ */
 @SuppressWarnings("unused")
 public class InvulnerableState implements EntityState<Entity>, ConfigurationSerializable {
 

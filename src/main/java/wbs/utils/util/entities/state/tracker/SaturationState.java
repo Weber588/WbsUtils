@@ -10,6 +10,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * An {@link EntityState} that captures a {@link Player}'s current saturation level.
+ * @see Player#getSaturation()
+ */
 @SuppressWarnings("unused")
 public class SaturationState implements EntityState<Player>, ConfigurationSerializable {
 

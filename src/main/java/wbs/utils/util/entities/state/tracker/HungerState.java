@@ -10,6 +10,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * An {@link EntityState} that captures a {@link Player}'s current hunger level.
+ * @see Player#getFoodLevel()
+ */
 @SuppressWarnings("unused")
 public class HungerState implements EntityState<Player>, ConfigurationSerializable {
 

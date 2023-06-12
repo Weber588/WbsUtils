@@ -19,6 +19,10 @@ public class CycleGenerator extends DoubleGenerator{
     private double progress;
     private double step;
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public CycleGenerator(CycleGenerator clone) {
         start = new NumProvider(clone.start);
         end = new NumProvider(clone.end);
@@ -53,8 +57,6 @@ public class CycleGenerator extends DoubleGenerator{
      * @param directory The path taken through the config to get to this point, for logging purposes
      */
     public CycleGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
-        super(section, settings, directory);
-
         WbsConfigReader.requireNotNull(section, "start", settings, directory);
         WbsConfigReader.requireNotNull(section, "end", settings, directory);
         WbsConfigReader.requireNotNull(section, "period", settings, directory);

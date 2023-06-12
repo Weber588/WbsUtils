@@ -10,6 +10,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * An {@link EntityState} that captures a {@link LivingEntity}'s remaining air, used to determine
+ * when it will start drowning.
+ * @see LivingEntity#getHealth()
+ */
 public class RemainingAirState implements EntityState<LivingEntity>, ConfigurationSerializable {
 
     // 15 seconds of air by default for a player

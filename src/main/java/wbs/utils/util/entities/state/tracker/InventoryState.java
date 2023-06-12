@@ -3,12 +3,18 @@ package wbs.utils.util.entities.state.tracker;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.entities.state.EntityState;
 
 import java.util.*;
 
+/**
+ * An {@link EntityState} that captures the current {@link PlayerInventory} of a {@link Player}.
+ * @see Player#getInventory()
+ * @see PlayerInventory#getHeldItemSlot()
+ */
 @SuppressWarnings("unused")
 public class InventoryState implements EntityState<Player>, ConfigurationSerializable {
 

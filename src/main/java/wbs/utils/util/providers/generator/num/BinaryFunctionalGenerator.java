@@ -9,8 +9,10 @@ public abstract class BinaryFunctionalGenerator extends DoubleGenerator {
 
     protected NumProvider a, b;
 
-    public BinaryFunctionalGenerator() {}
-
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public BinaryFunctionalGenerator(BinaryFunctionalGenerator clone) {
         a = new NumProvider(clone.a);
         b = new NumProvider(clone.b);
@@ -26,6 +28,12 @@ public abstract class BinaryFunctionalGenerator extends DoubleGenerator {
         this.b = new NumProvider(b);
     }
 
+    /**
+     * Create this generator from a ConfigurationSection, logging errors in the given settings
+     * @param section The section where this generator is defined
+     * @param settings The settings to log errors against
+     * @param directory The path taken through the config to get to this point, for logging purposes
+     */
     public BinaryFunctionalGenerator(ConfigurationSection section, WbsSettings settings, String directory) {
         WbsConfigReader.requireNotNull(section, "a", settings, directory + "/a");
         WbsConfigReader.requireNotNull(section, "b", settings, directory + "/b");

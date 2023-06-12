@@ -10,6 +10,10 @@ import wbs.utils.util.plugin.WbsSettings;
  */
 public class SubtractionGenerator extends BinaryFunctionalGenerator {
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public SubtractionGenerator(SubtractionGenerator clone) {
         super(clone);
     }

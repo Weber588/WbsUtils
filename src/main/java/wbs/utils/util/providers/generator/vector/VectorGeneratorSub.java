@@ -11,6 +11,10 @@ import wbs.utils.util.plugin.WbsSettings;
  */
 public class VectorGeneratorSub extends VectorBinaryFunctionalGenerator {
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public VectorGeneratorSub(VectorGeneratorSub clone) {
         super(clone);
     }

@@ -1,6 +1,8 @@
 package wbs.utils.util.particles.data;
 
+import com.google.common.annotations.Beta;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import wbs.utils.exceptions.InvalidConfigurationException;
@@ -10,18 +12,31 @@ import wbs.utils.util.providers.Provider;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ *  Provider that extends {@link ItemStack} for the purpose of allowing
+ *  particle data to be refreshed & written to a config.
+ */
+@Beta
 @SuppressWarnings("unused")
 public class ItemStackProvider extends ItemStack implements Provider {
 
     private int index = 0;
     private final List<Material> dataList = new LinkedList<>();
 
+    /**
+     * @param data The {@link Material}s to be iterated over.
+     */
     public ItemStackProvider(List<Material> data) {
         super(data.get(0));
         dataList.addAll(data);
     }
 
-    public ItemStackProvider(ConfigurationSection section, String path) {
+    /**
+     * @param section The config to read from.
+     * @param path The path within the given config section to read from.
+     * @throws InvalidConfigurationException If the config is misconfigured in an unrecoverable way.
+     */
+    public ItemStackProvider(ConfigurationSection section, String path) throws InvalidConfigurationException {
         index = section.getInt(path + ".index");
 
         List<String> asStrings = section.getStringList(path + ".materials");

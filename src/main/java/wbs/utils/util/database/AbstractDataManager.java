@@ -25,6 +25,10 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
 
     protected final WbsPlugin plugin;
 
+    /**
+     * @param plugin The related {@link WbsPlugin}
+     * @param table The {@link WbsTable} to use as the default table for simple operations.
+     */
     public AbstractDataManager(WbsPlugin plugin, WbsTable table) {
         this.plugin = plugin;
         this.defaultTable = table;
@@ -32,6 +36,9 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
 
     private final WbsTable defaultTable;
 
+    /**
+     * Represents which caching type to use for the volatile cache.
+     */
     protected VolatileCacheType volatileCacheType = VolatileCacheType.WEAK;
     private final Map<K, Reference<T>> volatileCache = new HashMap<>();
 
@@ -43,6 +50,11 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
         }
     };
 
+    /**
+     * Gets a shallow copy of the merged cache, including both the guaranteed cache and the
+     * volatile cache.
+     * @return The merged cache.
+     */
     public Map<K, T> getCache() {
         Map<K, T> mergedCache = new HashMap<>(cache);
 
@@ -66,6 +78,10 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
 
         return mergedCache;
     }
+
+    /**
+     * @return The default table, as specified on construction.
+     */
     protected WbsTable getDefaultTable() {
         return defaultTable;
     }
@@ -94,6 +110,11 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
         return size;
     }
 
+    /**
+     * Adds a key/value entry to the cache directly
+     * @param key The key for the cache entry
+     * @param value The value to add to the cache
+     */
     protected void addToCache(K key, T value) {
         cache.put(key, value);
 
@@ -197,6 +218,10 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
         plugin.runAsync(() -> save(toInsert), callback);
     }
 
+    /**
+     * Save the given collection of {@link T} to the database synchronously.
+     * @param toInsert The records to save to the database.
+     */
     public void save(Collection<T> toInsert) {
         if (toInsert.isEmpty()) return;
         List<WbsRecord> records =
@@ -209,6 +234,7 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
     /**
      * Overrideable field for selecting from the database.
      * Just reads from the default table by default.
+     * @param keys An ordered list of keys to use against the default table's primary keys.
      * @return The found record, or null if none found.
      */
     @Nullable
@@ -238,9 +264,26 @@ public abstract class AbstractDataManager<T extends RecordProducer, K> {
     @NotNull
     protected abstract T produceDefault(K key);
 
+    /**
+     * What type of volatile caching to use, where:
+     * <ul>
+     *     <li>{@link #SOFT} uses {@link SoftReference}s;</li>
+     *     <li>{@link #WEAK} uses {@link WeakReference}s; and</li>
+     *     <li>{@link #DISABLED} disables the use of the volatile cache entirely</li>
+     * </ul>
+     */
     public enum VolatileCacheType {
+        /**
+         * Represents a caching strategy using {@link SoftReference}s.
+         */
         SOFT,
+        /**
+         * Represents a caching strategy using {@link WeakReference}s.
+         */
         WEAK,
+        /**
+         * Represents no caching.
+         */
         DISABLED
     }
 }

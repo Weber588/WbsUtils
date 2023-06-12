@@ -8,6 +8,11 @@ import wbs.utils.util.entities.state.EntityState;
 
 import java.util.*;
 
+/**
+ * An {@link EntityState} that captures a {@link Player}'s ability to fly, but not
+ * whether they were flying when the state was captured.
+ * @see Player#getAllowFlight()
+ */
 @SuppressWarnings("unused")
 public class AllowFlightState implements EntityState<Player>, ConfigurationSerializable {
     private boolean allowFlight = false;

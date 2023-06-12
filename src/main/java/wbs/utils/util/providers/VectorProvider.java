@@ -24,6 +24,10 @@ public class VectorProvider implements Provider {
     private VectorGenerator generator;
     private boolean staticField = true;
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public VectorProvider(VectorProvider clone) {
         if (clone.staticField) {
             x = new NumProvider(clone.x);

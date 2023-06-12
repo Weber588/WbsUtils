@@ -23,6 +23,10 @@ public abstract class VectorFunctionalGenerator extends VectorGenerator {
 
     public VectorFunctionalGenerator() {}
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public VectorFunctionalGenerator(VectorFunctionalGenerator clone) {
         args = clone.args.stream()
                 .map(VectorProvider::new)

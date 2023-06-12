@@ -12,18 +12,31 @@ import java.util.List;
  */
 public class AdditionGenerator extends FunctionalGenerator {
 
+    /**
+     * @param args The values (or value providers) to operate on.
+     */
     public AdditionGenerator(NumProvider ... args) {
         super(args);
     }
 
+    /**
+     * @param args The values (or value providers) to operate on.
+     */
     public AdditionGenerator(List<Double> args) {
         super(args);
     }
 
+    /**
+     * @param args The values (or value providers) to operate on.
+     */
     public AdditionGenerator(double ... args) {
         super(args);
     }
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public AdditionGenerator(AdditionGenerator clone) {
         super(clone);
     }

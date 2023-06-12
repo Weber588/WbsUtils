@@ -11,6 +11,10 @@ import wbs.utils.util.plugin.WbsSettings;
  */
 public class VectorGeneratorCross extends VectorBinaryFunctionalGenerator{
 
+    /**
+     * Clone constructor.
+     * @param clone The object to clone from.
+     */
     public VectorGeneratorCross(VectorGeneratorCross clone) {
         super(clone);
     }
