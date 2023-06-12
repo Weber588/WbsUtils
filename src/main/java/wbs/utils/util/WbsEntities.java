@@ -506,9 +506,9 @@ public final class WbsEntities {
 			}
 		}
 		if (!failed) {
-			entity.teleport(tryPos);
+			return entity.teleport(tryPos);
 		}
-		return (!failed);
+		return false;
 	}
 
 	/**

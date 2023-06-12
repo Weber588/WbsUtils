@@ -167,9 +167,9 @@ public final class WbsEntityUtil {
             }
         }
         if (!failed) {
-            entity.teleport(tryPos);
+            return entity.teleport(tryPos);
         }
-        return (!failed);
+        return false;
     }
 
     /**
