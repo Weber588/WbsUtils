@@ -5,6 +5,7 @@ import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.*;
 
@@ -17,7 +18,14 @@ import java.util.*;
 public class AllowFlightState implements EntityState<Player>, ConfigurationSerializable {
     private boolean allowFlight = false;
 
+    /**
+     * Creates the state with the default value (false)
+     */
     public AllowFlightState() {}
+
+    /**
+     * @param allowFlight Whether or not to allow flight.
+     */
     public AllowFlightState(boolean allowFlight) {
         this.allowFlight = allowFlight;
     }
@@ -40,6 +48,11 @@ public class AllowFlightState implements EntityState<Player>, ConfigurationSeria
     // Serialization
     private static final String ALLOW_FLIGHT = "allow-flight";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static AllowFlightState deserialize(Map<String, Object> args) {
         Object allowFlight = args.get(ALLOW_FLIGHT);
         if (allowFlight instanceof Boolean) {

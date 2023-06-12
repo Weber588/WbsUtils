@@ -7,6 +7,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.*;
 
@@ -22,10 +23,22 @@ public class InventoryState implements EntityState<Player>, ConfigurationSeriali
     private ItemStack[] contents;
     private int itemSlot = -1;
 
+    /**
+     * Creates the state with no items or item slot configured.
+     */
     public InventoryState() {}
+
+    /**
+     * @param contents The items to track
+     */
     public InventoryState(ItemStack[] contents) {
         this.contents = contents;
     }
+
+    /**
+     * @param contents The items to track
+     * @param itemSlot The item slot (0-8, representing slots 1-9 in the hotbar) to track.
+     */
     public InventoryState(ItemStack[] contents, int itemSlot) {
         this(contents);
         this.itemSlot = itemSlot;
@@ -55,18 +68,30 @@ public class InventoryState implements EntityState<Player>, ConfigurationSeriali
         }
     }
 
+    /**
+     * @return The items to track
+     */
     public @Nullable ItemStack[] getContents() {
         return contents;
     }
 
+    /**
+     * @param contents The items to track
+     */
     public void setContents(ItemStack[] contents) {
         this.contents = contents;
     }
 
+    /**
+     * @return The item slot (0-8, representing slots 1-9 in the hotbar) to track.
+     */
     public int getItemSlot() {
         return itemSlot;
     }
 
+    /**
+     * @param itemSlot The item slot (0-8, representing slots 1-9 in the hotbar) to track.
+     */
     public void setItemSlot(int itemSlot) {
         this.itemSlot = itemSlot;
     }
@@ -81,6 +106,11 @@ public class InventoryState implements EntityState<Player>, ConfigurationSeriali
     private static final String CONTENTS = "contents";
     private static final String ITEM_SLOT = "item-slot";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static InventoryState deserialize(Map<String, Object> args) {
         InventoryState state = new InventoryState();
 

@@ -4,6 +4,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,7 +20,14 @@ public class SaturationState implements EntityState<Player>, ConfigurationSerial
 
     private float saturation = 20;
 
+    /**
+     * Creates the state with the default value for a player.
+     */
     public SaturationState() {}
+
+    /**
+     * @param saturation How much saturation the player has before they will start losing hunger points
+     */
     public SaturationState(float saturation) {
         this.saturation = saturation;
     }
@@ -42,6 +50,11 @@ public class SaturationState implements EntityState<Player>, ConfigurationSerial
     // Serialization
     private static final String SATURATION = "saturation";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static SaturationState deserialize(Map<String, Object> args) {
         Object saturation = args.get(SATURATION);
         if (saturation instanceof Float) {

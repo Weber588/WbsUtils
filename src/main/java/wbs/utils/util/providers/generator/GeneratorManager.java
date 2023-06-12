@@ -10,7 +10,7 @@ import java.util.*;
 public final class GeneratorManager {
     private GeneratorManager() {}
 
-    private static Map<String, RegisteredGenerator> generators = new LinkedHashMap<>();
+    private static final Map<String, RegisteredGenerator> generators = new LinkedHashMap<>();
 
     static {
         // Actual generators that generate unique patterns
@@ -130,8 +130,17 @@ public final class GeneratorManager {
         }
     }
 
+    /**
+     * Represents a way to produce a given {@link DoubleGenerator} from a Configuration Section.
+     */
     @FunctionalInterface
     public interface GeneratorProducer {
+        /**
+         * Create a generator from a ConfigurationSection, logging errors in the given settings
+         * @param section The section where this generator is defined
+         * @param settings The settings to log errors against
+         * @param directory The path taken through the config to get to this point, for logging purposes
+         */
         DoubleGenerator produce(ConfigurationSection section, WbsSettings settings, String directory);
     }
 }

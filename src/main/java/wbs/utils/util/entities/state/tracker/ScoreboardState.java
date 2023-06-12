@@ -20,7 +20,14 @@ public class ScoreboardState implements EntityState<Player> {
     @Nullable
     private Scoreboard scoreboard;
 
+    /**
+     * Creates the state with no scoreboard configured.
+     */
     public ScoreboardState() {}
+
+    /**
+     * @param scoreboard The scoreboard shown to the player.
+     */
     public ScoreboardState(@Nullable Scoreboard scoreboard) {
         this.scoreboard = scoreboard;
     }
@@ -37,10 +44,16 @@ public class ScoreboardState implements EntityState<Player> {
         }
     }
 
+    /**
+     * @return The scoreboard shown to the player.
+     */
     public @Nullable Scoreboard getScoreboard() {
         return scoreboard;
     }
 
+    /**
+     * @param scoreboard The scoreboard shown to the player.
+     */
     public void setScoreboard(@Nullable Scoreboard scoreboard) {
         this.scoreboard = scoreboard;
     }

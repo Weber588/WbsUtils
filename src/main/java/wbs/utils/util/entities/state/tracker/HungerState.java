@@ -4,6 +4,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,7 +20,14 @@ public class HungerState implements EntityState<Player>, ConfigurationSerializab
 
     private int hunger = 20;
 
+    /**
+     * Creates the state with the default value (20).
+     */
     public HungerState() {}
+
+    /**
+     * @param hunger The amount of hunger points (where the player has 20 by default).
+     */
     public HungerState(int hunger) {
         this.hunger = hunger;
     }
@@ -42,6 +50,11 @@ public class HungerState implements EntityState<Player>, ConfigurationSerializab
     // Serialization
     private static final String HUNGER = "hunger";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static HungerState deserialize(Map<String, Object> args) {
         Object hunger = args.get(HUNGER);
         if (hunger instanceof Integer) {

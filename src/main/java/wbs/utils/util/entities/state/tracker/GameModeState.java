@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.*;
 
@@ -20,7 +21,14 @@ public class GameModeState implements EntityState<Player>, ConfigurationSerializ
     @Nullable
     private GameMode mode;
 
+    /**
+     * Creates the state with no starting value - if the state is restored, it will have no effect
+     */
     public GameModeState() {}
+
+    /**
+     * @param mode The game mode the player is in.
+     */
     public GameModeState(@Nullable GameMode mode) {
         this.mode = mode;
     }
@@ -37,10 +45,16 @@ public class GameModeState implements EntityState<Player>, ConfigurationSerializ
         }
     }
 
+    /**
+     * @return  The game mode the player is in.
+     */
     public @Nullable GameMode getMode() {
         return mode;
     }
 
+    /**
+     * @param mode The game mode the player is in.
+     */
     public void setMode(@Nullable GameMode mode) {
         this.mode = mode;
     }
@@ -54,6 +68,11 @@ public class GameModeState implements EntityState<Player>, ConfigurationSerializ
     // Serialization
     private static final String GAME_MODE = "game-mode";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static GameModeState deserialize(Map<String, Object> args) {
         Object mode = args.get(GAME_MODE);
         if (mode instanceof Integer) {

@@ -32,6 +32,12 @@ public class CycleGenerator extends DoubleGenerator{
         step = clone.step;
     }
 
+    /**
+     * @param start The starting value of the cycle
+     * @param end The end value of the cycle
+     * @param period The amount of steps needed to go from start to end
+     * @param initialProgress The initial progress from 0 to 1, where 0 is start, and 1 is end.
+     */
     public CycleGenerator(double start, double end, double period, double initialProgress) {
         this.start = new NumProvider(start);
         this.end = new NumProvider(end);
@@ -41,6 +47,12 @@ public class CycleGenerator extends DoubleGenerator{
         step = 1.0 / this.period.val();
     }
 
+    /**
+     * @param start The starting value of the cycle
+     * @param end The end value of the cycle
+     * @param period The amount of steps needed to go from start to end
+     * @param initialProgress The initial progress from 0 to 1, where 0 is start, and 1 is end.
+     */
     public CycleGenerator(NumProvider start, NumProvider end, NumProvider period, double initialProgress) {
         this.start = start;
         this.end = end;

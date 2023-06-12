@@ -5,6 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.*;
 
@@ -17,7 +18,14 @@ public class HealthState implements EntityState<LivingEntity>, ConfigurationSeri
 
     private double health = 20;
 
+    /**
+     * Creates the state with the default value (20).
+     */
     public HealthState() {}
+
+    /**
+     * @param health The amount of health (in half hearts)
+     */
     public HealthState(double health) {
         this.health = health;
     }
@@ -32,10 +40,16 @@ public class HealthState implements EntityState<LivingEntity>, ConfigurationSeri
         target.setHealth(health);
     }
 
+    /**
+     * @return The amount of health (in half hearts)
+     */
     public double getHealth() {
         return health;
     }
 
+    /**
+     * @param health The amount of health (in half hearts)
+     */
     public void setHealth(double health) {
         this.health = health;
     }
@@ -49,6 +63,11 @@ public class HealthState implements EntityState<LivingEntity>, ConfigurationSeri
     // Serialization
     private static final String HEALTH = "health";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static HealthState deserialize(Map<String, Object> args) {
         Object health = args.get(HEALTH);
         if (health instanceof Double) {

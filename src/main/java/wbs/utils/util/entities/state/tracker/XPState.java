@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.WbsPlayerUtil;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +21,14 @@ public class XPState implements EntityState<Player>, ConfigurationSerializable {
 
     int xp;
 
+    /**
+     * Creates the state with the default value (0).
+     */
     public XPState() {}
+
+    /**
+     * @param xp The amount of xp points the player has.
+     */
     public XPState(int xp) {
         this.xp = xp;
     }
@@ -35,10 +43,16 @@ public class XPState implements EntityState<Player>, ConfigurationSerializable {
         WbsPlayerUtil.setExp(target, xp);
     }
 
+    /**
+     * @return The amount of xp points the player has.
+     */
     public int getXp() {
         return xp;
     }
 
+    /**
+     * @param xp The amount of xp points the player has.
+     */
     public void setXp(int xp) {
         this.xp = xp;
     }
@@ -51,6 +65,11 @@ public class XPState implements EntityState<Player>, ConfigurationSerializable {
     // Serialization
     private static final String XP = "xp";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static XPState deserialize(Map<String, Object> args) {
         Object xp = args.get(XP);
         if (xp instanceof Integer) {

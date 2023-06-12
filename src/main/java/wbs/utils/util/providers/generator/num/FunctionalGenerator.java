@@ -29,14 +29,23 @@ public abstract class FunctionalGenerator extends DoubleGenerator {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * @param args The values (or value providers) to operate on.
+     */
     public FunctionalGenerator(NumProvider ... args) {
         this.args.addAll(Arrays.asList(args));
     }
 
+    /**
+     * @param args The values (or value providers) to operate on.
+     */
     public FunctionalGenerator(List<Double> args) {
         args.forEach(arg -> this.args.add(new NumProvider(arg)));
     }
 
+    /**
+     * @param args The values (or value providers) to operate on.
+     */
     public FunctionalGenerator(double ... args) {
         Arrays.stream(args).forEach(arg -> this.args.add(new NumProvider(arg)));
     }

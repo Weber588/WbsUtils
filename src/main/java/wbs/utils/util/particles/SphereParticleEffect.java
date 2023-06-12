@@ -17,6 +17,12 @@ public class SphereParticleEffect extends CircleParticleEffect {
         super();
     }
 
+    /**
+     * Create this effect from a ConfigurationSection, logging errors in the given settings
+     * @param section The section where this effect is defined
+     * @param settings The settings to log errors against
+     * @param directory The path taken through the config to get to this point, for logging purposes
+     */
     public SphereParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
         super(section, settings, directory);
     }

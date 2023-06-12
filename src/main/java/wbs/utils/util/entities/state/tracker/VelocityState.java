@@ -6,6 +6,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.*;
 
@@ -19,7 +20,14 @@ public class VelocityState implements EntityState<Entity>, ConfigurationSerializ
     @Nullable
     private Vector velocity;
 
+    /**
+     * Creates the state with the no velocity set.
+     */
     public VelocityState() {}
+
+    /**
+     * @param velocity The current velocity of the entity.
+     */
     public VelocityState(@NotNull Vector velocity) {
         this.velocity = velocity;
     }
@@ -36,10 +44,16 @@ public class VelocityState implements EntityState<Entity>, ConfigurationSerializ
         }
     }
 
+    /**
+     * @return The current velocity of the entity.
+     */
     public @Nullable Vector getVelocity() {
         return velocity;
     }
 
+    /**
+     * @param velocity The current velocity of the entity.
+     */
     public void setVelocity(@Nullable Vector velocity) {
         this.velocity = velocity;
     }
@@ -53,6 +67,11 @@ public class VelocityState implements EntityState<Entity>, ConfigurationSerializ
     // Serialization
     private static final String VELOCITY = "velocity";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static VelocityState deserialize(Map<String, Object> args) {
         Object velocity = args.get(VELOCITY);
         if (velocity instanceof Vector) {

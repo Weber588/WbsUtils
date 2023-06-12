@@ -12,8 +12,6 @@ import org.bukkit.util.Vector;
  */
 public abstract class CustomParticleEffect extends WbsParticleEffect {
 
-	public CustomParticleEffect() {}
-
 	/**
 	 * Set the points to be used in {@link #play(Particle, Location)}
 	 * @param points The new list of points to play at

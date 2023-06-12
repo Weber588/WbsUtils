@@ -1,5 +1,6 @@
 package wbs.utils.util.entities.state;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
@@ -21,6 +22,9 @@ import java.util.function.Function;
 public final class EntityStateManager {
     private EntityStateManager() {}
 
+    /**
+     * Registers {@link EntityState}s native to WbsUtils.
+     */
     public static void registerNativeDeserializers() {
         register(AllowFlightState.class, AllowFlightState::deserialize);
         register(FallDistanceState.class, FallDistanceState::deserialize);
@@ -56,6 +60,7 @@ public final class EntityStateManager {
      * @param clazz The EntityState that class that will be produced by the provided function
      * @param function The deserializer that accepts a map of String keys to objects and returns the
      *                 {@link EntityState} that matches the given clazz.
+     * @param <T> A type that extends {@link EntityState}, for registration and deserialization methods.
      */
     public static <T extends EntityState<?>> void register(Class<T> clazz,
                                 Function<Map<String, Object>, T> function) {
@@ -63,6 +68,9 @@ public final class EntityStateManager {
         deserializers.put(clazz, function);
     }
 
+    /**
+     * Registers the classes in this registry against Bukkit's {@link ConfigurationSerialization} registry.
+     */
     @SuppressWarnings("unchecked")
     public static void registerConfigurableClasses() {
         ConfigurationSerialization.registerClass(SavedEntityState.class);
@@ -76,6 +84,12 @@ public final class EntityStateManager {
         }
     }
 
+    /**
+     * Converts the given map to the class represented by the class name (escaped for use in serialization)
+     * @param escapedClassName The class name, escaped by {@link #getEscapedClassName(Class)}
+     * @param map The object map representing a partially deserialized object.
+     * @return The deserialized {@link EntityState}
+     */
     @Nullable
     public static EntityState<?> deserialize(String escapedClassName, Map<String, Object> map) {
         Class<? extends EntityState<?>> clazz = registeredClasses.get(escapedClassName);
@@ -96,10 +110,18 @@ public final class EntityStateManager {
         return deserializer.apply(map);
     }
 
+    /**
+     * @param obj The class object to escape the name of
+     * @return A string representing the class path that can be stored in a {@link ConfigurationSection}
+     */
     static String getEscapedClassName(Class<?> obj) {
         return obj.getCanonicalName();//.replace(".", "|");
     }
 
+    /**
+     * @param escapedClassName The escaped name to be converted into a standard class path string.
+     * @return A standard class path string.
+     */
     static String unescapeClassName(String escapedClassName) {
         return escapedClassName;//.replace("|", ".");
     }

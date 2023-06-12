@@ -16,6 +16,9 @@ import wbs.utils.util.plugin.WbsSettings;
  */
 public class CuboidParticleEffect extends VelocityParticleEffect {
 
+	/**
+	 * Creates this effect with x, y, and z statically initialized to 1, and rotation initialized as 0.
+	 */
 	public CuboidParticleEffect() {
 		x = new NumProvider(1);
 		y = new NumProvider(1);
@@ -30,6 +33,12 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 	// When true, amount = particles per block. When false, amount = particles per edge
 	private boolean scaleAmount = false;
 
+	/**
+	 * Create this effect from a ConfigurationSection, logging errors in the given settings
+	 * @param section The section where this effect is defined
+	 * @param settings The settings to log errors against
+	 * @param directory The path taken through the config to get to this point, for logging purposes
+	 */
     protected CuboidParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
     	super(section, settings, directory);
 

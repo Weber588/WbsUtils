@@ -31,6 +31,12 @@ public class LineParticleEffect extends WbsParticleEffect {
 	private VectorProvider end;
 	private boolean scaleAmount = false;
 
+	/**
+	 * Create this effect from a ConfigurationSection, logging errors in the given settings
+	 * @param section The section where this effect is defined
+	 * @param settings The settings to log errors against
+	 * @param directory The path taken through the config to get to this point, for logging purposes
+	 */
 	protected LineParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
 		super(section, settings, directory);
 		if (section.get("radius") != null) {

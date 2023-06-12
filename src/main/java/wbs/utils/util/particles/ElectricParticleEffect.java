@@ -20,6 +20,15 @@ import wbs.utils.util.plugin.WbsSettings;
  */
 public class ElectricParticleEffect extends WbsParticleEffect {
 
+	/**
+	 * Creates the effect with the following values:
+	 * <ul>
+	 *     <li>Radius: 0.5</li>
+	 *     <li>Speed: 0</li>
+	 *     <li>Arc Length: 0.25</li>
+	 *     <li>Ticks: 2</li>
+	 * </ul>
+	 */
 	public ElectricParticleEffect() {
 		radius = new NumProvider(0.5);
 		speed = new NumProvider(0);
@@ -33,6 +42,12 @@ public class ElectricParticleEffect extends WbsParticleEffect {
 	
 	private NumProvider ticks;
 
+	/**
+	 * Create this effect from a ConfigurationSection, logging errors in the given settings
+	 * @param section The section where this effect is defined
+	 * @param settings The settings to log errors against
+	 * @param directory The path taken through the config to get to this point, for logging purposes
+	 */
 	protected ElectricParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
 		super(section, settings, directory);
 

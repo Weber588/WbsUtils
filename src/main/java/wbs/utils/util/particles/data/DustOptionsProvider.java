@@ -32,6 +32,14 @@ public class DustOptionsProvider extends Particle.DustOptions implements Provide
     @NotNull
     private final ColourType type;
 
+    /**
+     * @param colourProvider A vector provider that represents a colour,
+     *                       stored in format defined by {@link ColourType}.
+     * @param sizeProvider A number provider to represent the size of the redstone dust,
+     *                     between 0 (exclusive) and 2 (inclusive).
+     * @param type The format of the colour vector.
+     * @see ColourType
+     */
     public DustOptionsProvider(@NotNull VectorProvider colourProvider, NumProvider sizeProvider, ColourType type) {
         super(type.parse(colourProvider), (float) sizeProvider.val());
 
@@ -40,6 +48,14 @@ public class DustOptionsProvider extends Particle.DustOptions implements Provide
         this.type = type;
     }
 
+    /**
+     * @param colourProvider A vector provider that represents a colour,
+     *                       stored in format defined by {@link ColourType}.
+     * @param size A number to represent the size of the redstone dust,
+     *                     between 0 (exclusive) and 2 (inclusive).
+     * @param type The format of the colour vector.
+     * @see ColourType
+     */
     public DustOptionsProvider(VectorProvider colourProvider, float size, ColourType type) {
         this(colourProvider, new NumProvider(size), type);
     }
@@ -121,6 +137,11 @@ public class DustOptionsProvider extends Particle.DustOptions implements Provide
             this.function = function;
         }
 
+        /**
+         * Gets a colour from the given provider, in the format of this enum instance.
+         * @param provider The provider to be queried and immediately converted into the appropriate {@link Color}
+         * @return The colour represented by the current value of the given provider.
+         */
         public Color parse(VectorProvider provider) {
             return function.apply(provider);
         }

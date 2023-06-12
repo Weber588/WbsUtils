@@ -6,6 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.*;
 
@@ -19,7 +20,14 @@ public class PotionEffectsState implements EntityState<LivingEntity>, Configurat
     @NotNull
     private final Collection<PotionEffect> effects = new LinkedList<>();
 
+    /**
+     * Creates the state with no potion effects.
+     */
     public PotionEffectsState() {}
+
+    /**
+     * @param effects A collection of potion effects to track
+     */
     public PotionEffectsState(@NotNull Collection<PotionEffect> effects) {
         this.effects.addAll(effects);
     }
@@ -39,15 +47,24 @@ public class PotionEffectsState implements EntityState<LivingEntity>, Configurat
         effects.forEach(target::addPotionEffect);
     }
 
+    /**
+     * @return A collection of potion effects to track
+     */
     public @NotNull Collection<PotionEffect> getEffects() {
         return effects;
     }
 
+    /**
+     * @param effects A collection of potion effects to track
+     */
     public void setEffects(@NotNull Collection<PotionEffect> effects) {
         this.effects.clear();
         this.effects.addAll(effects);
     }
 
+    /**
+     * @param effect A single potion effect to add to be tracked
+     */
     public void addEffect(@NotNull PotionEffect effect) {
         effects.add(effect);
     }
@@ -60,6 +77,11 @@ public class PotionEffectsState implements EntityState<LivingEntity>, Configurat
     // Serialization
     private static final String POTION_EFFECTS = "potion-effects";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static PotionEffectsState deserialize(Map<String, Object> args) {
         Object potionEffects = args.get(POTION_EFFECTS);
         if (potionEffects instanceof Collection) {

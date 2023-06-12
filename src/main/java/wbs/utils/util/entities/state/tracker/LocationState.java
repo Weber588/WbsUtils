@@ -6,6 +6,7 @@ import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +23,14 @@ public class LocationState implements EntityState<Entity>, ConfigurationSerializ
     @Nullable
     private Location location;
 
+    /**
+     * Creates the state with no location tracked.
+     */
     public LocationState() {}
+
+    /**
+     * @param location The entity's location.
+     */
     public LocationState(@Nullable Location location) {
         this.location = location;
     }
@@ -39,10 +47,16 @@ public class LocationState implements EntityState<Entity>, ConfigurationSerializ
         }
     }
 
+    /**
+     * @return The entity's location.
+     */
     public @Nullable Location getLocation() {
         return location;
     }
 
+    /**
+     * @param location The entity's location.
+     */
     public void setLocation(@Nullable Location location) {
         this.location = location;
     }
@@ -55,6 +69,11 @@ public class LocationState implements EntityState<Entity>, ConfigurationSerializ
     // Serialization
     private static final String LOCATION = "location";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static LocationState deserialize(Map<String, Object> args) {
         Object location = args.get(LOCATION);
         if (location instanceof Location) {

@@ -4,6 +4,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +21,14 @@ public class InvulnerableState implements EntityState<Entity>, ConfigurationSeri
 
     private boolean invulnerable = false;
 
+    /**
+     * Creates the state with the default value (false).
+     */
     public InvulnerableState() {}
+
+    /**
+     * @param invulnerable Whether or not the entity is invulnerable
+     */
     public InvulnerableState(boolean invulnerable) {
         this.invulnerable = invulnerable;
     }
@@ -35,10 +43,16 @@ public class InvulnerableState implements EntityState<Entity>, ConfigurationSeri
         target.setInvulnerable(invulnerable);
     }
 
+    /**
+     * @return Whether or not the entity is invulnerable
+     */
     public boolean isInvulnerable() {
         return invulnerable;
     }
 
+    /**
+     * @param invulnerable Whether or not the entity is invulnerable
+     */
     public void setInvulnerable(boolean invulnerable) {
         this.invulnerable = invulnerable;
     }
@@ -51,6 +65,11 @@ public class InvulnerableState implements EntityState<Entity>, ConfigurationSeri
     // Serialization
     private static final String INVULNERABLE = "invulnerable";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static InvulnerableState deserialize(Map<String, Object> args) {
         Object invulnerable = args.get(INVULNERABLE);
         if (invulnerable instanceof Boolean) {

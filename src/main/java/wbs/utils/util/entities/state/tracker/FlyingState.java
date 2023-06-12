@@ -5,6 +5,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.*;
 
@@ -18,7 +19,14 @@ public class FlyingState implements EntityState<Player>, ConfigurationSerializab
 
     private boolean flying = false;
 
+    /**
+     * Creates the state with the default value (false).
+     */
     public FlyingState() {}
+
+    /**
+     * @param flying Whether or not the player is flying.
+     */
     public FlyingState(boolean flying) {
         this.flying = flying;
     }
@@ -41,6 +49,11 @@ public class FlyingState implements EntityState<Player>, ConfigurationSerializab
     // Serialization
     private static final String FLYING = "flying";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static FlyingState deserialize(Map<String, Object> args) {
         Object flying = args.get(FLYING);
         if (flying instanceof Boolean) {

@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public abstract class AbstractDataManager<T extends RecordProducer, K> {
 
+    /**
+     * The related {@link WbsPlugin}.
+     */
     protected final WbsPlugin plugin;
 
     /**

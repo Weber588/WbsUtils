@@ -5,6 +5,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.*;
 
@@ -18,7 +19,14 @@ public class FireTicksState implements EntityState<Entity>, ConfigurationSeriali
 
     private int fireTicks = 0;
 
+    /**
+     * Creates the state with the default value (0).
+     */
     public FireTicksState() {}
+
+    /**
+     * @param fireTicks The number of fire ticks remaining.
+     */
     public FireTicksState(int fireTicks) {
         this.fireTicks = fireTicks;
     }
@@ -33,10 +41,16 @@ public class FireTicksState implements EntityState<Entity>, ConfigurationSeriali
         target.setFireTicks(fireTicks);
     }
 
+    /**
+     * @return  The number of fire ticks remaining.
+     */
     public int getFireTicks() {
         return fireTicks;
     }
 
+    /**
+     * @param fireTicks The number of fire ticks remaining.
+     */
     public void setFireTicks(int fireTicks) {
         this.fireTicks = fireTicks;
     }
@@ -50,6 +64,11 @@ public class FireTicksState implements EntityState<Entity>, ConfigurationSeriali
     // Serialization
     private static final String FIRE_TICKS = "fire-ticks";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static FireTicksState deserialize(Map<String, Object> args) {
         Object fireTicks = args.get(FIRE_TICKS);
         if (fireTicks instanceof Integer) {

@@ -18,9 +18,18 @@ public class DivisionGenerator extends BinaryFunctionalGenerator {
         super(clone);
     }
 
+    /**
+     * @param a The first number/provider to operate on.
+     * @param b The second number/provider to operate on.
+     */
     public DivisionGenerator(NumProvider a, NumProvider b) {
         super(a, b);
     }
+
+    /**
+     * @param a The first number/provider to operate on.
+     * @param b The second number/provider to operate on.
+     */
     public DivisionGenerator(double a, double b) {
         super(a, b);
     }

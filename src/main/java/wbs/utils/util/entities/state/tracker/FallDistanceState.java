@@ -5,6 +5,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
+import wbs.utils.util.entities.state.EntityStateManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,8 +21,15 @@ import java.util.Set;
 public class FallDistanceState implements EntityState<Entity>, ConfigurationSerializable {
 
     private float fallDistance;
-    
+
+    /**
+     * Creates the state with the default value (0).
+     */
     public FallDistanceState() {}
+
+    /**
+     * @param fallDistance How far the entity has fallen.
+     */
     public FallDistanceState(float fallDistance) {
         this.fallDistance = fallDistance;
     }
@@ -36,10 +44,16 @@ public class FallDistanceState implements EntityState<Entity>, ConfigurationSeri
         target.setFallDistance(fallDistance);
     }
 
+    /**
+     * @return How far the entity has fallen.
+     */
     public float getFallDistance() {
         return fallDistance;
     }
 
+    /**
+     * @param fallDistance How far the entity has fallen.
+     */
     public void setFallDistance(float fallDistance) {
         this.fallDistance = fallDistance;
     }
@@ -52,6 +66,11 @@ public class FallDistanceState implements EntityState<Entity>, ConfigurationSeri
     // Serialization
     private static final String FALL_DISTANCE = "fall-distance";
 
+    /**
+     * Deserializer method for converting a {@link Map} into this object, for use in {@link EntityStateManager}
+     * @param args The partially deserialized Map.
+     * @return An instance of this class, deserialized from args.
+     */
     public static FallDistanceState deserialize(Map<String, Object> args) {
         Object fallDistance = args.get(FALL_DISTANCE);
         if (fallDistance instanceof Float) {
