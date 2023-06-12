@@ -9,6 +9,9 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * A variety of {@link Collection} utilities, including statistical selections.
+ */
 @SuppressWarnings("unused")
 public final class WbsCollectionUtil {
     private WbsCollectionUtil() {}

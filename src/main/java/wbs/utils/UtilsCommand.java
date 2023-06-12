@@ -12,6 +12,9 @@ import wbs.utils.util.plugin.WbsMessenger;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 import wbs.utils.util.pluginhooks.WbsRegionUtils;
 
+/**
+ * A simple command to reload plugin hooks.
+ */
 public class UtilsCommand extends WbsMessenger implements TabExecutor {
 
 	private final WbsUtils plugin;

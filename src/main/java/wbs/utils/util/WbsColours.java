@@ -9,6 +9,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Utility class for dealing with colours, including chat colours and colour format conversions.
+ */
 @SuppressWarnings("unused")
 public final class WbsColours {
     private WbsColours() {}

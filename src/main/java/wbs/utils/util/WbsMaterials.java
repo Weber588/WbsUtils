@@ -9,6 +9,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Utility class for mapping material types based on concepts not existing in the game.
+ * <br/>
+ * Planned to be expanded in future to allow configured mappings between various concepts.
+ */
 @SuppressWarnings("unused")
 public final class WbsMaterials {
     private WbsMaterials() {}

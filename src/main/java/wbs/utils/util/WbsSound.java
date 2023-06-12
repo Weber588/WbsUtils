@@ -11,6 +11,10 @@ import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+/**
+ * Simple wrapper for a {@link Sound} with a given pitch and volume.
+ */
+@SuppressWarnings("unused")
 public class WbsSound implements Serializable {
 	
 	private static final long serialVersionUID = 6055541956675411491L;

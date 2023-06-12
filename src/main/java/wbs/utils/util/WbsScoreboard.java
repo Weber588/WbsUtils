@@ -8,6 +8,10 @@ import wbs.utils.util.plugin.WbsPlugin;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Wrapper for {@link Scoreboard}s, to provide utilities for display and management and abstract the need for
+ * Team and Objective management.
+ */
 @SuppressWarnings("unused")
 public class WbsScoreboard {
 

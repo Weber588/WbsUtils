@@ -6,6 +6,10 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * Reflection based utilities.
+ * @deprecated Abandoned
+ */
 @SuppressWarnings("unused")
 public final class ReflectionUtil {
     private ReflectionUtil() {}

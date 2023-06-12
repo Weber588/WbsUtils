@@ -3,6 +3,10 @@ package wbs.utils.util;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 
+/**
+ * Quasi-extension to {@link WbsEnums} for classes implementing {@link Keyed}, to allow more flexibility
+ * in certain configurations.
+ */
 @SuppressWarnings("unused")
 public abstract class WbsKeyed {
 	private WbsKeyed() {}

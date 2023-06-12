@@ -13,6 +13,9 @@ import org.bukkit.Sound;
 
 import wbs.utils.util.string.WbsStrings;
 
+/**
+ * Enum-related utilities, including for configuration and rendering.
+ */
 @SuppressWarnings("unused")
 public final class WbsEnums {
 	private WbsEnums() {}

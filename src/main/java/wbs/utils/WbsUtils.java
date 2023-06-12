@@ -8,6 +8,9 @@ import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 import wbs.utils.util.pluginhooks.VaultWrapper;
 
+/**
+ * The base plugin, a simple implementation of {@link WbsPlugin}.
+ */
 public class WbsUtils extends WbsPlugin {
 	
 	private static WbsUtils instance = null;

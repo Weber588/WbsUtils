@@ -8,6 +8,11 @@ import org.bukkit.entity.Player;
 import wbs.utils.WbsUtils;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 
+/**
+ * Utilities related to Minecraft server & client versions. Useful for ensuring functionality will work in a
+ * given version of the server, but also hooks into ViaVersion when installed to make client-related info
+ * available without requiring a hook in the implementing plugin.
+ */
 @SuppressWarnings("unused")
 public final class VersionUtil {
     private VersionUtil() {}

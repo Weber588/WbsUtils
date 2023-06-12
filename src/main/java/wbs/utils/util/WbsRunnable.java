@@ -2,6 +2,11 @@ package wbs.utils.util;
 
 import org.bukkit.scheduler.BukkitRunnable;
 
+/**
+ * Extension of {@link BukkitRunnable} to create a "finish" method that runs after {@link BukkitRunnable#cancel()}.
+ * @deprecated Use {@link wbs.utils.util.plugin.WbsPlugin} threading utilities instead.
+ */
+@Deprecated
 public abstract class WbsRunnable extends BukkitRunnable {
 
 	@Override

@@ -9,11 +9,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import wbs.utils.WbsUtils;
 
+/**
+ * A group of {@link WbsSound}s.
+ */
+@SuppressWarnings("unused")
 public class WbsSoundGroup implements Serializable {
 	private static final long serialVersionUID = 4828609960725383015L;
 	
-	private ArrayList<WbsSound> allSounds = new ArrayList<>();
-	private ArrayList<Long> delay = new ArrayList<>();
+	private final ArrayList<WbsSound> allSounds = new ArrayList<>();
+	private final ArrayList<Long> delay = new ArrayList<>();
 	
 	public WbsSoundGroup(WbsSound ... sounds) {
 		for (WbsSound sound : sounds) {
