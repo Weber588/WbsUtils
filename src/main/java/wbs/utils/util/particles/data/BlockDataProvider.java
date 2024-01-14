@@ -2,10 +2,16 @@ package wbs.utils.util.particles.data;
 
 import com.google.common.annotations.Beta;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.SoundGroup;
+import org.bukkit.block.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.structure.Mirror;
+import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.exceptions.InvalidConfigurationException;
@@ -126,6 +132,71 @@ public class BlockDataProvider implements BlockData, Provider {
     @Override
     public SoundGroup getSoundGroup() {
         return current.getSoundGroup();
+    }
+
+    @Override
+    public int getLightEmission() {
+        return current.getLightEmission();
+    }
+
+    @Override
+    public boolean isOccluding() {
+        return current.isOccluding();
+    }
+
+    @Override
+    public boolean requiresCorrectToolForDrops() {
+        return current.requiresCorrectToolForDrops();
+    }
+
+    @Override
+    public boolean isPreferredTool(@NotNull ItemStack itemStack) {
+        return current.isPreferredTool(itemStack);
+    }
+
+    @Override
+    @NotNull
+    public PistonMoveReaction getPistonMoveReaction() {
+        return current.getPistonMoveReaction();
+    }
+
+    @Override
+    public boolean isSupported(@NotNull Block block) {
+        return current.isSupported(block);
+    }
+
+    @Override
+    public boolean isSupported(@NotNull Location location) {
+        return current.isSupported(location);
+    }
+
+    @Override
+    public boolean isFaceSturdy(@NotNull BlockFace blockFace, @NotNull BlockSupport blockSupport) {
+        return current.isFaceSturdy(blockFace, blockSupport);
+    }
+
+    @Override
+    @NotNull
+    public Material getPlacementMaterial() {
+        return current.getPlacementMaterial();
+    }
+
+    @Override
+    public void rotate(@NotNull StructureRotation structureRotation) {
+        current.rotate(structureRotation);
+    }
+
+    @Override
+    public void mirror(@NotNull Mirror mirror) {
+        current.mirror(mirror);
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    @Override
+    @ApiStatus.Experimental
+    @NotNull
+    public BlockState createBlockState() {
+        return current.createBlockState();
     }
     //endregion
 }
