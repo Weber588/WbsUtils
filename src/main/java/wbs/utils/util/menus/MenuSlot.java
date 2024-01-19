@@ -2,7 +2,6 @@ package wbs.utils.util.menus;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemFlag;
@@ -10,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import wbs.utils.util.ShinyEnchantment;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.pluginhooks.PlaceholderAPIWrapper;
 
@@ -58,8 +58,7 @@ public class MenuSlot {
                 ItemFlag.HIDE_ATTRIBUTES);
 
         if (shiny) {
-            meta.addEnchant(Enchantment.LOYALTY, 1, true);
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            meta.addEnchant(ShinyEnchantment.SHINY, 0, true);
         }
 
         item.setItemMeta(meta);
