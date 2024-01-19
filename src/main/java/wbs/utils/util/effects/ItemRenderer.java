@@ -10,7 +10,9 @@ import java.util.Objects;
 
 /**
  * Represents a specific implementation of an item to render in the world.
+ * @deprecated Display Entities can be used as of 1.19.4.
  */
+@Deprecated
 abstract class ItemRenderer {
     protected double limbLength;
     protected Vector offset;

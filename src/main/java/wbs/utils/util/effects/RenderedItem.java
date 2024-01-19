@@ -11,6 +11,7 @@ import org.bukkit.util.Vector;
  * type, to allow for smooth transitions between different {@link ItemRenderer}s.
  */
 @SuppressWarnings("unused")
+@Deprecated
 public class RenderedItem {
 
     /**

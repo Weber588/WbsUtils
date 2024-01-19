@@ -11,7 +11,9 @@ import java.util.Objects;
 
 /**
  * An ItemRenderer that uses an {@link org.bukkit.entity.ArmorStand}'s hand
+ * @deprecated {@see Test}
  */
+@Deprecated
 class HandRenderer extends ItemRenderer {
 
     public HandRenderer(Location location) {

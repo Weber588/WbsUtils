@@ -12,6 +12,7 @@ import java.util.Objects;
 /**
  * An ItemRenderer that uses an {@link org.bukkit.entity.ArmorStand}'s head slot
  */
+@Deprecated
 class HeadRenderer extends ItemRenderer {
 
     public HeadRenderer(Location location) {
