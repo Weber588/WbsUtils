@@ -1,15 +1,18 @@
 package wbs.utils.util;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.EntityEffect;
+import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -31,7 +34,7 @@ public class WbsItems {
 
         int unbreakingLevel = stack.getEnchantmentLevel(Enchantment.DURABILITY);
         if (unbreakingLevel > 0) {
-            if (!WbsMath.chance(100.0 / unbreakingLevel)) {
+            if (!WbsMath.chance(100.0 / (unbreakingLevel + 1))) {
                 return false;
             }
         }
@@ -61,6 +64,9 @@ public class WbsItems {
     }
 
     public static void breakItem(Player player, ItemStack stack, @Nullable EquipmentSlot slot) {
+        PlayerItemBreakEvent event = new PlayerItemBreakEvent(player, stack);
+        Bukkit.getPluginManager().callEvent(event);
+
         if (slot == null) {
             stack.setAmount(0);
             player.playEffect(EntityEffect.BREAK_EQUIPMENT_MAIN_HAND);
