@@ -22,6 +22,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
@@ -131,7 +134,10 @@ public class WbsItems {
 
         double modified = base;
 
-        for (AttributeModifier modifier : modifiers.get(attribute)) {
+        List<AttributeModifier> orderedModifiers = new LinkedList<>(modifiers.get(attribute));
+        orderedModifiers.sort(Comparator.comparingInt(a -> a.getOperation().ordinal()));
+
+        for (AttributeModifier modifier : orderedModifiers) {
             switch (modifier.getOperation()) {
                 case ADD_NUMBER -> modified += modifier.getAmount();
                 case ADD_SCALAR -> modified *= modifier.getAmount();
