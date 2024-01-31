@@ -11,10 +11,6 @@ import wbs.utils.WbsUtils;
 public class ShinyEnchantment extends Enchantment {
     public static final ShinyEnchantment SHINY = new ShinyEnchantment();
 
-    private ShinyEnchantment() {
-        super(new NamespacedKey(WbsUtils.getInstance(), "shiny"));
-    }
-
     @NotNull
     @Override
     public String getName() {
@@ -57,5 +53,11 @@ public class ShinyEnchantment extends Enchantment {
     @Override
     public boolean canEnchantItem(@NotNull ItemStack itemStack) {
         return false;
+    }
+
+    @NotNull
+    @Override
+    public NamespacedKey getKey() {
+        return new NamespacedKey(WbsUtils.getInstance(), "shiny");
     }
 }

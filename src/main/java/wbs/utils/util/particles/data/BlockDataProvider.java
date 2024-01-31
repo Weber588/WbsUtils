@@ -1,10 +1,6 @@
 package wbs.utils.util.particles.data;
 
-import com.google.common.annotations.Beta;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.SoundGroup;
+import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.structure.Mirror;
@@ -27,7 +23,7 @@ import java.util.stream.Collectors;
  *  Provider that implements {@link BlockData} for the purpose of allowing
  *  particle data to be refreshed and written to a config.
  */
-@Beta
+@ApiStatus.Experimental
 @SuppressWarnings("unused")
 public class BlockDataProvider implements BlockData, Provider {
 
@@ -199,4 +195,15 @@ public class BlockDataProvider implements BlockData, Provider {
         return current.createBlockState();
     }
     //endregion
+
+    @Override
+    @NotNull
+    public Color getMapColor() {
+        return current.getMapColor();
+    }
+
+    @Override
+    public void copyTo(@NotNull BlockData blockData) {
+        current.copyTo(blockData);
+    }
 }

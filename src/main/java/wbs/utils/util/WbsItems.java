@@ -1,9 +1,13 @@
 package wbs.utils.util;
 
+import com.google.common.collect.Multimap;
+import com.ibm.icu.impl.locale.XCldrStub;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.Material;
 import org.bukkit.Tag;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -13,17 +17,20 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class WbsItems {
-    public static boolean damageItem(Player player, ItemStack stack, int damage) {
+    public static boolean damageItem(@NotNull Player player, @NotNull ItemStack stack, int damage) {
         return damageItem(player, stack, damage, null);
     }
 
-    public static boolean damageItem(Player player, ItemStack stack, int damage, @Nullable EquipmentSlot slot) {
+    public static boolean damageItem(@NotNull Player player, @NotNull ItemStack stack, int damage, @Nullable EquipmentSlot slot) {
         if (!(stack.getItemMeta() instanceof Damageable damageable)) {
             return false;
         }
@@ -63,7 +70,7 @@ public class WbsItems {
         return false;
     }
 
-    public static void breakItem(Player player, ItemStack stack, @Nullable EquipmentSlot slot) {
+    public static void breakItem(@NotNull Player player, @NotNull ItemStack stack, @Nullable EquipmentSlot slot) {
         PlayerItemBreakEvent event = new PlayerItemBreakEvent(player, stack);
         Bukkit.getPluginManager().callEvent(event);
 
@@ -87,7 +94,7 @@ public class WbsItems {
         equipment.setItem(slot, null);
     }
 
-    public static boolean isProperTool(Block block, ItemStack stack) {
+    public static boolean isProperTool(@NotNull Block block, @NotNull ItemStack stack) {
         Material material = block.getType();
         Material itemType = stack.getType();
 
@@ -105,5 +112,33 @@ public class WbsItems {
         }
 
         return block.isPreferredTool(stack);
+    }
+
+    @Contract(pure = true)
+    public static double calculateAttributeModification(@NotNull ItemStack item,
+                                         Attribute attribute,
+                                         final double base)
+    {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return base;
+        }
+
+        Multimap<Attribute, AttributeModifier> modifiers = meta.getAttributeModifiers();
+        if (modifiers == null) {
+            return base;
+        }
+
+        double modified = base;
+
+        for (AttributeModifier modifier : modifiers.get(attribute)) {
+            switch (modifier.getOperation()) {
+                case ADD_NUMBER -> modified += modifier.getAmount();
+                case ADD_SCALAR -> modified *= modifier.getAmount();
+                case MULTIPLY_SCALAR_1 -> modified *= (1 + modifier.getAmount());
+            }
+        }
+
+        return base;
     }
 }

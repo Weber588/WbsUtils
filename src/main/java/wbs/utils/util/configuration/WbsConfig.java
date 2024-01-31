@@ -1,6 +1,5 @@
 package wbs.utils.util.configuration;
 
-import com.google.common.annotations.Beta;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -9,6 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ import java.util.Set;
  * with an annotation system. <p>
  * Also serves as a wrapper for ConfigurationSections.
  */
-@Beta
+@ApiStatus.Experimental
 public class WbsConfig {
 
 

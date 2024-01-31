@@ -1,10 +1,10 @@
 package wbs.utils.util.particles.data;
 
-import com.google.common.annotations.Beta;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
@@ -20,7 +20,7 @@ import java.util.function.Function;
  *  Provider that implements {@link org.bukkit.Particle.DustOptions} for the purpose of allowing
  *  particle data to be refreshed and written to a config.
  */
-@Beta
+@ApiStatus.Experimental
 @SuppressWarnings("unused")
 public class DustOptionsProvider extends Particle.DustOptions implements Provider {
 

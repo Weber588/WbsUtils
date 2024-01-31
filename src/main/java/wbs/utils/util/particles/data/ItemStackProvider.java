@@ -1,10 +1,10 @@
 package wbs.utils.util.particles.data;
 
-import com.google.common.annotations.Beta;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.providers.Provider;
@@ -16,7 +16,7 @@ import java.util.List;
  *  Provider that extends {@link ItemStack} for the purpose of allowing
  *  particle data to be refreshed and written to a config.
  */
-@Beta
+@ApiStatus.Experimental
 @SuppressWarnings("unused")
 public class ItemStackProvider extends ItemStack implements Provider {
 
