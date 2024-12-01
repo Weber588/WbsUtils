@@ -1,12 +1,21 @@
 package wbs.utils.util.commands;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
+import org.jetbrains.annotations.Nullable;
 import wbs.utils.WbsUtils;
 import wbs.utils.util.plugin.WbsMessenger;
 import wbs.utils.util.plugin.WbsPlugin;
@@ -20,10 +29,11 @@ import java.util.*;
  * to the first layer of subcommands.
  * Automatically tabs to the labels (not aliases) of any added subcommands.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnstableApiUsage"})
 public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
 
-    private final PluginCommand command;
+    private PluginCommand command;
+    private String label;
     private final Map<String, WbsSubcommand> subcommandMap = new HashMap<>();
     private WbsSubcommand defaultCommand;
 
@@ -32,12 +42,25 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
      * @param command The PluginCommand this command represents, as defined in
      *                the plugin.yml of the given WbsPlugin
      */
-    public WbsCommand(WbsPlugin plugin, PluginCommand command) {
+    public WbsCommand(WbsPlugin plugin, @NotNull PluginCommand command) {
         super(plugin);
         this.command = command;
+        this.label = command.getLabel();
 
         command.setTabCompleter(this);
         command.setExecutor(this);
+    }
+    /**
+     * @param plugin The WbsPlugin this command should be registered to
+     * @param label The label, i.e. the typed command name, that this command uses when registered.
+     */
+    public WbsCommand(WbsPlugin plugin, @NotNull String label) {
+        super(plugin);
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     /**
@@ -94,7 +117,7 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
     }
 
     @Override
-    public final boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public final boolean onCommand(@NotNull CommandSender sender, @Nullable Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 0) {
             return onCommandNoArgs(sender, label);
         }
@@ -175,7 +198,7 @@ public abstract class WbsCommand extends WbsMessenger implements TabExecutor {
      */
     public WbsCommand addSubcommand(WbsSubcommand subcommand, String permission) {
         if (subcommandMap.containsKey(subcommand.getLabel())) {
-            WbsUtils.getInstance().logger.warning("Multiple subcommands attempted to register to " + command.getLabel());
+            WbsUtils.getInstance().getLogger().warning("Multiple subcommands attempted to register to " + getLabel());
             return this;
         }
         subcommandMap.put(subcommand.getLabel(), subcommand);

@@ -1,0 +1,37 @@
+main: wbs.utils.WbsUtils
+bootstrapper: wbs.utils.WbsUtilsBootstrap
+name: WbsUtils
+version: 0.0.1
+api-version: 1.21.1
+author: Weber588
+
+description: A library primarily for other Wbs plugins
+commands:
+  utilsreload:
+    permission: 'wbsutils.reload'
+    default: op
+    description: 'Reload some configured options.'
+
+dependencies:
+  server:
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+    GriefPrevention:
+      load: BEFORE
+      required: false
+    Towny:
+      load: BEFORE
+      required: false
+    PlotSquared:
+      load: BEFORE
+      required: false
+    WorldGuard:
+      load: BEFORE
+      required: false
+    ViaVersion:
+      load: BEFORE
+      required: false
+    Vault:
+      load: BEFORE
+      required: false

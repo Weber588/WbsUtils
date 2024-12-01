@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("unused")
 public final class WbsPersistentDataType {
     public static final PersistentLocationType LOCATION = new PersistentLocationType();
+    public static final PersistentItemType ITEM = new PersistentItemType();
 
     @NotNull
     public static <T> T getOrDefault(PersistentDataContainer container, NamespacedKey key, PersistentDataType<?, T> type, T defaultValue) {

@@ -1,5 +1,6 @@
 package wbs.utils.util.commands;
 
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.plugin.WbsPlugin;

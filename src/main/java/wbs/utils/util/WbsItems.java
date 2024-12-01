@@ -42,7 +42,7 @@ public class WbsItems {
             return false;
         }
 
-        int unbreakingLevel = stack.getEnchantmentLevel(Enchantment.DURABILITY);
+        int unbreakingLevel = stack.getEnchantmentLevel(Enchantment.UNBREAKING);
         if (unbreakingLevel > 0) {
             if (!WbsMath.chance(100.0 / (unbreakingLevel + 1))) {
                 return false;
@@ -91,12 +91,14 @@ public class WbsItems {
             case LEGS -> EntityEffect.BREAK_EQUIPMENT_LEGGINGS;
             case CHEST -> EntityEffect.BREAK_EQUIPMENT_CHESTPLATE;
             case HEAD -> EntityEffect.BREAK_EQUIPMENT_HELMET;
+            case BODY -> throw new IllegalArgumentException("the 'Body' EquipmentSlot does not represent a single slot.");
         };
 
         player.playEffect(effect);
         equipment.setItem(slot, null);
     }
 
+    // TODO: Migrate to 1.20.5+ version
     public static boolean isProperTool(@NotNull Block block, @NotNull ItemStack stack) {
         Material material = block.getType();
         Material itemType = stack.getType();

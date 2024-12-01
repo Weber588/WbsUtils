@@ -1,7 +1,14 @@
 package wbs.utils.util;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.jetbrains.annotations.NotNull;
+import wbs.utils.util.string.WbsStrings;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Quasi-extension to {@link WbsEnums} for classes implementing {@link Keyed}, to allow more flexibility
@@ -39,5 +46,57 @@ public abstract class WbsKeyed {
 		}
 
 		return enumConstant;
+	}
+
+	public static String joiningPrettyStrings(@NotNull Class<? extends Keyed> clazz) {
+		return joiningPrettyStrings(clazz, ", ");
+	}
+
+	public static String joiningPrettyStrings(@NotNull Class<? extends Keyed> clazz, String delimiter) {
+		Registry<?> registry = Bukkit.getRegistry(clazz);
+		if (registry == null) {
+			throw new IllegalArgumentException("Not a valid registry: " + clazz);
+		}
+
+		return joiningPrettyStrings(registry, delimiter);
+	}
+
+	public static String joiningPrettyStrings(@NotNull Registry<? extends Keyed> registry) {
+		return joiningPrettyStrings(registry, ", ");
+	}
+
+	public static String joiningPrettyStrings(@NotNull Registry<? extends Keyed> registry, String delimiter) {
+		return registry.stream()
+				.map(WbsKeyed::toPrettyString)
+				.collect(Collectors.joining(delimiter));
+	}
+
+	public static String toPrettyString(Keyed keyed) {
+		return WbsStrings.capitalizeAll(keyed.getKey().getKey().replaceAll("[_\\-]", " "));
+	}
+
+	/**
+	 * A common method for all enums since they can't have another base class
+	 * @param <T> The Keyed type to find a registry for.
+	 * @param clazz The class that extends Keyed.
+	 * @param string The string that represents the value of the keyed value to return.
+	 * @return corresponding enum, or null
+	 */
+	public static <T extends Keyed> T getKeyedFromString(@NotNull Class<T> clazz, @NotNull String string) {
+		Registry<T> registry = Bukkit.getRegistry(clazz);
+
+		if (registry == null) {
+			throw new IllegalArgumentException("Not a valid registry: " + clazz);
+		}
+
+		string = string.toUpperCase().replaceAll("[\\s-]", "_");
+
+		NamespacedKey key = NamespacedKey.fromString(string);
+
+		if (key == null) {
+			return null;
+		}
+
+		return registry.get(key);
 	}
 }

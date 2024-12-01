@@ -7,6 +7,7 @@ import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.VoxelShape;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -172,6 +173,11 @@ public class BlockDataProvider implements BlockData, Provider {
     }
 
     @Override
+    public @NotNull VoxelShape getCollisionShape(@NotNull Location location) {
+        return current.getCollisionShape(location);
+    }
+
+    @Override
     @NotNull
     public Material getPlacementMaterial() {
         return current.getPlacementMaterial();
@@ -193,6 +199,21 @@ public class BlockDataProvider implements BlockData, Provider {
     @NotNull
     public BlockState createBlockState() {
         return current.createBlockState();
+    }
+
+    @Override
+    public float getDestroySpeed(@NotNull ItemStack itemStack) {
+        return current.getDestroySpeed(itemStack);
+    }
+
+    @Override
+    public float getDestroySpeed(@NotNull ItemStack itemStack, boolean b) {
+        return current.getDestroySpeed(itemStack, b);
+    }
+
+    @Override
+    public boolean isRandomlyTicked() {
+        return current.isRandomlyTicked();
     }
     //endregion
 
