@@ -1,6 +1,7 @@
 package wbs.utils.util.plugin;
 
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -11,16 +12,11 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class WbsMessage {
-    private final List<TextComponent> components;
+    private final List<Component> components;
 
-    public WbsMessage(List<TextComponent> components) {
+    public WbsMessage(List<Component> components) {
         this.components = components;
     }
-
-    public TextComponent[] getComponentArray() {
-        return components.toArray(new TextComponent[0]);
-    }
-
     @SafeVarargs
     public final <T extends CommandSender> WbsMessage send(T... receivers) {
         List<CommandSender> receiverList = new LinkedList<>(Arrays.asList(receivers));
@@ -28,9 +24,9 @@ public class WbsMessage {
     }
 
     public WbsMessage send(Collection<? extends CommandSender> receivers) {
-        TextComponent[] componentArray = getComponentArray();
+        Component component = Component.join(JoinConfiguration.builder().build(), components);
         for (CommandSender sender : receivers) {
-            sender.spigot().sendMessage(componentArray);
+            sender.sendMessage(component);
         }
 
         return this;

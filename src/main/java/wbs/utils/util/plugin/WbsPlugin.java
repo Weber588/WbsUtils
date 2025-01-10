@@ -1,13 +1,7 @@
 package wbs.utils.util.plugin;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
-
+import net.kyori.adventure.text.format.TextColor;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
@@ -20,13 +14,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import wbs.utils.util.commands.brigadier.WbsErrorsSubcommand;
+import wbs.utils.util.commands.brigadier.WbsReloadSubcommand;
 import wbs.utils.util.pluginhooks.PlaceholderAPIWrapper;
 import wbs.utils.util.string.WbsStrings;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 /**
  * Somewhat a utility class, use this
@@ -71,13 +72,22 @@ public abstract class WbsPlugin extends JavaPlugin {
 	public ChatColor getColour() {
 		return colour;
 	}
+	public TextColor getTextColour() {
+		return TextColor.color(colour.asBungee().getColor().getRGB());
+	}
 
 	public ChatColor getHighlight() {
 		return highlight;
 	}
+	public TextColor getTextHighlightColour() {
+		return TextColor.color(highlight.asBungee().getColor().getRGB());
+	}
 
 	public ChatColor getErrorColour() {
 		return errorColour;
+	}
+	public TextColor getTextErrorColour() {
+		return TextColor.color(errorColour.asBungee().getColor().getRGB());
 	}
 
 	/**
@@ -238,6 +248,17 @@ public abstract class WbsPlugin extends JavaPlugin {
 				sendActionBar(message, (Player) entity);
 			}
 		}
+	}
+
+	protected WbsReloadSubcommand getReloadCommand() {
+		return WbsReloadSubcommand.getStatic(this, getSettings());
+	}
+	protected WbsErrorsSubcommand getErrorsCommand() {
+		return WbsErrorsSubcommand.getStatic(this, getSettings());
+	}
+
+	public WbsSettings getSettings() {
+		return null;
 	}
 
 	/**
