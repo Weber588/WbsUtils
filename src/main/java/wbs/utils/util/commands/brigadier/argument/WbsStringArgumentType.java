@@ -1,20 +1,19 @@
 package wbs.utils.util.commands.brigadier.argument;
 
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 @SuppressWarnings("unused")
 public interface WbsStringArgumentType extends WbsArgumentType<String> {
-    static WbsStringArgumentType word() {
-        return (string) -> string.split(" ")[0];
+    static StringWordArgumentType word() {
+        return new StringWordArgumentType() {};
     }
     static WbsStringArgumentType regexWord(String regex) {
-        return new WbsStringArgumentType() {
-            @Override
-            public @NotNull String getSubstring(String string) {
-                return string.split(" ")[0];
-            }
-
+        return new StringWordArgumentType() {
             @Override
             public boolean filter(@NotNull String string) {
                 return string.matches(regex);
@@ -41,5 +40,16 @@ public interface WbsStringArgumentType extends WbsArgumentType<String> {
         }
 
         throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create(errorFor(asString));
+    }
+    @Override
+    default String toString(String value) {
+        return value;
+    }
+
+    interface StringWordArgumentType extends WbsStringArgumentType, WbsWordArgumentType<String> {
+        @Override
+        default Iterable<String> getSuggestions(CommandContext<CommandSourceStack> context) {
+            return List.of();
+        }
     }
 }

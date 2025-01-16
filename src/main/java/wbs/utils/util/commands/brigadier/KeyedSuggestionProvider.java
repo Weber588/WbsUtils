@@ -8,30 +8,29 @@ import java.util.Collection;
 import java.util.List;
 
 @SuppressWarnings({"UnstableApiUsage", "unused"})
-public abstract class KeyedSuggestionProvider<T extends Keyed> extends WbsSuggestionProvider<T> {
-    public static <T extends Keyed> KeyedSuggestionProvider<T> getStaticKeyed(Iterable<T> staticKeyed) {
+public interface KeyedSuggestionProvider<T extends Keyed> extends WbsSuggestionProvider<T> {
+    static <T extends Keyed> KeyedSuggestionProvider<T> getStaticKeyed(Iterable<T> staticKeyed) {
         return new StaticKeysProvider<>(staticKeyed);
     }
 
     @Override
-    public String toString(T value) {
+    default String toString(T value) {
         return value.key().asString();
     }
 
     @Override
-    public Collection<String> getSuggestionMatches(T value) {
+    default Collection<String> getSuggestionMatches(T value) {
         return List.of(
                 value.key().asString(),
                 value.key().value()
         );
     }
 
-    public static class StaticKeysProvider<T extends Keyed> extends KeyedSuggestionProvider<T> {
+    class StaticKeysProvider<T extends Keyed> implements KeyedSuggestionProvider<T> {
         private final Iterable<T> staticKeyed;
 
         public StaticKeysProvider(Iterable<T> staticKeyed) {
             this.staticKeyed = staticKeyed;
-
         }
 
         @Override
