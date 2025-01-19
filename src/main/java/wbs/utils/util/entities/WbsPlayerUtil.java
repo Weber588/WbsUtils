@@ -1,7 +1,15 @@
 package wbs.utils.util.entities;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.components.FoodComponent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import wbs.utils.util.WbsMath;
 
 @SuppressWarnings("unused")
 public final class WbsPlayerUtil {
@@ -63,7 +71,7 @@ public final class WbsPlayerUtil {
     }
 
     /**
-     * Retrieved from https://github.com/EssentialsX/Essentials/blob/1e0d7fb0a3545d15c3b0cc1d180b47551f98cb22/Essentials/src/main/java/com/earth2me/essentials/craftbukkit/SetExpFix.java
+     * Retrieved from <a href="https://github.com/EssentialsX/Essentials/blob/1e0d7fb0a3545d15c3b0cc1d180b47551f98cb22/Essentials/src/main/java/com/earth2me/essentials/craftbukkit/SetExpFix.java">...</a>
      * on 25-07-21
      * @return Gets the actual experience of the player
      */
@@ -83,7 +91,7 @@ public final class WbsPlayerUtil {
 
     /**
      * Calculation for experience internally.
-     * Retrieved from https://github.com/EssentialsX/Essentials/blob/1e0d7fb0a3545d15c3b0cc1d180b47551f98cb22/Essentials/src/main/java/com/earth2me/essentials/craftbukkit/SetExpFix.java
+     * Retrieved from <a href="https://github.com/EssentialsX/Essentials/blob/1e0d7fb0a3545d15c3b0cc1d180b47551f98cb22/Essentials/src/main/java/com/earth2me/essentials/craftbukkit/SetExpFix.java">...</a>
      * on 25-07-21
      */
     public static int getExpAtLevel(int level) {
@@ -95,4 +103,57 @@ public final class WbsPlayerUtil {
         }
         return (9 * level) - 158;
     }
+
+    @NotNull
+    public static PlayerConsumeItemResult consume(Player player, ItemStack item) {
+        return consume(player, item, true);
+    }
+
+    @NotNull
+    @SuppressWarnings("UnstableApiUsage")
+    public static PlayerConsumeItemResult consume(Player player, ItemStack item, boolean throwEvent) {
+        if (!item.getItemMeta().hasFood()) {
+            return new PlayerConsumeItemResult(false, null);
+        }
+
+        FoodComponent food = item.getItemMeta().getFood();
+
+        int foodLevel = player.getFoodLevel();
+        if (foodLevel >= 20) { // 20 = player's max food level. If this changes, will probably need to change to "player.getMaxFoodLevel".
+            if (!food.canAlwaysEat()) {
+                return new PlayerConsumeItemResult(false, null);
+            }
+        }
+
+        if (throwEvent) {
+            PlayerItemConsumeEvent event = new PlayerItemConsumeEvent(player, item, EquipmentSlot.HAND);
+
+            Bukkit.getPluginManager().callEvent(event);
+
+            if (event.isCancelled()) {
+                return new PlayerConsumeItemResult(false, null);
+            }
+
+            if (!event.getItem().equals(item)) {
+                // Force eat the new item, don't recheck event
+                return consume(player, event.getItem(), false);
+            }
+        }
+
+        int nutrition = food.getNutrition();
+        player.setFoodLevel(Math.min(20, foodLevel + nutrition));
+
+        float saturation = food.getSaturation();
+        player.setSaturation(Math.min(20, player.getSaturation() + saturation));
+
+        for (FoodComponent.FoodEffect effect : food.getEffects()) {
+            if (WbsMath.chance(effect.getProbability() * 100)) {
+                player.addPotionEffect(effect.getEffect());
+            }
+        }
+
+        return new PlayerConsumeItemResult(true, food.getUsingConvertsTo());
+    }
+
+    public record PlayerConsumeItemResult(boolean success, @Nullable ItemStack remainingItem) {}
 }
