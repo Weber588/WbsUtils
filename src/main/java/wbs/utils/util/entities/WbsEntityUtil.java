@@ -25,10 +25,7 @@ public final class WbsEntityUtil {
     private WbsEntityUtil() {}
 
     public static boolean canSeeSky(Entity entity) {
-        if (entity.getWorld().hasStorm()) {
-            return entity.getLocation().getBlock().getLightFromSky() == 15;
-        }
-        return false;
+        return entity.getLocation().getBlock().getLightFromSky() == 15;
     }
 
     public static boolean isInMaterial(Entity entity, Material type) {
