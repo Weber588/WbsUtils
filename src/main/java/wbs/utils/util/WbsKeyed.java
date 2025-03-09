@@ -1,10 +1,14 @@
 package wbs.utils.util;
 
+import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.string.WbsStrings;
 
 import java.util.Arrays;
@@ -17,6 +21,83 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public abstract class WbsKeyed {
 	private WbsKeyed() {}
+
+	public static boolean isValidNamespaceChar(char c) {
+		return ((c >= 'a') && (c <= 'z')) || ((c >= '0') && (c <= '9')) || (c == '.') || (c == '_') || (c == '-');
+	}
+
+	public static boolean isValidKeyChar(char c) {
+		return isValidNamespaceChar(c) || c == '/';
+	}
+
+	public static boolean isValidNamespace(String namespace) {
+		if (namespace.isEmpty()) {
+			return false;
+		}
+
+		for (char c : namespace.toCharArray()) {
+			if (!isValidNamespaceChar(c)) {
+				return false;
+			}
+		}
+
+        return true;
+    }
+
+	public static boolean isValidKey(String key) {
+		if (key.isEmpty()) {
+			return false;
+		}
+
+		for (char c : key.toCharArray()) {
+			if (!isValidKeyChar(c)) {
+				return false;
+			}
+		}
+
+        return true;
+    }
+
+	@Nullable
+	public static NamespacedKey parseKey(@NotNull String keyString, @NotNull String defaultNamespace) {
+        if (keyString.isEmpty() || keyString.length() > 32767) {
+            return null;
+        }
+
+		if (defaultNamespace.isEmpty()) {
+			return null;
+		}
+
+        String[] components = keyString.split(":", 3);
+        String key;
+
+        if (components.length == 1) {
+            key = components[0];
+            if (key.isEmpty() || !isValidKey(key)) {
+                return null;
+            }
+
+            return new NamespacedKey(defaultNamespace, key);
+        } else if (components.length == 2) {
+			key = components[1];
+			if (!isValidKey(key)) {
+				return null;
+			}
+
+            String namespace = components[0];
+            if (namespace.isEmpty()) {
+                return new NamespacedKey(defaultNamespace, key);
+            } else {
+                if (!isValidNamespace(namespace)) {
+                    return null;
+                }
+
+                return new NamespacedKey(namespace, key);
+            }
+        } else {
+			return null;
+		}
+    }
 
 	/**
 	 * Gets the enum as represented by the given string. Failing that,

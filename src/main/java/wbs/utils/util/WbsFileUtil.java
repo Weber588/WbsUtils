@@ -153,12 +153,16 @@ public class WbsFileUtil {
         }
     }
 
-    public static void unzip(String zipFile, String destFolder) throws IOException {
+    public static void unzip(String zipFile, String destFolder ) throws IOException {
+        unzip(new File(zipFile), new File(destFolder));
+    }
+
+    public static void unzip(File zipFile, File destFolder) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
             ZipEntry entry;
             byte[] buffer = new byte[1024];
             while ((entry = zis.getNextEntry()) != null) {
-                File newFile = new File(destFolder + File.separator + entry.getName());
+                File newFile = new File(destFolder, entry.getName());
                 if (entry.isDirectory()) {
                     newFile.mkdirs();
                 } else {

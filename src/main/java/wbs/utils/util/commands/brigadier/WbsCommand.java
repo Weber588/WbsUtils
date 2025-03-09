@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"UnstableApiUsage", "unused"})
@@ -37,6 +39,16 @@ public class WbsCommand extends WbsSubcommand {
         this.aliases.addAll(Arrays.asList(aliases));
 
         return this;
+    }
+
+    public WbsCommand addSimpleSubcommand(String label, Runnable executor) {
+        return addSubcommands(WbsSubcommand.simpleSubcommand(plugin, label, executor));
+    }
+    public WbsCommand addSimpleSubcommand(String label, Consumer<CommandContext<CommandSourceStack>> executor) {
+        return addSubcommands(WbsSubcommand.simpleSubcommand(plugin, label, executor));
+    }
+    public WbsCommand addSimpleResponsiveSubcommand(String label, Function<CommandContext<CommandSourceStack>, Integer> executor) {
+        return addSubcommands(WbsSubcommand.simpleResponsiveSubcommand(plugin, label, executor));
     }
 
     public WbsCommand addSubcommands(WbsSubcommand ... subcommands) {

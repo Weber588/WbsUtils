@@ -5,6 +5,8 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,11 +17,14 @@ import java.util.function.Function;
 
 @SuppressWarnings({"UnstableApiUsage", "unused"})
 public interface WbsSuggestionProvider<T> extends SuggestionProvider<CommandSourceStack> {
-    static <T> StaticKeysProvider<T> getStatic(Iterable<T> values, Function<T, String> toString) {
-        return new StaticKeysProvider<>(values, toString);
+    static <T> StaticKeysProvider<T> getStatic(@NotNull Iterable<T> values, @NotNull Function<T, String> toString, @Nullable String tooltip) {
+        return new StaticKeysProvider<>(values, toString, tooltip);
     }
-    static <T> StaticKeysProvider<T> getStatic(Iterable<T> values) {
-        return new StaticKeysProvider<>(values, Objects::toString);
+    static <T> StaticKeysProvider<T> getStatic(@NotNull Iterable<T> values, @NotNull Function<T, String> toString) {
+        return getStatic(values, toString, null);
+    }
+    static <T> StaticKeysProvider<T> getStatic(@NotNull Iterable<T> values) {
+        return getStatic(values, Objects::toString);
     }
 
     static boolean shouldSuggest(SuggestionsBuilder builder, String suggestion) {
@@ -37,13 +42,20 @@ public interface WbsSuggestionProvider<T> extends SuggestionProvider<CommandSour
     default Collection<String> getSuggestionMatches(T value) {
         return Collections.singleton(toString(value));
     }
+    default @Nullable String getDefaultTooltip() {
+        return null;
+    }
 
     @Override
     default CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
         for (T value : getSuggestions(context)) {
             String stringValue = toString(value);
             if (shouldSuggest(builder, getSuggestionMatches(value))) {
-                builder.suggest(stringValue);
+                if (getDefaultTooltip() != null) {
+                    builder.suggest(stringValue, this::getDefaultTooltip);
+                } else {
+                    builder.suggest(stringValue);
+                }
             }
         }
 
@@ -51,12 +63,19 @@ public interface WbsSuggestionProvider<T> extends SuggestionProvider<CommandSour
     }
 
     final class StaticKeysProvider<T> implements WbsSuggestionProvider<T> {
-        private final Iterable<T> staticKeyed;
-        private final Function<T, String> toString;
+        private final @NotNull Iterable<T> staticKeyed;
+        private final @NotNull Function<T, String> toString;
+        private final @Nullable String tooltip;
 
-        public StaticKeysProvider(Iterable<T> staticKeyed, Function<T, String> toString) {
+        public StaticKeysProvider(@NotNull Iterable<T> staticKeyed, @NotNull Function<T, String> toString, @Nullable String tooltip) {
             this.staticKeyed = staticKeyed;
             this.toString = toString;
+            this.tooltip = tooltip;
+        }
+
+        @Override
+        public @Nullable String getDefaultTooltip() {
+            return tooltip;
         }
 
         @Override

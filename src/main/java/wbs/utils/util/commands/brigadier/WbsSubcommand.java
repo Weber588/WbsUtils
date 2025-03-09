@@ -1,5 +1,6 @@
 package wbs.utils.util.commands.brigadier;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -9,18 +10,42 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEventSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import wbs.utils.util.commands.brigadier.argument.WbsSimpleArgument;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class WbsSubcommand implements HoverEventSource<Component> {
+    public static WbsSubcommand simpleSubcommand(WbsPlugin plugin, String label, Runnable executor) {
+        return simpleSubcommand(plugin, label, context -> executor.run());
+    }
+    public static WbsSubcommand simpleSubcommand(WbsPlugin plugin, String label, Consumer<CommandContext<CommandSourceStack>> executor) {
+        return simpleResponsiveSubcommand(plugin, label, context -> {
+            executor.accept(context);
+            return Command.SINGLE_SUCCESS;
+        });
+    }
+    public static WbsSubcommand simpleResponsiveSubcommand(WbsPlugin plugin, String label, Function<CommandContext<CommandSourceStack>, Integer> executor) {
+        return new WbsSubcommand(plugin, label) {
+            @Override
+            protected int executeNoArgs(CommandContext<CommandSourceStack> context) {
+                return executor.apply(context);
+            }
+        };
+    }
+
     protected final WbsPlugin plugin;
     protected final String label;
     protected @Nullable String description;
     protected @Nullable String permission;
+    protected final @NotNull List<WbsSimpleArgument<?>> simpleArguments = new LinkedList<>();
 
     public WbsSubcommand(@NotNull WbsPlugin plugin, @NotNull String label) {
         this.plugin = plugin;
@@ -39,7 +64,20 @@ public abstract class WbsSubcommand implements HoverEventSource<Component> {
 
         addThens(builder);
 
+        if (!simpleArguments.isEmpty()) {
+            builder.then(WbsSimpleArgument.toBuilderChain(this::onSimpleArgumentCallback, simpleArguments));
+        }
+
         return builder;
+    }
+
+    protected int onSimpleArgumentCallback(CommandContext<CommandSourceStack> context, WbsSimpleArgument.ConfiguredArgumentMap configuredArgumentMap) {
+        return Command.SINGLE_SUCCESS;
+    }
+
+    public final WbsSubcommand addSimpleArgument(WbsSimpleArgument<?> argument) {
+        this.simpleArguments.add(argument);
+        return this;
     }
 
     @SafeVarargs
