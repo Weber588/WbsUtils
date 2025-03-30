@@ -9,6 +9,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
+import wbs.utils.util.commands.brigadier.KeyedSuggestionProvider;
 import wbs.utils.util.commands.brigadier.WbsSuggestionProvider;
 
 import java.util.*;
@@ -28,7 +29,7 @@ public class WbsSimpleArgument<T> {
     private final ArgumentType<T> type;
     private final @Nullable T defaultValue;
     private final Class<T> clazz;
-    private final List<T> suggestions = new LinkedList<>();
+    protected final List<T> suggestions = new LinkedList<>();
     private Function<T, String> toString = Objects::toString;
     private @Nullable String tooltip = null;
     private @Nullable SuggestionProvider<CommandSourceStack> suggestionProvider;
@@ -141,6 +142,28 @@ public class WbsSimpleArgument<T> {
 
         public <T extends Keyed> KeyedSimpleArgument addKeyedSuggestions(Collection<T> suggestions) {
             return (KeyedSimpleArgument) addSuggestions(suggestions.stream().map(Keyed::getKey).toList());
+        }
+
+        @Override
+        public <U extends NamespacedKey> WbsSimpleArgument<NamespacedKey> addSuggestions(Collection<U> suggestions) {
+            super.addSuggestions(suggestions);
+
+            this.setSuggestionProvider(KeyedSuggestionProvider.getStaticKeyed(this.suggestions));
+
+            return this;
+        }
+
+        @Override
+        public WbsSimpleArgument<NamespacedKey> setSuggestions(Collection<NamespacedKey> suggestions) {
+            super.setSuggestions(suggestions);
+
+            this.setSuggestionProvider(KeyedSuggestionProvider.getStaticKeyed(this.suggestions));
+
+            return this;
+        }
+
+        public <T extends Keyed> T getKeyedValue(CommandContext<CommandSourceStack> context, Function<NamespacedKey, T> getter) {
+            return getter.apply(getValue(context));
         }
     }
 

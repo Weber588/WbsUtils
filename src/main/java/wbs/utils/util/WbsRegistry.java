@@ -3,15 +3,17 @@ package wbs.utils.util;
 import io.papermc.paper.registry.RegistryAccess;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
+import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
-public class WbsRegistry<T extends Keyed> {
+public class WbsRegistry<T extends Keyed> implements Function<NamespacedKey, T> {
     private final HashMap<Key, T> registry = new HashMap<>();
 
     public WbsRegistry() {}
@@ -55,5 +57,10 @@ public class WbsRegistry<T extends Keyed> {
 
     public Stream<T> stream() {
         return registry.values().stream();
+    }
+
+    @Override
+    public T apply(NamespacedKey namespacedKey) {
+        return get(namespacedKey);
     }
 }

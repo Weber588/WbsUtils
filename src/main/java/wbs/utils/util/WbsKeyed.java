@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.string.WbsStrings;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Quasi-extension to {@link WbsEnums} for classes implementing {@link Keyed}, to allow more flexibility
@@ -148,6 +150,18 @@ public abstract class WbsKeyed {
 
 	public static String joiningPrettyStrings(@NotNull Registry<? extends Keyed> registry, String delimiter) {
 		return registry.stream()
+				.map(WbsKeyed::toPrettyString)
+				.collect(Collectors.joining(delimiter));
+	}
+
+	public static String joiningPrettyStrings(@NotNull Collection<? extends Keyed> keyedValues, String delimiter) {
+		return keyedValues.stream()
+				.map(WbsKeyed::toPrettyString)
+				.collect(Collectors.joining(delimiter));
+	}
+
+	public static String joiningPrettyStrings(@NotNull Stream<? extends Keyed> keyedValues, String delimiter) {
+		return keyedValues
 				.map(WbsKeyed::toPrettyString)
 				.collect(Collectors.joining(delimiter));
 	}

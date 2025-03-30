@@ -41,6 +41,35 @@ public class WbsParticleGroup {
 	}
 
 	/**
+	 * Builds and then plays all effects at a given location.
+	 * @param location The location to play the effects at.
+	 */
+	public void buildAndPlay(Location location) {
+		buildAndPlay(location, location);
+	}
+
+	/**
+	 * Builds and then plays all effects at a given location.
+	 * @param location The location to play the effects at.
+	 * @param finishLocation The location to use as the end point
+	 * if the effect is a line.
+	 */
+	public void buildAndPlay(Location location, Location finishLocation) {
+		for (WbsParticleEffect effect : effects.keySet()) {
+			double chance = chances.get(effect);
+
+			if (WbsMath.chance(chance)) {
+
+				if (effect instanceof LineParticleEffect) {
+					((LineParticleEffect) effect).play(effects.get(effect), location, finishLocation);
+				} else {
+					effect.buildAndPlay(effects.get(effect), location);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Play all effects at a given location.
 	 * @param location The location to play the effects at.
 	 */

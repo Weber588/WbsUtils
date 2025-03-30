@@ -2,6 +2,7 @@ package wbs.utils.util.commands.brigadier;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -65,7 +66,10 @@ public abstract class WbsSubcommand implements HoverEventSource<Component> {
         addThens(builder);
 
         if (!simpleArguments.isEmpty()) {
-            builder.then(WbsSimpleArgument.toBuilderChain(this::onSimpleArgumentCallback, simpleArguments));
+            RequiredArgumentBuilder<CommandSourceStack, ?> builderChain = WbsSimpleArgument.toBuilderChain(this::onSimpleArgumentCallback, simpleArguments);
+            // Override no args with simple arguments provided
+            builder.executes(builderChain.getCommand());
+            builder.then(builderChain);
         }
 
         return builder;

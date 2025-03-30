@@ -579,6 +579,27 @@ public final class WbsMath {
 		
 		return new Vector(x, y, z);
 	}
+	public static Vector randomPerpendicularVector(Vector from) {
+		return randomPerpendicularVector(from, 1);
+	}
+
+	public static Vector randomPerpendicularVector(Vector from, double magnitude) {
+		Vector offset;
+		do {
+        	offset = randomVector();
+			// Don't let the vectors face the same way. Tiny chance, but would cause an exception.
+		} while (offset.clone().normalize().equals(from.clone().normalize()));
+
+        Vector perpRandom = scaleVector(offset, offset.dot(from)/from.lengthSquared());
+
+		return scaleVector(perpRandom, magnitude);
+	}
+
+	public static Vector rotateRandomDirection(Vector original, double angleDegrees) {
+		Vector perpRandom = randomPerpendicularVector(original);
+
+		return rotateVector(original, perpRandom.crossProduct(original), angleDegrees);
+	}
 
 	public static int parseIntBetween(String input, int min, int max) throws IllegalArgumentException {
 		int returnVal = Integer.parseInt(input);
