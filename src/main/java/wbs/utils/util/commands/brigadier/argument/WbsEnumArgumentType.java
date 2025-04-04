@@ -18,7 +18,7 @@ public class WbsEnumArgumentType<T extends Enum<T>> implements WbsArgumentType<T
 
     @Override
     public @NotNull String getSubstring(String string) throws CommandSyntaxException {
-        return string;
+        return string.split("\\s")[0];
     }
 
     @Override
