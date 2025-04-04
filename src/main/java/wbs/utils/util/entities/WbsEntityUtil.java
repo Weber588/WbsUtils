@@ -4,6 +4,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.Damageable;
@@ -15,10 +16,21 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import wbs.utils.WbsUtils;
+import wbs.utils.util.WbsMath;
+import wbs.utils.util.string.WbsStringify;
+import wbs.utils.util.string.WbsStrings;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 public final class WbsEntityUtil {
@@ -140,6 +152,58 @@ public final class WbsEntityUtil {
         entity.setVelocity(getFacingVector(entity, speed));
     }
 
+    @Nullable
+    public static Block getSafeLocation(Entity entity, Location near, double maxDistance) {
+        return getSafeLocation(entity, near, maxDistance, BlockFace.UP.getDirection());
+    }
+
+    @Nullable
+    public static Block getSafeLocation(Entity entity, Location near,  double maxDistance, Vector direction) {
+        BoundingBox boundingBox = entity.getBoundingBox();
+
+        direction = direction.clone().normalize();
+
+        double distanceChecked = 0;
+        Vector offset = new Vector(0, 0, 0);
+        Block safeLocation = null;
+        Logger logger = WbsUtils.getInstance().getLogger();
+        do {
+            Location check = near.clone().add(offset);
+
+            Set<Block> intersectingBlocks = getIntersectingBlocks(boundingBox, check);
+
+            if (intersectingBlocks.stream().allMatch(Block::isPassable)) {
+                safeLocation = check.getBlock();
+            }
+
+            offset = offset.add(direction);
+            distanceChecked++;
+        } while (safeLocation == null && distanceChecked < maxDistance);
+
+        return safeLocation;
+    }
+
+    public static Set<Block> getIntersectingBlocks(BoundingBox boundingBox, Location center) {
+        Set<Block> intersecting = new HashSet<>();
+        Logger logger = WbsUtils.getInstance().getLogger();
+        final double halfX = boundingBox.getWidthX() / 2;
+        final double halfY = boundingBox.getHeight() / 2;
+        final double halfZ = boundingBox.getWidthZ() / 2;
+
+        for (double x = -halfX; x <= halfX; x = Math.min(halfX, x + 1)) {
+            for (double y = -halfY; y <= halfY; y = Math.min(halfY, y + 1)) {
+                for (double z = -halfZ; z <= halfZ; z = Math.min(halfZ, z + 1)) {
+                    Location location = center.clone().add(x, y, z);
+                    intersecting.add(location.getBlock());
+                    if (z == halfZ) break;
+                }
+                if (y == halfY) break;
+            }
+            if (x == halfX) break;
+        }
+
+        return intersecting;
+    }
 
     /**
      * Teleports the entity a given distance in the direction they're looking, ensuring
@@ -150,22 +214,12 @@ public final class WbsEntityUtil {
      */
     public static boolean blink(Entity entity, double distance) {
         Location tryPos = entity.getLocation().clone().add(getFacingVector(entity, distance));
-        Location tryPos2 = tryPos.clone().add(0, 1, 0);
-        Material pos1Type = tryPos.getBlock().getType();
-        Material pos2Type = tryPos.getBlock().getType();
-        boolean failed = false;
-        while ((pos1Type.isSolid() || pos2Type.isSolid()) && !failed) {
-            tryPos.add(0, 1, 0);
-            tryPos2.add(0, 1, 0);
-            pos1Type = tryPos.getBlock().getType();
-            pos2Type = tryPos.getBlock().getType();
-            if (tryPos.distance(entity.getLocation()) > distance * 2) {
-                failed = true;
-            }
+        Block safePos = getSafeLocation(entity, tryPos, distance * 2);
+
+        if (safePos != null) {
+            return entity.teleport(safePos.getLocation());
         }
-        if (!failed) {
-            return entity.teleport(tryPos);
-        }
+
         return false;
     }
 
