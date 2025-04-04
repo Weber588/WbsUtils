@@ -25,7 +25,7 @@ import java.util.Set;
  * with an annotation system. <p>
  * Also serves as a wrapper for ConfigurationSections.
  */
-@ApiStatus.Experimental
+@Deprecated
 public class WbsConfig {
 
 

@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 
+@Deprecated
 public abstract class WbsConfigOption<T, A extends Annotation> {
 
     protected T value;
