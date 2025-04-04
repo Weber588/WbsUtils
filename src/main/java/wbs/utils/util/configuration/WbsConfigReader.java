@@ -2,8 +2,10 @@ package wbs.utils.util.configuration;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.exceptions.InvalidConfigurationException;
@@ -262,4 +264,24 @@ public final class WbsConfigReader {
         return new Location(world, x, y, z);
     }
 
+    public static @Nullable NamespacedKey getNamespacedKey(@NotNull ConfigurationSection section, @NotNull String key) {
+        return getNamespacedKey(section, key, null);
+    }
+
+    @Contract("_, _, !null -> !null")
+    @Nullable
+    public static NamespacedKey getNamespacedKey(@NotNull ConfigurationSection section, @NotNull String key, @Nullable NamespacedKey defaultValue) {
+        String asString;
+        if (defaultValue != null) {
+            asString = section.getString(key, defaultValue.asString());
+        } else {
+            asString = section.getString(key);
+        }
+
+        if (asString == null) {
+            return null;
+        }
+
+        return NamespacedKey.fromString(asString);
+    }
 }
