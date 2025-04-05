@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class WbsSubcommand implements HoverEventSource<Component> {
@@ -92,6 +93,14 @@ public abstract class WbsSubcommand implements HoverEventSource<Component> {
     }
 
     protected abstract int executeNoArgs(CommandContext<CommandSourceStack> context);
+    protected int sendSimpleArgumentUsage(CommandContext<CommandSourceStack> context) {
+        plugin.sendMessage("Usage: &h/" + context.getInput() + " " +
+                simpleArguments.stream()
+                        .map(WbsSimpleArgument::getArgumentString)
+                        .collect(Collectors.joining(" ")),
+                context.getSource().getSender());
+        return Command.SINGLE_SUCCESS;
+    }
     protected void addThens(LiteralArgumentBuilder<CommandSourceStack> builder) {
 
     }

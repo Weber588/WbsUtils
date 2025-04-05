@@ -8,6 +8,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.commands.brigadier.KeyedSuggestionProvider;
 import wbs.utils.util.commands.brigadier.WbsSuggestionProvider;
@@ -33,6 +34,8 @@ public class WbsSimpleArgument<T> {
     private Function<T, String> toString = Objects::toString;
     private @Nullable String tooltip = null;
     private @Nullable SuggestionProvider<CommandSourceStack> suggestionProvider;
+    // Mainly used for generating usage strings -- not enforced.
+    private boolean isRequired = true;
 
     public WbsSimpleArgument(String label, ArgumentType<T> type, @Nullable T defaultValue, Class<T> clazz) {
         this.label = label;
@@ -129,6 +132,19 @@ public class WbsSimpleArgument<T> {
     public WbsSimpleArgument<T> setTooltip(@Nullable String tooltip) {
         this.tooltip = tooltip;
         return this;
+    }
+
+    public void isRequired(boolean isRequired) {
+        this.isRequired = isRequired;
+    }
+
+    @NotNull
+    public String getArgumentString() {
+        if (isRequired) {
+            return "<" + label + ">";
+        } else {
+            return "[" + label + "]";
+        }
     }
 
     public static class KeyedSimpleArgument extends WbsSimpleArgument<NamespacedKey> {
