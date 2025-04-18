@@ -1,13 +1,13 @@
 package wbs.utils.util.configuration;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.InvalidWorldException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
@@ -15,15 +15,14 @@ import wbs.utils.util.WbsEnums;
 import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.string.WbsStrings;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * A static class to read configs and automatically provide errors to the WbsSettings object without external logic
  */
+@NullMarked
 @SuppressWarnings("unused")
 public final class WbsConfigReader {
     private WbsConfigReader() {}
@@ -55,7 +54,7 @@ public final class WbsConfigReader {
      * @param settings The settings to log errors to
      * @param directory The path to the object being configured
      */
-    public static void requireNotNull(@NotNull ConfigurationSection section, String field,
+    public static void requireNotNull(ConfigurationSection section, String field,
                                       @Nullable WbsSettings settings, @Nullable String directory) throws MissingRequiredKeyException {
         if (section.get(field) == null) {
             if (settings != null) {
@@ -72,7 +71,7 @@ public final class WbsConfigReader {
      * @param directory The path to the section if settings is defined
      * @throws MissingRequiredKeyException If the field does not exist, or is not a section
      */
-    public static void requireSection(@NotNull ConfigurationSection section, String sectionName,
+    public static void requireSection(ConfigurationSection section, String sectionName,
                                       @Nullable WbsSettings settings, @Nullable String directory) throws MissingRequiredKeyException {
         if (section.getConfigurationSection(sectionName) == null) {
             if (settings != null) {
@@ -90,7 +89,7 @@ public final class WbsConfigReader {
      * @param directory The path to the section if settings is defined
      * @return The found section, guaranteed not to be null
      */
-    public static @NotNull ConfigurationSection getRequiredSection(@NotNull ConfigurationSection section, String sectionName,
+    public static ConfigurationSection getRequiredSection(ConfigurationSection section, String sectionName,
                                                                    @Nullable WbsSettings settings, @Nullable String directory) throws MissingRequiredKeyException {
         ConfigurationSection foundSection = section.getConfigurationSection(sectionName);
         if (foundSection == null) {
@@ -112,7 +111,7 @@ public final class WbsConfigReader {
      * @param clazz The enum class to build from the given String
      * @return A non-null enum value
      */
-    public static <T extends Enum<T>> @NotNull T getRequiredEnum(@NotNull ConfigurationSection section, String field,
+    public static <T extends Enum<T>> T getRequiredEnum(ConfigurationSection section, String field,
                                                                  @Nullable WbsSettings settings, @Nullable String directory, Class<T> clazz) throws InvalidConfigurationException {
         return Objects.requireNonNull(getEnum(section, field, settings, directory, clazz, true));
     }
@@ -126,7 +125,7 @@ public final class WbsConfigReader {
      * @param clazz The enum class to build from the given String
      * @return An enum that may be null
      */
-    public static <T extends Enum<T>> @Nullable T getEnum(@NotNull ConfigurationSection section, String field,
+    public static <T extends Enum<T>> @Nullable T getEnum(ConfigurationSection section, String field,
                                                                  @Nullable WbsSettings settings, @Nullable String directory, Class<T> clazz) throws InvalidConfigurationException {
         return getEnum(section, field, settings, directory, clazz, false);
     }
@@ -141,7 +140,7 @@ public final class WbsConfigReader {
      * @param isRequired Whether or not to throw an exception if the field is missing
      * @return An enum that may be null
      */
-    private static <T extends Enum<T>> @Nullable T getEnum(@NotNull ConfigurationSection section, String field,
+    private static <T extends Enum<T>> @Nullable T getEnum(ConfigurationSection section, String field,
                                                            @Nullable WbsSettings settings, @Nullable String directory, Class<T> clazz, boolean isRequired) throws InvalidConfigurationException {
         String asString = section.getString(field);
 
@@ -157,6 +156,7 @@ public final class WbsConfigReader {
             }
         }
 
+        @Nullable
         T instance = WbsEnums.getEnumFromString(clazz, asString);
 
         if (instance == null) {
@@ -179,13 +179,14 @@ public final class WbsConfigReader {
      * @param clazz The enum class to build from the given String list
      * @return A list of enum values that may be empty
      */
-    public static <T extends Enum<T>> @NotNull List<T> getEnumList(@NotNull ConfigurationSection section, String field,
+    public static <T extends Enum<T>> List<T> getEnumList(ConfigurationSection section, String field,
                                                                     @Nullable WbsSettings settings, @Nullable String directory, Class<T> clazz) {
         List<String> asStringList = section.getStringList(field);
         List<T> enumList = new LinkedList<>();
         String chooseFromListPrompt = "Please choose from the following: " + WbsEnums.joiningPrettyStrings(clazz);
 
         for (String asString : asStringList) {
+            @Nullable
             T instance = WbsEnums.getEnumFromString(clazz, asString);
 
             if (instance == null) {
@@ -237,7 +238,7 @@ public final class WbsConfigReader {
      * @throws MissingRequiredKeyException If a field (sectionName, x, y, z, or world) is missing
      * @throws InvalidWorldException If the world field was set, but is not a valid/loaded world.
      */
-    public static @NotNull Location getRequiredLocation(@NotNull ConfigurationSection section, String sectionName,
+    public static Location getRequiredLocation(ConfigurationSection section, String sectionName,
                                                                    @Nullable WbsSettings settings, @Nullable String directory) throws MissingRequiredKeyException, InvalidWorldException {
         ConfigurationSection locSection = getRequiredSection(section, sectionName, settings, directory);
 
@@ -264,13 +265,13 @@ public final class WbsConfigReader {
         return new Location(world, x, y, z);
     }
 
-    public static @Nullable NamespacedKey getNamespacedKey(@NotNull ConfigurationSection section, @NotNull String key) {
+    public static @Nullable NamespacedKey getNamespacedKey(ConfigurationSection section, String key) {
         return getNamespacedKey(section, key, null);
     }
 
     @Contract("_, _, !null -> !null")
     @Nullable
-    public static NamespacedKey getNamespacedKey(@NotNull ConfigurationSection section, @NotNull String key, @Nullable NamespacedKey defaultValue) {
+    public static NamespacedKey getNamespacedKey(ConfigurationSection section, String key, @Nullable NamespacedKey defaultValue) {
         String asString;
         if (defaultValue != null) {
             asString = section.getString(key, defaultValue.asString());
@@ -283,5 +284,53 @@ public final class WbsConfigReader {
         }
 
         return NamespacedKey.fromString(asString);
+    }
+
+    @Nullable
+    public static <T extends Keyed> T getRegistryEntry(ConfigurationSection section, String key, RegistryKey<T> registryKey) {
+        return getRegistryEntry(section, key, registryKey, null);
+    }
+
+    @Contract("_, _, _, !null -> !null")
+    @Nullable
+    public static <T extends Keyed> T getRegistryEntry(ConfigurationSection section, String key, RegistryKey<T> registryKey, @Nullable T defaultValue) {
+        NamespacedKey blockKey = WbsConfigReader.getNamespacedKey(section, key, defaultValue != null ? defaultValue.getKey() : null);
+        if (blockKey == null) {
+            return null;
+        }
+
+        @Nullable
+        T registryEntry = RegistryAccess.registryAccess().getRegistry(registryKey).get(blockKey);
+
+        if (registryEntry == null) {
+            return defaultValue;
+        }
+
+        return registryEntry;
+    }
+
+    @Nullable
+    public static Vector getVector(ConfigurationSection section, String key) {
+        return getVector(section, key, null);
+    }
+
+    @Contract("_, _, !null -> !null")
+    @Nullable
+    public static Vector getVector(ConfigurationSection section, String key, @Nullable Vector defaultValue) {
+        ConfigurationSection vectorSection = section.getConfigurationSection(key);
+
+        if (vectorSection == null) {
+            return defaultValue;
+        }
+
+        if (defaultValue == null) {
+            defaultValue = new Vector(0, 0, 0);
+        }
+
+        double x = vectorSection.getDouble("x", defaultValue.getX());
+        double y = vectorSection.getDouble("y", defaultValue.getY());
+        double z = vectorSection.getDouble("z", defaultValue.getZ());
+
+        return new Vector(x, y, z);
     }
 }
