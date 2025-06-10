@@ -127,19 +127,6 @@ public class WbsMessageBuilder {
         return onClick(onClick);
     }
 
-    /**
-     * Set the formatting of the most recently added component to the formatting that would
-     * be created from the legacy text provided, taking into account custom plugin codes.
-     * @param legacyFormatting Legacy formatting text, such as "&amp;1" for blue or "&amp;o" for italics.
-     */
-    public WbsMessageBuilder setFormatting(String legacyFormatting) {
-        TextComponent legacyComponent = fromBungeeText(plugin.formatAsTextComponent(legacyFormatting));
-
-        mostRecent = mostRecent.color(legacyComponent.color());
-        mostRecent = mostRecent.mergeStyle(legacyComponent);
-        updateMostRecent();
-        return this;
-    }
     @SuppressWarnings("deprecation")
     public WbsMessageBuilder setColour(ChatColor colour) {
         mostRecent = mostRecent.color(TextColor.color(colour.getColor().getRGB()));
