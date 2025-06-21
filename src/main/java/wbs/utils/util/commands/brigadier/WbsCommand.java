@@ -10,6 +10,7 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.*;
@@ -51,6 +52,12 @@ public class WbsCommand extends WbsSubcommand {
         return addSubcommands(WbsSubcommand.simpleResponsiveSubcommand(plugin, label, executor));
     }
 
+    public WbsCommand addSubcommandsInferPermissions(WbsSubcommand ... subcommands) {
+        for (WbsSubcommand subcommand : subcommands) {
+            subcommand.inferPermission(this.permission);
+        }
+        return addSubcommands(subcommands);
+    }
     public WbsCommand addSubcommands(WbsSubcommand ... subcommands) {
         for (WbsSubcommand subcommand : subcommands) {
             subcommandMap.put(subcommand.getLabel(), subcommand);
@@ -105,5 +112,41 @@ public class WbsCommand extends WbsSubcommand {
                 .send(context.getSource().getSender());
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    @Override
+    public WbsCommand setPermission(@Nullable String permission) {
+        super.setPermission(permission);
+        return this;
+    }
+
+    @Override
+    public WbsCommand inferPermission() {
+        super.inferPermission();
+        return this;
+    }
+
+    @Override
+    public WbsCommand inferPermission(String parentPermission) {
+        super.inferPermission(parentPermission);
+        return this;
+    }
+
+    public WbsCommand inferSubPermissions() {
+        for (WbsSubcommand subcommand : subcommandMap.values()) {
+            subcommand.inferPermission(this.permission);
+
+            if (subcommand instanceof WbsCommand command) {
+                command.inferSubPermissions();
+            }
+        }
+
+        return this;
+    }
+
+    @Override
+    public WbsCommand setDescription(@Nullable String description) {
+        super.setDescription(description);
+        return this;
     }
 }

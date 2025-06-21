@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("UnstableApiUsage")
+@SuppressWarnings({"UnstableApiUsage", "unused"})
 public abstract class WbsSubcommand implements HoverEventSource<Component> {
     public static WbsSubcommand simpleSubcommand(WbsPlugin plugin, String label, Runnable executor) {
         return simpleSubcommand(plugin, label, context -> executor.run());
@@ -131,5 +131,23 @@ public abstract class WbsSubcommand implements HoverEventSource<Component> {
         }
 
         return HoverEvent.showText(Component.text(label));
+    }
+
+    public WbsSubcommand setPermission(@Nullable String permission) {
+        this.permission = permission;
+        return this;
+    }
+
+    public WbsSubcommand inferPermission() {
+        return inferPermission(plugin.getName().toLowerCase() + ".command");
+    }
+
+    public WbsSubcommand inferPermission(String parentPermission) {
+        return setPermission(parentPermission + "." + label);
+    }
+
+    public WbsSubcommand setDescription(@Nullable String description) {
+        this.description = description;
+        return this;
     }
 }

@@ -22,6 +22,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.WbsUtils;
+import wbs.utils.util.WbsLocationUtil;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.string.WbsStringify;
 import wbs.utils.util.string.WbsStrings;
@@ -170,7 +171,7 @@ public final class WbsEntityUtil {
         do {
             Location check = near.clone().add(offset);
 
-            Set<Block> intersectingBlocks = getIntersectingBlocks(boundingBox, check);
+            Set<Block> intersectingBlocks = WbsLocationUtil.getIntersectingBlocks(boundingBox, check);
 
             if (intersectingBlocks.stream().allMatch(Block::isPassable)) {
                 safeLocation = check.getBlock();
@@ -183,27 +184,6 @@ public final class WbsEntityUtil {
         return safeLocation;
     }
 
-    public static Set<Block> getIntersectingBlocks(BoundingBox boundingBox, Location center) {
-        Set<Block> intersecting = new HashSet<>();
-        Logger logger = WbsUtils.getInstance().getLogger();
-        final double halfX = boundingBox.getWidthX() / 2;
-        final double halfY = boundingBox.getHeight() / 2;
-        final double halfZ = boundingBox.getWidthZ() / 2;
-
-        for (double x = -halfX; x <= halfX; x = Math.min(halfX, x + 1)) {
-            for (double y = -halfY; y <= halfY; y = Math.min(halfY, y + 1)) {
-                for (double z = -halfZ; z <= halfZ; z = Math.min(halfZ, z + 1)) {
-                    Location location = center.clone().add(x, y, z);
-                    intersecting.add(location.getBlock());
-                    if (z == halfZ) break;
-                }
-                if (y == halfY) break;
-            }
-            if (x == halfX) break;
-        }
-
-        return intersecting;
-    }
 
     /**
      * Teleports the entity a given distance in the direction they're looking, ensuring

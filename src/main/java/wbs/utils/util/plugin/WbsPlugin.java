@@ -422,4 +422,22 @@ public abstract class WbsPlugin extends JavaPlugin {
 			runSync(() -> consumer.accept(obj));
 		});
 	}
+
+	public int runLater(@NotNull Runnable runnable, long ticksLater) {
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				runnable.run();
+			}
+		}.runTaskLater(this, ticksLater).getTaskId();
+	}
+
+	public int runLaterAsync(@NotNull Runnable runnable, long ticksLater) {
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				runnable.run();
+			}
+		}.runTaskLaterAsynchronously(this, ticksLater).getTaskId();
+	}
 }
