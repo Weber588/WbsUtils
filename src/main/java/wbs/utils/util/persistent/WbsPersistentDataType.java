@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @SuppressWarnings("unused")
 public final class WbsPersistentDataType {
@@ -17,6 +18,7 @@ public final class WbsPersistentDataType {
     public static final PersistentItemType ITEM = new PersistentItemType();
     public static final PersistentItemByteType ITEM_AS_BYTES = new PersistentItemByteType();
     public static final PersistentKeyType NAMESPACED_KEY = new PersistentKeyType();
+    public static final PersistentUUIDType UUID = new PersistentUUIDType();
 
     @Nullable
     @Contract("_, _, _, !null -> !null")
@@ -62,8 +64,30 @@ public final class WbsPersistentDataType {
         }
 
         @Override
-        public @NotNull NamespacedKey fromPrimitive(@NotNull String s, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
-            return Objects.requireNonNull(NamespacedKey.fromString(s));
+        public @NotNull NamespacedKey fromPrimitive(@NotNull String asString, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
+            return Objects.requireNonNull(NamespacedKey.fromString(asString));
+        }
+    }
+
+    public static class PersistentUUIDType implements PersistentDataType<String, UUID> {
+        @Override
+        public @NotNull Class<String> getPrimitiveType() {
+            return String.class;
+        }
+
+        @Override
+        public @NotNull Class<UUID> getComplexType() {
+            return UUID.class;
+        }
+
+        @Override
+        public @NotNull String toPrimitive(@NotNull UUID uuid, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
+            return uuid.toString();
+        }
+
+        @Override
+        public @NotNull UUID fromPrimitive(@NotNull String asString, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
+            return Objects.requireNonNull(java.util.UUID.fromString(asString));
         }
     }
 }
