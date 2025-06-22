@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +43,9 @@ public class WbsSimpleArgument<T> {
         this.type = type;
         this.defaultValue = defaultValue;
         this.clazz = clazz;
-        this.suggestions.add(defaultValue);
+        if (defaultValue != null) {
+            this.suggestions.add(defaultValue);
+        }
     }
 
     @SafeVarargs
@@ -69,6 +72,11 @@ public class WbsSimpleArgument<T> {
 
     public WbsSimpleArgument<T> setSuggestionProvider(@Nullable SuggestionProvider<CommandSourceStack> suggestionProvider) {
         this.suggestionProvider = suggestionProvider;
+        return this;
+    }
+
+    public WbsSimpleArgument<T> setSuggestionProvider(@Nullable ArgumentType<T> argumentType) {
+        this.suggestionProvider = argumentType != null ? argumentType::listSuggestions : null;
         return this;
     }
 
