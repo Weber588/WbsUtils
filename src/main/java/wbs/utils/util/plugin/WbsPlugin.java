@@ -440,4 +440,22 @@ public abstract class WbsPlugin extends JavaPlugin {
 			}
 		}.runTaskLaterAsynchronously(this, ticksLater).getTaskId();
 	}
+
+	public int runTimer(@NotNull Consumer<BukkitRunnable> consumer, long delay, long interval) {
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				consumer.accept(this);
+			}
+		}.runTaskTimer(this, delay, interval).getTaskId();
+	}
+
+	public int runLaterAsync(Consumer<BukkitRunnable> consumer, long delay, long interval) {
+		return new BukkitRunnable() {
+			@Override
+			public void run() {
+				consumer.accept(this);
+			}
+		}.runTaskTimerAsynchronously(this, delay, interval).getTaskId();
+	}
 }
