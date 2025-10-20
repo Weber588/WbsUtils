@@ -3,6 +3,7 @@ package wbs.utils.util.string;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Color;
 import org.jetbrains.annotations.NotNull;
+import wbs.utils.WbsUtils;
 import wbs.utils.util.VersionUtil;
 import wbs.utils.util.WbsColours;
 
@@ -13,6 +14,9 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
 public final class WbsStrings {
+
+	public static final String REGEX = "^[(\\[\"'].*$";
+
 	private WbsStrings() {}
 	
 	/**
@@ -24,7 +28,11 @@ public final class WbsStrings {
 		String[] words = str.toLowerCase().split(" ");
 		StringBuilder display = new StringBuilder();
 		for (String word : words) {
-			display.append(" ").append(capitalize(word));
+			if (word.matches(REGEX)) {
+				display.append(" ").append(word.charAt(0)).append(capitalize(word.substring(1)));
+			} else {
+				display.append(" ").append(capitalize(word));
+			}
 		}
 		return display.substring(1);
 	}

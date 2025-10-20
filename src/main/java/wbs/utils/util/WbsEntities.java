@@ -550,7 +550,7 @@ public final class WbsEntities {
 	 */
 	public static boolean heal(LivingEntity entity, double toHeal) {
 		double currentHealth = entity.getHealth();
-		AttributeInstance healthInstance = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+		AttributeInstance healthInstance = entity.getAttribute(Attribute.MAX_HEALTH);
 		if (healthInstance == null) {
 			throw new IllegalArgumentException("Invalid entity; health attribute was null");
 		}

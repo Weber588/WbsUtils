@@ -9,9 +9,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.WbsUtils;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class BlockChunkStorageUtil {
@@ -78,6 +76,32 @@ public class BlockChunkStorageUtil {
 
             if (container != null) {
                 blocks.add(container);
+            }
+        }
+
+        return blocks;
+    }
+
+    public static Map<Block, PersistentDataContainer> getBlockContainerMap(Chunk chunk) {
+        PersistentDataContainer chunkContainer = chunk.getPersistentDataContainer().get(TAG, PersistentDataType.TAG_CONTAINER);
+
+        Map<Block, PersistentDataContainer> blocks = new HashMap<>();
+        if (chunkContainer == null) {
+            return blocks;
+        }
+
+        Set<NamespacedKey> keys = chunkContainer.getKeys();
+        for (NamespacedKey key : keys) {
+            PersistentDataContainer container = chunkContainer.get(key, PersistentDataType.TAG_CONTAINER);
+
+            if (container != null) {
+                try {
+                    Location location = locationFromKey(key);
+                    location.setWorld(chunk.getWorld());
+                    Block block = location.getBlock();
+
+                    blocks.put(block, container);
+                } catch (IllegalStateException ignored) {}
             }
         }
 

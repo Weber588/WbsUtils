@@ -3,8 +3,11 @@ package wbs.utils.util.plugin;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.title.Title;
+import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,12 +31,16 @@ public class WbsMessage {
     }
 
     public WbsMessage send(BiConsumer<CommandSender, Component> sendMethod, Collection<? extends CommandSender> receivers) {
-        Component component = Component.join(JoinConfiguration.builder().build(), components);
+        Component component = toComponent();
         for (CommandSender sender : receivers) {
             sendMethod.accept(sender, component);
         }
 
         return this;
+    }
+
+    private @NotNull Component toComponent() {
+        return Component.join(JoinConfiguration.builder().build(), components);
     }
 
 

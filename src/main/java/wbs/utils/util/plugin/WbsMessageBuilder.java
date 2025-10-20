@@ -48,6 +48,7 @@ public class WbsMessageBuilder {
         return append(Component.text(string));
     }
     public WbsMessageBuilder append(Component text) {
+        text = text.applyFallbackStyle(plugin.getTextColour());
         mostRecent = text;
         components.add(text);
         return this;

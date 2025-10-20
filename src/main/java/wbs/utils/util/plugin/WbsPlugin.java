@@ -11,21 +11,25 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import wbs.utils.util.WbsEventUtils;
+import wbs.utils.util.WbsFileUtil;
 import wbs.utils.util.commands.brigadier.WbsErrorsSubcommand;
 import wbs.utils.util.commands.brigadier.WbsReloadSubcommand;
 import wbs.utils.util.pluginhooks.PlaceholderAPIWrapper;
 import wbs.utils.util.string.WbsStrings;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -40,11 +44,13 @@ import java.util.logging.Logger;
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public abstract class WbsPlugin extends JavaPlugin {
 
+	@Deprecated(forRemoval = true)
 	public Logger logger = getLogger();
+	@Deprecated(forRemoval = true)
 	public PluginManager pluginManager = Bukkit.getPluginManager();
 
 	protected void registerListener(Listener listener) {
-		pluginManager.registerEvents(listener, this);
+		Bukkit.getPluginManager().registerEvents(listener, this);
 	}
 
 	private ChatColor colour = ChatColor.GREEN;
@@ -423,6 +429,50 @@ public abstract class WbsPlugin extends JavaPlugin {
 		});
 	}
 
+	public <E extends Event, T> WbsEventUtils.EventHandlerMethod<E> getFromEvent(Class<E> eventClass, Predicate<E> eventFilter, @NotNull Consumer<E> onEvent) {
+		return getFromEvent(eventClass, eventFilter, onEvent, 1);
+	}
+
+	/**
+	 * Registers a temporary event under this plugin, and accepts {@param maxUses} events that match {@param eventFilter}
+	 * before unregistering the listener.
+	 * @param eventClass The event to be listened to
+	 * @param eventFilter A filter for events that should be considered a single use -- this filter must be met {@param maxUses} times
+	 *                    for the event to unregister
+	 * @param onEvent The handler for what to do when the event matches {@param eventFilter}.
+	 * @param maxUses How many times the event should be accepted (matching @{param eventFilter}) before unregistering.
+	 * @param <E> The event type to be listened to. Must be an event class that can be registered to, by having a getHandlerList method.
+	 * @return The listener used for registration, so {@link HandlerList#unregister(Listener)} can be used to cancel early.
+	 */
+	public <E extends Event> WbsEventUtils.EventHandlerMethod<E> getFromEvent(Class<E> eventClass, Predicate<E> eventFilter, @NotNull Consumer<E> onEvent, int maxUses) {
+		HandlerList handlerList;
+
+		try {
+			Method getHandlerList = eventClass.getMethod("getHandlerList");
+            handlerList = (HandlerList) getHandlerList.invoke(null);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        WbsEventUtils.EventHandlerMethod<E> listener = new WbsEventUtils.EventHandlerMethod<>() {
+			int uses = maxUses;
+            @Override
+            public void handle(E event) {
+				if (eventFilter.test(event)) {
+					onEvent.accept(event);
+					uses--;
+					if (uses <= 0) {
+						handlerList.unregister(this);
+					}
+				}
+            }
+        };
+
+		WbsEventUtils.register(this, eventClass, listener);
+
+		return listener;
+	}
+
 	public int runLater(@NotNull Runnable runnable, long ticksLater) {
 		return new BukkitRunnable() {
 			@Override
@@ -450,6 +500,24 @@ public abstract class WbsPlugin extends JavaPlugin {
 		}.runTaskTimer(this, delay, interval).getTaskId();
 	}
 
+	public int runTimerNTimes(@NotNull Consumer<BukkitRunnable> consumer, int times, long delay, long interval) {
+		return new BukkitRunnable() {
+			int age = 0;
+
+			@Override
+			public void run() {
+				if (age >= times) {
+					cancel();
+					return;
+				}
+
+				consumer.accept(this);
+
+				age++;
+			}
+		}.runTaskTimer(this, delay, interval).getTaskId();
+	}
+
 	public int runLaterAsync(Consumer<BukkitRunnable> consumer, long delay, long interval) {
 		return new BukkitRunnable() {
 			@Override
@@ -458,4 +526,8 @@ public abstract class WbsPlugin extends JavaPlugin {
 			}
 		}.runTaskTimerAsynchronously(this, delay, interval).getTaskId();
 	}
+
+	public void saveResourceFolder(String folderName, boolean replace) {
+		WbsFileUtil.saveResourceFolder(this, folderName, replace);
+    }
 }

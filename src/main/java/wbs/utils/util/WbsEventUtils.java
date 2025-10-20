@@ -11,6 +11,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import wbs.utils.util.plugin.WbsPlugin;
 
+import java.util.concurrent.CompletableFuture;
+
 @SuppressWarnings("unused")
 public class WbsEventUtils {
     public static ItemStack getItemAddedToTopInventory(InventoryClickEvent event) {

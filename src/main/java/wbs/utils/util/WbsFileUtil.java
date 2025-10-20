@@ -7,21 +7,34 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnstableApiUsage"})
 public class WbsFileUtil {
     @SuppressWarnings("UnstableApiUsage")
     public static void saveResource(BootstrapContext context, Class<? extends JavaPlugin> clazz, @NotNull String resourcePath, boolean replace) {
+        saveResource(clazz, context.getDataDirectory().toFile(), getLeveledLogger(context), resourcePath, replace);
+    }
+
+    private static @NotNull BiConsumer<Level, String> getLeveledLogger(BootstrapContext context) {
         ComponentLogger logger = context.getLogger();
-        saveResource(clazz, context.getDataDirectory().toFile(), (level, message) -> {
+        return (level, message) -> {
             Consumer<String> log;
 
             if (level.equals(Level.SEVERE)) {
@@ -37,8 +50,9 @@ public class WbsFileUtil {
             }
 
             log.accept(message);
-        }, resourcePath, replace);
+        };
     }
+
     public static void saveResource(JavaPlugin plugin, @NotNull String resourcePath, boolean replace) {
         saveResource(plugin.getClass(), plugin.getDataFolder(), plugin.getLogger()::log, resourcePath, replace);
     }
@@ -173,6 +187,64 @@ public class WbsFileUtil {
                             fos.write(buffer, 0, length);
                         }
                     }
+                }
+            }
+        }
+    }
+    
+    public static void saveResourceFolder(BootstrapContext context, Class<? extends JavaPlugin> clazz, String folderName, boolean replace) {
+        saveResourceFolder(clazz, context.getDataDirectory().toFile(), getLeveledLogger(context), folderName, replace);
+    }
+    
+    public static void saveResourceFolder(JavaPlugin plugin, String folderName, boolean replace) {
+        saveResourceFolder(plugin.getClass(), plugin.getDataFolder(), plugin.getLogger()::log, folderName, replace);
+    }
+    
+    /**
+     * @author <a href="https://stackoverflow.com/users/984823/joop-eggen">Joop Eggen</a> (via <a href="https://stackoverflow.com/a/50470554">StackOverflow</a>)
+     * @param folderName The folder to save from the src/resources/ files
+     * @param replace Whether to replace files already existing.
+     */
+    public static void saveResourceFolder(Class<? extends JavaPlugin> clazz, File dataFolder, BiConsumer<Level, String> logger, String folderName, boolean replace) {
+        if (!folderName.startsWith(File.separator)) {
+            folderName = File.separator + folderName;
+        }
+
+        URI uri;
+        try {
+            URL resource = clazz.getResource(folderName);
+            if (resource == null) {
+                throw new RuntimeException("Resource folder missing: " + folderName);
+            }
+            uri = resource.toURI();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        Map<String, String> env = new HashMap<>();
+        try (java.nio.file.FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+            for (Path path : zipfs.getRootDirectories()) {
+                try (Stream<Path> paths = Files.list(path)) {
+                    for (Path rootLevelPath : paths.collect(Collectors.toSet())) {
+                        if (Files.isDirectory(rootLevelPath) && rootLevelPath.toString().equals(folderName)) {
+                            trySavePath(clazz, dataFolder, logger, rootLevelPath, replace);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void trySavePath(Class<? extends JavaPlugin> clazz, File dataFolder, BiConsumer<Level, String> logger, Path path, boolean replace) throws IOException {
+        try (Stream<Path> paths = Files.list(path)) {
+            for (Path p : paths.collect(Collectors.toSet())) {
+                if (Files.isDirectory(p)) {
+                    trySavePath(clazz, dataFolder, logger, p, replace);
+                } else {
+                    // Save the resource via standard method -- strip first character (usually "/")
+                    saveResource(clazz, dataFolder, logger, p.toString().substring(1), replace);
                 }
             }
         }

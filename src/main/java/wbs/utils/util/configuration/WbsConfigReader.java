@@ -2,10 +2,13 @@ package wbs.utils.util.configuration;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
+import org.apache.commons.lang.math.NumberRange;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NullMarked;
 import wbs.utils.exceptions.InvalidConfigurationException;
@@ -15,9 +18,15 @@ import wbs.utils.util.WbsEnums;
 import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.string.WbsStrings;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * A static class to read configs and automatically provide errors to the WbsSettings object without external logic
@@ -265,13 +274,99 @@ public final class WbsConfigReader {
         return new Location(world, x, y, z);
     }
 
+    public static List<@Nullable NamespacedKey> getNamespacedKeys(ConfigurationSection section, String key) {
+        return getNamespacedKeys(section, key, null, null);
+    }
+
+    public static List<@Nullable NamespacedKey> getNamespacedKeys(ConfigurationSection section,
+                                                        String key,
+                                                        @Nullable WbsSettings settings, @Nullable String directory
+    ) {
+        return getNamespacedKeys(section, key, settings, directory, null);
+    }
+    public static List<@Nullable NamespacedKey> getNamespacedKeys(ConfigurationSection section,
+                                                        String key,
+                                                        @Nullable WbsSettings settings, @Nullable String directory,
+                                                        @Nullable Plugin defaultNamespace) {
+        return getNamespacedKeys(section, key, settings, directory, defaultNamespace, new LinkedList<>());
+    }
+
+    public static List<@Nullable NamespacedKey> getNamespacedKeys(ConfigurationSection section,
+                                                        String key,
+                                                        @Nullable WbsSettings settings, @Nullable String directory,
+                                                        @Nullable Plugin defaultNamespace,
+                                                        List<NamespacedKey> defaultValues) {
+        if (!section.isList(key)) {
+            NamespacedKey foundKey = getNamespacedKey(section, key);
+
+            if (foundKey != null) {
+                List<NamespacedKey> singleEntry = new LinkedList<>();
+
+                singleEntry.add(foundKey);
+
+                return singleEntry;
+            } else {
+                return defaultValues;
+            }
+
+        }
+
+        List<@Nullable NamespacedKey> list = new LinkedList<>();
+
+        for (String keyString : section.getStringList(key)) {
+            NamespacedKey namespacedKey = NamespacedKey.fromString(keyString, defaultNamespace);
+
+            if (namespacedKey != null) {
+                list.add(namespacedKey);
+            }
+        }
+
+        return list;
+    }
+
     public static @Nullable NamespacedKey getNamespacedKey(ConfigurationSection section, String key) {
-        return getNamespacedKey(section, key, null);
+        return getNamespacedKey(section, key, null, null);
+    }
+
+    public static @Nullable NamespacedKey getNamespacedKey(ConfigurationSection section,
+                                                           String key,
+                                                           @Nullable Plugin defaultNamespace) {
+        return getNamespacedKey(section, key, null, null, defaultNamespace, null);
+    }
+
+    public static @Nullable NamespacedKey getNamespacedKey(ConfigurationSection section,
+                                                           String key,
+                                                           @Nullable WbsSettings settings, @Nullable String directory,
+                                                           @Nullable Plugin defaultNamespace) {
+        return getNamespacedKey(section, key, settings, directory, defaultNamespace, null);
     }
 
     @Contract("_, _, !null -> !null")
     @Nullable
-    public static NamespacedKey getNamespacedKey(ConfigurationSection section, String key, @Nullable NamespacedKey defaultValue) {
+    public static NamespacedKey getNamespacedKey(ConfigurationSection section,
+                                                 String key,
+                                                 @Nullable NamespacedKey defaultValue
+    ) {
+        return getNamespacedKey(section, key, null, null, null, defaultValue);
+    }
+
+    @Contract("_, _, _, !null -> !null")
+    @Nullable
+    public static NamespacedKey getNamespacedKey(ConfigurationSection section,
+                                                 String key,
+                                                 @Nullable Plugin defaultNamespace,
+                                                 @Nullable NamespacedKey defaultValue
+    ) {
+        return getNamespacedKey(section, key, null, null, defaultNamespace, defaultValue);
+    }
+
+    @Contract("_, _, _, _, _, !null -> !null")
+    @Nullable
+    public static NamespacedKey getNamespacedKey(ConfigurationSection section,
+                                                 String key,
+                                                 @Nullable WbsSettings settings, @Nullable String directory,
+                                                 @Nullable Plugin defaultNamespace,
+                                                 @Nullable NamespacedKey defaultValue) {
         String asString;
         if (defaultValue != null) {
             asString = section.getString(key, defaultValue.asString());
@@ -280,21 +375,114 @@ public final class WbsConfigReader {
         }
 
         if (asString == null) {
-            return null;
+            return defaultValue;
         }
 
-        return NamespacedKey.fromString(asString);
+        NamespacedKey namespacedKey = NamespacedKey.fromString(asString, defaultNamespace);
+
+        if (namespacedKey == null) {
+            if (settings != null) {
+                settings.logError("Invalid key: %s".formatted(asString), directory + "/" + key);
+            }
+            return defaultValue;
+        }
+
+        return namespacedKey;
     }
+
+    public static <T extends Keyed> List<T> getRegistryEntries(ConfigurationSection section,
+                                                               String key,
+                                                               RegistryKey<T> registryKey
+    ) {
+        return getRegistryEntries(section, key, registryKey, null, null);
+    }
+
+    public static <T extends Keyed> List<T> getRegistryEntries(ConfigurationSection section,
+                                                               String key,
+                                                               RegistryKey<T> registryKey,
+                                                               List<T> defaultValues
+    ) {
+        return getRegistryEntries(section, key, registryKey, null, null, defaultValues);
+    }
+
+    public static <T extends Keyed> List<T> getRegistryEntries(ConfigurationSection section,
+                                                               String key,
+                                                               RegistryKey<T> registryKey,
+                                                               @Nullable WbsSettings settings, @Nullable String directory
+    ) {
+        return getRegistryEntries(section, key, registryKey, settings, directory, new LinkedList<>());
+    }
+
+    public static <T extends Keyed> List<T> getRegistryEntries(ConfigurationSection section,
+                                                               String key,
+                                                               RegistryKey<T> registryKey,
+                                                               @Nullable WbsSettings settings, @Nullable String directory,
+                                                               List<T> defaultValues
+    ) {
+        if (!section.isList(key)) {
+            T foundEntry = getRegistryEntry(section, key, registryKey);
+
+            if (foundEntry != null) {
+                List<T> singleEntry = new LinkedList<>();
+
+                singleEntry.add(foundEntry);
+
+                return singleEntry;
+            } else {
+                return defaultValues;
+            }
+        }
+
+        List<T> entries = new LinkedList<>();
+
+        for (NamespacedKey namespacedKey : WbsConfigReader.getNamespacedKeys(section, key)) {
+            @Nullable
+            T registryEntry = RegistryAccess.registryAccess().getRegistry(registryKey).get(namespacedKey);
+
+            if (registryEntry != null) {
+                entries.add(registryEntry);
+            } else {
+                if (settings != null) {
+                    settings.logError("Invalid key for registry %s: %s".formatted(registryKey.key().asString(), namespacedKey.asString()), directory + "/" + key);
+                }
+            }
+        }
+
+        return entries;
+    }
+
 
     @Nullable
     public static <T extends Keyed> T getRegistryEntry(ConfigurationSection section, String key, RegistryKey<T> registryKey) {
-        return getRegistryEntry(section, key, registryKey, null);
+        return getRegistryEntry(section, key, registryKey, null, null);
     }
 
-    @Contract("_, _, _, !null -> !null")
     @Nullable
-    public static <T extends Keyed> T getRegistryEntry(ConfigurationSection section, String key, RegistryKey<T> registryKey, @Nullable T defaultValue) {
-        NamespacedKey blockKey = WbsConfigReader.getNamespacedKey(section, key, defaultValue != null ? defaultValue.getKey() : null);
+    public static <T extends Keyed> T getRegistryEntry(ConfigurationSection section,
+                                                       String key,
+                                                       RegistryKey<T> registryKey,
+                                                       @Nullable T defaultValue
+    ) {
+        return getRegistryEntry(section, key, registryKey, null, null, defaultValue);
+    }
+
+    @Nullable
+    public static <T extends Keyed> T getRegistryEntry(ConfigurationSection section,
+                                                       String key,
+                                                       RegistryKey<T> registryKey,
+                                                       @Nullable WbsSettings settings, @Nullable String directory
+    ) {
+        return getRegistryEntry(section, key, registryKey, settings, directory, null);
+    }
+
+    @Contract("_, _, _, _, _, !null -> !null")
+    @Nullable
+    public static <T extends Keyed> T getRegistryEntry(ConfigurationSection section,
+                                                       String key,
+                                                       RegistryKey<T> registryKey,
+                                                       @Nullable WbsSettings settings, @Nullable String directory,
+                                                       @Nullable T defaultValue) {
+        NamespacedKey blockKey = WbsConfigReader.getNamespacedKey(section, key, null, defaultValue != null ? defaultValue.getKey() : null);
         if (blockKey == null) {
             return null;
         }
@@ -332,5 +520,90 @@ public final class WbsConfigReader {
         double z = vectorSection.getDouble("z", defaultValue.getZ());
 
         return new Vector(x, y, z);
+    }
+
+    public static NumberRange getNumberRange(ConfigurationSection section, String key) {
+        return getNumberRange(section, key, null);
+    }
+
+    public static NumberRange getNumberRange(ConfigurationSection section, String key, @Nullable NumberRange defaultValue) {
+        if (defaultValue == null) {
+            defaultValue = new NumberRange(Long.MIN_VALUE, Long.MAX_VALUE);
+        }
+
+        Number min = defaultValue.getMinimumNumber();
+        Number max = defaultValue.getMaximumNumber();
+        if (section.isConfigurationSection(key)) {
+            ConfigurationSection asSection = section.getConfigurationSection(key);
+            if (asSection != null) {
+                min = getNumber(section, "min", min);
+                max = getNumber(section, "max", max);
+            }
+        } else if (section.isString(key)) {
+            String string = section.getString(key);
+
+            try {
+                min = NumberFormat.getInstance().parse(string);
+            } catch (ParseException ex) {
+                if (string != null) {
+                    String[] args = string.split("-");
+                    if (args.length >= 2) {
+                        min = getNumber(min, args[0]);
+                        max = getNumber(max, args[1]);
+                    }
+                }
+            }
+        }
+
+        try {
+            return new NumberRange(min, max);
+        } catch (IllegalArgumentException ex) {
+            return defaultValue;
+        }
+    }
+
+    @Nullable
+    public static Number getNumber(ConfigurationSection section, String key) {
+        return getNumber(section, key, null);
+    }
+
+    @Contract("_, _, !null -> !null")
+    @Nullable
+    public static Number getNumber(ConfigurationSection section, String key, @Nullable Number defaultValue) {
+        return getNumber(defaultValue, section.getString(key));
+    }
+
+    @Contract("!null, _ -> !null")
+    @Nullable
+    private static Number getNumber(@Nullable Number defaultValue, @Nullable String asString) {
+        if (asString == null) {
+            return defaultValue;
+        }
+        try {
+            defaultValue = NumberFormat.getInstance().parse(asString);
+        } catch (ParseException ignored) {}
+
+        return defaultValue;
+    }
+
+    @Nullable
+    public static Boolean getBoolean(ConfigurationSection section, String ... aliases) {
+        return getWithAliases(section, ConfigurationSection::isBoolean, ConfigurationSection::getBoolean, aliases);
+    }
+
+    @Nullable
+    public static Integer getInt(ConfigurationSection section, String ... aliases) {
+        return getWithAliases(section, ConfigurationSection::isInt, ConfigurationSection::getInt, aliases);
+    }
+
+    @Nullable
+    public static <T> T getWithAliases(ConfigurationSection section, BiPredicate<ConfigurationSection, String> check, BiFunction<ConfigurationSection, String, T> getter, String ... aliases) {
+        for (String alias : aliases) {
+            if (check.test(section, alias)) {
+                return getter.apply(section, alias);
+            }
+        }
+
+        return null;
     }
 }

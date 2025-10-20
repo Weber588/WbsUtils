@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -22,6 +22,22 @@ public class WbsSound implements Serializable {
 	private Sound sound;
 	private float pitch = 1;
 	private float volume = 1;
+
+	public WbsSound(String soundString) {
+		NamespacedKey soundKey = NamespacedKey.fromString(soundString);
+		if (soundKey == null) {
+			throw new IllegalArgumentException("Sound key not valid: " + soundString);
+		}
+		this.sound = Registry.SOUNDS.get(soundKey);
+	}
+	public WbsSound(String soundString, float pitch) {
+		this(soundString);
+		this.pitch = pitch;
+	}
+	public WbsSound(String soundString, float pitch, float volume) {
+		this(soundString, pitch);
+		this.volume = volume;
+	}
 
 	public WbsSound(Sound sound) {
 		this.sound = sound;

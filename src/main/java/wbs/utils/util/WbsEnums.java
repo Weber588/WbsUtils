@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 
+import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.string.WbsStrings;
 
 /**
@@ -68,6 +69,7 @@ public final class WbsEnums {
 	 * @param string The string that represents the value of the enum to return
 	 * @return corresponding enum, or null
 	 */
+	@Nullable
 	public static <T extends Enum<T>> T getEnumFromString(Class<T> clazz, String string) {
 		
 		string = string.toUpperCase();
@@ -83,21 +85,7 @@ public final class WbsEnums {
 
 		return value;
 	}
-	
-	/**
-	 * Converts from a string to a Sound Enum.
-	 * @param from The string to convert
-	 * @return The Sound enum. Returns null if the string could not be parsed.
-	 */
-	public static Sound soundFromString(String from) {
-		from = from.replaceAll("\\.", "_");
-		for (String soundString : toStringArray(Sound.class)) {
-			if (soundString.equalsIgnoreCase(from)) {
-				return Sound.valueOf(soundString.toUpperCase());
-			}
-		}
-		return null;
-	}
+
 
 	/**
 	 * Converts from a string to a GameMode Enum.

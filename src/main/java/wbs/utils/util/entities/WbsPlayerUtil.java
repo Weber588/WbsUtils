@@ -1,14 +1,23 @@
 package wbs.utils.util.entities;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Consumable;
+import io.papermc.paper.datacomponent.item.UseRemainder;
+import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Registry;
+import org.bukkit.SoundCategory;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.components.FoodComponent;
+import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import wbs.utils.util.WbsEnums;
 import wbs.utils.util.WbsMath;
 
 @SuppressWarnings("unused")
@@ -146,13 +155,35 @@ public final class WbsPlayerUtil {
         float saturation = food.getSaturation();
         player.setSaturation(Math.min(20, player.getSaturation() + saturation));
 
-        for (FoodComponent.FoodEffect effect : food.getEffects()) {
-            if (WbsMath.chance(effect.getProbability() * 100)) {
-                player.addPotionEffect(effect.getEffect());
+        Consumable consumable = item.getData(DataComponentTypes.CONSUMABLE);
+        if (consumable != null) {
+            for (ConsumeEffect consumeEffect : consumable.consumeEffects()) {
+                if (consumeEffect instanceof ConsumeEffect.ApplyStatusEffects statusEffects) {
+                    if (WbsMath.chance(statusEffects.probability() * 100)) {
+                        statusEffects.effects().forEach(player::addPotionEffect);
+                    }
+                } else if (consumeEffect instanceof ConsumeEffect.ClearAllStatusEffects clearEffect) {
+                    player.clearActivePotionEffects();
+                } else if (consumeEffect instanceof ConsumeEffect.PlaySound playSound) {
+                    player.getWorld().playSound(player.getEyeLocation(), playSound.sound().asString(), SoundCategory.PLAYERS, 1, 1);
+                } else if (consumeEffect instanceof ConsumeEffect.RemoveStatusEffects removeStatusEffects) {
+                    removeStatusEffects.removeEffects().resolve(Registry.EFFECT).forEach(player::removePotionEffect);
+                } else if (consumeEffect instanceof ConsumeEffect.TeleportRandomly teleportRandomly) {
+                    Block found = WbsEntityUtil.getSafeLocation(player, player.getLocation().add(WbsMath.randomVector(teleportRandomly.diameter())), teleportRandomly.diameter());
+                    if (found != null) {
+                        player.teleport(found.getLocation());
+                    }
+                }
             }
         }
 
-        return new PlayerConsumeItemResult(true, food.getUsingConvertsTo());
+        UseRemainder useRemainder = item.getData(DataComponentTypes.USE_REMAINDER);
+        ItemStack remainingItem = null;
+        if (useRemainder != null) {
+            remainingItem = useRemainder.transformInto();
+        }
+
+        return new PlayerConsumeItemResult(true, remainingItem);
     }
 
     public record PlayerConsumeItemResult(boolean success, @Nullable ItemStack remainingItem) {}
