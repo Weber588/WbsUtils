@@ -16,7 +16,7 @@ import java.util.List;
 @SuppressWarnings({"UnstableApiUsage", "unused"})
 public abstract class WbsErrorsSubcommand extends WbsSubcommand {
     public static WbsErrorsSubcommand getStatic(WbsPlugin plugin, WbsSettings settings) {
-        return new AnonymousErrorsCommand(plugin, settings);
+        return (WbsErrorsSubcommand) new AnonymousErrorsCommand(plugin, settings).inferPermission();
     }
 
     public WbsErrorsSubcommand(@NotNull WbsPlugin plugin) {

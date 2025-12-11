@@ -13,7 +13,7 @@ import java.util.List;
 @SuppressWarnings({"UnstableApiUsage", "unused"})
 public abstract class WbsReloadSubcommand extends WbsSubcommand {
     public static WbsReloadSubcommand getStatic(WbsPlugin plugin, WbsSettings settings) {
-        return new AnonymousReloadCommand(plugin, settings);
+        return (WbsReloadSubcommand) new AnonymousReloadCommand(plugin, settings).inferPermission();
     }
 
     public WbsReloadSubcommand(@NotNull WbsPlugin plugin) {

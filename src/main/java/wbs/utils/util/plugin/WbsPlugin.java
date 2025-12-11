@@ -1,5 +1,9 @@
 package wbs.utils.util.plugin;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
@@ -530,4 +534,14 @@ public abstract class WbsPlugin extends JavaPlugin {
 	public void saveResourceFolder(String folderName, boolean replace) {
 		WbsFileUtil.saveResourceFolder(this, folderName, replace);
     }
+	/*
+	public net.kyori.adventure.text.TextComponent colourize(String jsonString) {
+		return colourize(jsonString, List.of(NamedTextColor.AQUA, NamedTextColor.YELLOW, NamedTextColor.LIGHT_PURPLE, NamedTextColor.GREEN, NamedTextColor.RED));
+	}
+	public net.kyori.adventure.text.TextComponent colourize(String jsonString, List<TextColor> colours) {
+		Component component = Component.empty();
+
+		jsonString.
+	}
+ 	*/
 }

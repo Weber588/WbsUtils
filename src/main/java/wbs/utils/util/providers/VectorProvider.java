@@ -87,7 +87,7 @@ public class VectorProvider implements Provider {
                 throw new MissingRequiredKeyException();
             } else if (providerKeys.size() > 1) {
                 settings.logError(
-                        "Too many sections. Choose a single provider from the following: "
+                        "Too many sections. Choose a single vector provider from the following: "
                         + String.join(", ", WbsEnums.toStringList(VectorGenerator.VectorGeneratorType.class)),
                         directory);
                 throw new InvalidConfigurationException();

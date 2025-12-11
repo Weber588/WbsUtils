@@ -83,7 +83,7 @@ public class NumProvider implements Provider {
             staticField = true;
             staticValue = section.getDouble(field, defaultValue);
         } else {
-            WbsConfigReader.requireNotNull(section, field, settings, directory);
+            WbsConfigReader.requireNotNull(section, field, settings, directory + "/" + field);
             ConfigurationSection providerSection = section.getConfigurationSection(field);
             assert providerSection != null;
 
@@ -91,11 +91,11 @@ public class NumProvider implements Provider {
 
             Set<String> providerKeys = providerSection.getKeys(false);
             if (providerKeys.isEmpty()) {
-                settings.logError("You must specify either a provider or a number.", directory);
+                settings.logError("You must specify either a provider or a number.", directory + "/" + field);
                 throw new MissingRequiredKeyException();
             } else if (providerKeys.size() > 1) {
-                settings.logError("Too many sections. Choose a single provider from the following: "
-                        + String.join(", ", GeneratorManager.getRegisteredIds()), directory);
+                settings.logError("Too many sections. Choose a single number provider from the following: "
+                        + String.join(", ", GeneratorManager.getRegisteredIds()), directory + "/" + field);
                 throw new InvalidConfigurationException();
             }
 

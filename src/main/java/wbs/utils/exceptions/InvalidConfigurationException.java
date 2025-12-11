@@ -11,8 +11,11 @@ public class InvalidConfigurationException extends RuntimeException {
 
     @Nullable
     private String directory;
+    private boolean isLogged = false;
 
-    public InvalidConfigurationException() {}
+    public InvalidConfigurationException() {
+        isLogged = true;
+    }
     public InvalidConfigurationException(String msg) {
         super(msg);
     }
@@ -24,5 +27,8 @@ public class InvalidConfigurationException extends RuntimeException {
     @Nullable
     public String getDirectory() {
         return directory;
+    }
+    public boolean isLogged() {
+        return isLogged;
     }
 }

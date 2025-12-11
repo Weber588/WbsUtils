@@ -508,6 +508,12 @@ public final class WbsConfigReader {
         ConfigurationSection vectorSection = section.getConfigurationSection(key);
 
         if (vectorSection == null) {
+            if (section.isDouble(key)) {
+                double allValues = section.getDouble(key);
+
+                return new Vector(allValues, allValues, allValues);
+            }
+
             return defaultValue;
         }
 

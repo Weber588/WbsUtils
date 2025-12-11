@@ -4,6 +4,7 @@ name: WbsUtils
 version: 0.0.1
 api-version: 1.21.1
 author: Weber588
+load: STARTUP
 
 description: A library primarily for other Wbs plugins
 commands:
