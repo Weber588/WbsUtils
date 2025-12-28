@@ -451,12 +451,12 @@ public final class WbsConfigReader {
         return entries;
     }
 
-
     @Nullable
     public static <T extends Keyed> T getRegistryEntry(ConfigurationSection section, String key, RegistryKey<T> registryKey) {
         return getRegistryEntry(section, key, registryKey, null, null);
     }
 
+    @Contract("_, _, _, !null -> !null")
     @Nullable
     public static <T extends Keyed> T getRegistryEntry(ConfigurationSection section,
                                                        String key,

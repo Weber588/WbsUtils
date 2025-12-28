@@ -1,6 +1,7 @@
 package wbs.utils.util.menus;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -8,9 +9,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsPlugin;
@@ -18,11 +21,12 @@ import wbs.utils.util.string.WbsStrings;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public class WbsMenu implements Listener {
+public class WbsMenu implements Listener, InventoryHolder {
 
     protected final WbsPlugin plugin;
     protected final int rows;
@@ -38,6 +42,7 @@ public class WbsMenu implements Listener {
     protected Consumer<InventoryCloseEvent> closeAction;
     @Nullable
     protected BiConsumer<WbsMenu, InventoryCloseEvent> closeActionMenu;
+    private boolean debug = false;
 
     /**
      * @param plugin The plugin to register this menu to
@@ -99,6 +104,7 @@ public class WbsMenu implements Listener {
     }
 
     private boolean unregister(Player cause) {
+        debug("Unregistering " + titleString + " with " + cause);
         if (!isRegistered) {
             return false;
         }
@@ -134,10 +140,12 @@ public class WbsMenu implements Listener {
     }
 
     public void register() {
+        debug("Registering " + titleString);
         if (!isRegistered) {
             PluginManager pm = Bukkit.getPluginManager();
             pm.registerEvents(this, plugin);
 
+            debug("Registered!");
             isRegistered = true;
         }
     }
@@ -191,12 +199,14 @@ public class WbsMenu implements Listener {
     }
 
     public boolean isMenu(InventoryView view) {
+
         return view.getTitle().equals(titleString);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onClose(InventoryCloseEvent event) {
         if (isMenu(event.getView())) {
+            debug("Is menu!");
             if (unregisterOnClose) unregister((Player) event.getPlayer());
 
             if (closeAction != null) {
@@ -219,7 +229,9 @@ public class WbsMenu implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onClick(InventoryClickEvent event) {
+        HumanEntity whoClicked = event.getWhoClicked();
         if (isMenu(event.getView())) {
+            debug(whoClicked, "Matched menu!");
             InventoryView view = event.getView();
             int clicked = event.getSlot();
 
@@ -230,19 +242,50 @@ public class WbsMenu implements Listener {
                 return;
             }
 
-            if (!slot.allowItemTaking())
+            debug(whoClicked, "Allow taking? " + slot.allowItemTaking());
+            if (!slot.allowItemTaking()) {
                 event.setCancelled(true);
+            }
 
-            Player player = (Player) event.getWhoClicked();
+            Player player = (Player) whoClicked;
 
-            if (slot.closeOnClick())
-                player.closeInventory();
+            if (slot.closeOnClick()) {
+                debug(whoClicked, "Closing!");
+                // Run next tick to avoid click actions being unregistered mid-click.
+                plugin.runSync(player::closeInventory);
+            }
 
-            if (slot.getClickAction() != null)
+            if (slot.getClickAction() != null) {
+                debug(whoClicked, "Click action running!");
                 slot.getClickAction().accept(event);
-            if (slot.getClickActionMenu() != null)
+            }
+            if (slot.getClickActionMenu() != null) {
+                debug(whoClicked, "Click Menu action running!");
                 slot.getClickActionMenu().accept(this, event);
+            }
         }
+    }
+
+    protected void debug(String message) {
+        debug(null, message);
+    }
+    protected void debug(@Nullable HumanEntity whoClicked, String message) {
+        if (debug) {
+            if (whoClicked != null && whoClicked.isOp()) {
+                plugin.sendMessage(message, whoClicked);
+            } else {
+
+            }
+        }
+    }
+
+    public boolean debugMode() {
+        return debug;
+    }
+
+    public WbsMenu debugMode(boolean debug) {
+        this.debug = debug;
+        return this;
     }
 
     // ============================== //
@@ -410,5 +453,10 @@ public class WbsMenu implements Listener {
         for (int i = 0; i < rows; i++) {
             setSlot(i * 9 + column, slot);
         }
+    }
+
+    @Override
+    public @NotNull Inventory getInventory() {
+        return null;
     }
 }

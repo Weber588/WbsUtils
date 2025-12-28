@@ -2,6 +2,7 @@ package wbs.utils.util.menus;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsPlugin;
 
@@ -41,16 +42,18 @@ public abstract class PagedMenu<T> extends WbsMenu {
 
     protected final List<PageSlot<? extends T>> pageSlots = new ArrayList<>();
 
+    // TODO: Make a builder omg :sob:
     public PagedMenu(WbsPlugin plugin,
                      Collection<T> toDisplay,
                      String title,
                      String id,
+                     int minRows,
                      int rowStart,
                      int maxRows,
                      int minColumn,
                      int maxColumn,
                      int page) {
-        super(plugin, title, getRowsForPage(toDisplay.size(), maxRows, (maxColumn - minColumn), page), id + ":" + page);
+        super(plugin, title, Math.max(minRows, getRowsForPage(toDisplay.size(), maxRows, (maxColumn - minColumn), page)), id + ":" + page);
 
         if (maxRows + rowStart > 5) {
             throw new IllegalArgumentException("maxRows must be less than " + (5 - rowStart) + " when starting on row " + rowStart);
@@ -91,9 +94,20 @@ public abstract class PagedMenu<T> extends WbsMenu {
             setNextFreeSlot(rowStart, rowStart + (maxRows - 1), minColumn, maxColumn, slot);
         }
     }
+    public PagedMenu(WbsPlugin plugin,
+                     Collection<T> toDisplay,
+                     String title,
+                     String id,
+                     int rowStart,
+                     int maxRows,
+                     int minColumn,
+                     int maxColumn,
+                     int page) {
+        this(plugin, toDisplay, title, id, -1, rowStart, maxRows, minColumn, maxColumn, page);
+    }
 
     protected void fillNextPageSlots() {
-        MenuSlot nextPage = getPageChangeSlot(page + 1, Material.GREEN_STAINED_GLASS, "&r");
+        MenuSlot nextPage = getPageChangeSlot(page + 1, getNextPageMaterial(), "Next Page");
 
         setSlot(rows / 2, 8, nextPage);
         if (rows % 2 == 0) {
@@ -101,13 +115,21 @@ public abstract class PagedMenu<T> extends WbsMenu {
         }
     }
 
+    protected @NotNull Material getNextPageMaterial() {
+        return Material.LIME_STAINED_GLASS_PANE;
+    }
+
     protected void fillPrevPageSlots() {
-        MenuSlot prevPage = getPageChangeSlot(page - 1, Material.RED_STAINED_GLASS, "&r");
+        MenuSlot prevPage = getPageChangeSlot(page - 1, getPrevPageMaterial(), "Previous Page");
 
         setSlot(rows / 2, 0, prevPage);
         if (rows % 2 == 0) {
             setSlot((rows - 1) / 2, 0, prevPage);
         }
+    }
+
+    protected @NotNull Material getPrevPageMaterial() {
+        return Material.RED_STAINED_GLASS_PANE;
     }
 
     protected MenuSlot getPageChangeSlot(int page, Material material, String display) {

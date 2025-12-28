@@ -35,7 +35,7 @@ public final class VaultWrapper {
 
         RegisteredServiceProvider<Economy> ecoRSP = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
         if (ecoRSP == null) {
-            WbsUtils.getInstance().logger.warning("Economy failed to establish.");
+            WbsUtils.getInstance().getLogger().warning("Economy failed to establish.");
             return;
         } else {
             eco = ecoRSP.getProvider();
@@ -43,7 +43,7 @@ public final class VaultWrapper {
 
         RegisteredServiceProvider<Permission> permsRSP = Bukkit.getServer().getServicesManager().getRegistration(Permission.class);
         if (permsRSP == null) {
-            WbsUtils.getInstance().logger.warning("Permissions manager failed to establish.");
+            WbsUtils.getInstance().getLogger().warning("Permissions manager failed to establish.");
             return;
         } else {
             perms = permsRSP.getProvider();

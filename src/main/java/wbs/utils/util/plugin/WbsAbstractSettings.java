@@ -73,7 +73,7 @@ public abstract class WbsAbstractSettings {
      * @param file The file to parse
      * @return The YamlConfiguration
      */
-    protected YamlConfiguration loadConfigSafely(File file) {
+    public YamlConfiguration loadConfigSafely(File file) {
         Validate.notNull(file, "File cannot be null");
 
         YamlConfiguration config = new YamlConfiguration();

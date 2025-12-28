@@ -64,6 +64,12 @@ public final class PluginHookManager {
         return vaultInstalled;
     }
 
+    private static boolean packetEventsInstalled = false;
+    public static boolean isPacketEventsInstalled() {
+        packetEventsInstalled = isInstalled("packetevents");
+        return packetEventsInstalled;
+    }
+
     /**
      * If not already configured, check all supported plugins to see if they're
      * online. Prints in console which supported plugins were found
@@ -72,45 +78,50 @@ public final class PluginHookManager {
         if (isConfigured) {
             return;
         }
-        WbsUtils.getInstance().logger.info("Configuring plugin hooks...");
+        WbsUtils.getInstance().getLogger().info("Configuring plugin hooks...");
 
         int hooksFound = 0;
 
         if (isGriefPreventionInstalled()) {
-            WbsUtils.getInstance().logger.info("Successfully hooked into GriefPrevention!");
+            WbsUtils.getInstance().getLogger().info("Successfully hooked into GriefPrevention!");
             hooksFound++;
         }
 
         if (isTownyInstalled()) {
             towny = (Towny) Bukkit.getServer().getPluginManager().getPlugin("Towny");
-            WbsUtils.getInstance().logger.info("Successfully hooked into Towny!");
+            WbsUtils.getInstance().getLogger().info("Successfully hooked into Towny!");
             hooksFound++;
         }
 
         if (isPlotsquaredInstalled()) {
-            WbsUtils.getInstance().logger.info("Successfully hooked into PlotSquared!");
+            WbsUtils.getInstance().getLogger().info("Successfully hooked into PlotSquared!");
 
             hooksFound++;
         }
 
         if (isWorldGuardInstalled()) {
-            WbsUtils.getInstance().logger.info("Successfully hooked into WorldGuard!");
+            WbsUtils.getInstance().getLogger().info("Successfully hooked into WorldGuard!");
             worldGuard = (WorldGuardPlugin) Bukkit.getPluginManager().getPlugin("WorldGuard");
             hooksFound++;
         }
 
         if (isViaVersionInstalled()) {
-            WbsUtils.getInstance().logger.info("Successfully hooked into ViaVersion!");
+            WbsUtils.getInstance().getLogger().info("Successfully hooked into ViaVersion!");
             hooksFound++;
         }
 
         if (isVaultInstalled()) {
-            WbsUtils.getInstance().logger.info("Successfully hooked into Vault!");
+            WbsUtils.getInstance().getLogger().info("Successfully hooked into Vault!");
+            hooksFound++;
+        }
+
+        if (isPacketEventsInstalled()) {
+            WbsUtils.getInstance().getLogger().info("Successfully hooked into PacketEvents!");
             hooksFound++;
         }
 
         isConfigured = true;
-        WbsUtils.getInstance().logger.info("Successfully hooked into " + hooksFound + " plugins.");
+        WbsUtils.getInstance().getLogger().info("Successfully hooked into " + hooksFound + " plugins.");
     }
 
 }

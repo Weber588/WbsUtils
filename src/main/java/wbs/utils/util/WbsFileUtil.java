@@ -11,9 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -90,7 +88,7 @@ public class WbsFileUtil {
                 out.close();
                 in.close();
             } else {
-                logger.accept(Level.WARNING, "Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
+                // logger.accept(Level.WARNING, "Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
             }
         } catch (IOException ex) {
             logger.accept(Level.SEVERE, "Could not save " + outFile.getName() + " to " + outFile + ".\n" + ex.getMessage());
@@ -222,7 +220,7 @@ public class WbsFileUtil {
         }
 
         Map<String, String> env = new HashMap<>();
-        try (java.nio.file.FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+        try (FileSystem zipfs = getFileSystem(uri, env)) {
             for (Path path : zipfs.getRootDirectories()) {
                 try (Stream<Path> paths = Files.list(path)) {
                     for (Path rootLevelPath : paths.collect(Collectors.toSet())) {
@@ -235,6 +233,20 @@ public class WbsFileUtil {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static FileSystem getFileSystem(URI uri, Map<String, String> env) {
+        FileSystem zipfs;
+        try {
+            zipfs = FileSystems.getFileSystem(uri);
+        } catch (Exception ignored) {
+            try {
+                zipfs = FileSystems.newFileSystem(uri, env);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return zipfs;
     }
 
     private static void trySavePath(Class<? extends JavaPlugin> clazz, File dataFolder, BiConsumer<Level, String> logger, Path path, boolean replace) throws IOException {

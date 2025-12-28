@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import wbs.utils.WbsUtils;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class BlockChunkStorageUtil {
@@ -60,6 +61,12 @@ public class BlockChunkStorageUtil {
 
         blocksContainer.set(blockKey, PersistentDataType.TAG_CONTAINER, container);
         chunkContainer.set(TAG, PersistentDataType.TAG_CONTAINER, blocksContainer);
+    }
+
+    public static void modifyContainer(Block block, Consumer<PersistentDataContainer> consumer) {
+        PersistentDataContainer container = getContainer(block);
+        consumer.accept(container);
+        writeContainer(block, container);
     }
 
     public static List<PersistentDataContainer> getBlockContainersInChunk(Chunk chunk) {

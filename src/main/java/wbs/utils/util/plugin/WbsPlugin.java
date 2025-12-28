@@ -1,5 +1,6 @@
 package wbs.utils.util.plugin;
 
+import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.text.Component;
@@ -16,6 +17,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
@@ -426,6 +428,14 @@ public abstract class WbsPlugin extends JavaPlugin {
 		}.runTask(this).getTaskId();
 	}
 
+	/**
+	 * Run a block of code in the main thread at the end of the current tick.
+	 * @param runnable The block of code to run
+	 */
+	public void runAtEndOfTick(@NotNull Runnable runnable) {
+		getFromEvent(ServerTickEndEvent.class, event -> true, event -> runnable.run());
+	}
+
 	public <T> int getAsync(@NotNull Supplier<T> getter, @NotNull Consumer<T> consumer) {
 		return runAsync(() -> {
 			T obj = getter.get();
@@ -435,6 +445,14 @@ public abstract class WbsPlugin extends JavaPlugin {
 
 	public <E extends Event, T> WbsEventUtils.EventHandlerMethod<E> getFromEvent(Class<E> eventClass, Predicate<E> eventFilter, @NotNull Consumer<E> onEvent) {
 		return getFromEvent(eventClass, eventFilter, onEvent, 1);
+	}
+
+	public <E extends Event, T> WbsEventUtils.EventHandlerMethod<E> getFromEvent(Class<E> eventClass, Predicate<E> eventFilter, @NotNull Consumer<E> onEvent, int maxUses) {
+		return getFromEvent(eventClass, eventFilter, onEvent,  maxUses, EventPriority.NORMAL);
+	}
+
+	public <E extends Event, T> WbsEventUtils.EventHandlerMethod<E> getFromEvent(Class<E> eventClass, Predicate<E> eventFilter, @NotNull Consumer<E> onEvent, EventPriority priority) {
+		return getFromEvent(eventClass, eventFilter, onEvent, 1, priority);
 	}
 
 	/**
@@ -448,7 +466,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * @param <E> The event type to be listened to. Must be an event class that can be registered to, by having a getHandlerList method.
 	 * @return The listener used for registration, so {@link HandlerList#unregister(Listener)} can be used to cancel early.
 	 */
-	public <E extends Event> WbsEventUtils.EventHandlerMethod<E> getFromEvent(Class<E> eventClass, Predicate<E> eventFilter, @NotNull Consumer<E> onEvent, int maxUses) {
+	public <E extends Event> WbsEventUtils.EventHandlerMethod<E> getFromEvent(Class<E> eventClass, Predicate<E> eventFilter, @NotNull Consumer<E> onEvent, int maxUses, EventPriority priority) {
 		HandlerList handlerList;
 
 		try {
@@ -472,7 +490,7 @@ public abstract class WbsPlugin extends JavaPlugin {
             }
         };
 
-		WbsEventUtils.register(this, eventClass, listener);
+		WbsEventUtils.register(this, eventClass, listener, priority);
 
 		return listener;
 	}

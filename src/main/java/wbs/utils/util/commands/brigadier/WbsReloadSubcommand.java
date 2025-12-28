@@ -26,13 +26,14 @@ public abstract class WbsReloadSubcommand extends WbsSubcommand {
 
         WbsSettings settings = getSettings();
 
+        settings.getErrors().clear();
         settings.reload();
 
         List<String> errors = settings.getErrors();
         if (errors.isEmpty()) {
             plugin.sendMessage("&aReload successful!", sender);
         } else {
-            plugin.sendMessage("&wThere were " + errors.size() + " config errors. Do &h/" + context.getRootNode().getName() + " errors&w to see them.", sender);
+            plugin.sendMessage("&wThere were " + errors.size() + " config errors. Do &h/" + context.getInput().split(" ")[0] + " errors&w to see them.", sender);
         }
 
         return Command.SINGLE_SUCCESS;

@@ -35,7 +35,7 @@ public class XPState implements EntityState<Player>, ConfigurationSerializable {
 
     @Override
     public void captureState(Player target) {
-        xp = WbsPlayerUtil.getExp(target);
+        xp = target.calculateTotalExperiencePoints();
     }
 
     @Override

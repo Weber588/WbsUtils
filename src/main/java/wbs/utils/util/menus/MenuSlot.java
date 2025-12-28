@@ -1,5 +1,6 @@
 package wbs.utils.util.menus;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -49,8 +50,10 @@ public class MenuSlot {
         if (meta == null) {
             throw new IllegalArgumentException("Material must be able to store meta");
         }
-        meta.setDisplayName(displayName);
-        meta.setLore(lore);
+        meta.itemName(Component.text(displayName));
+        if (lore != null) {
+            meta.lore(lore.stream().map(Component::text).toList());
+        }
 
         meta.addItemFlags(
                 ItemFlag.HIDE_ADDITIONAL_TOOLTIP,

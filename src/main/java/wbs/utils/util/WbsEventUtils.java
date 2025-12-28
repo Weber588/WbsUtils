@@ -9,6 +9,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import wbs.utils.WbsUtils;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.concurrent.CompletableFuture;

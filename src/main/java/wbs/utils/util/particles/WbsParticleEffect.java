@@ -86,14 +86,18 @@ public abstract class WbsParticleEffect {
 	 * @param directory The path taken through the config to get to this point, for logging purposes
 	 */
 	protected WbsParticleEffect(ConfigurationSection section, WbsSettings settings, String directory) {
-		if (section.get("amount") != null) {
+		if (section.contains("amount")) {
 			amount = new NumProvider(section, "amount", settings, directory + "/amount", 1);
 		} else {
 			amount = new NumProvider(1);
 		}
 
-		if (section.get("force") != null) {
+		if (section.contains("force")) {
 			force = section.getBoolean("force");
+		}
+
+		if (section.contains("chance")) {
+			chance = section.getDouble("chance", chance);
 		}
 	}
 
@@ -211,7 +215,7 @@ public abstract class WbsParticleEffect {
 	public abstract WbsParticleEffect clone();
 	
 	protected WbsParticleEffect cloneInto(WbsParticleEffect cloned) {
-		cloned.setAmount((int) amount.val())
+		cloned.setAmount(new NumProvider(amount))
 				.setChance(chance)
 				.setOptions(options);
 		

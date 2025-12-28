@@ -53,10 +53,10 @@ public abstract class CircleParticleEffect extends VelocityParticleEffect {
 
 	protected CircleParticleEffect cloneInto(CircleParticleEffect cloned) {
 		super.cloneInto(cloned);
-		
-		cloned.setAbout(about.val())
-				.setRadius(radius.val())
-				.setRotation(rotation.val());
+
+		cloned.setAbout(new VectorProvider(about))
+				.setRadius(new NumProvider(radius))
+				.setRotation(new NumProvider(rotation));
 		
 		return cloned;
 	}

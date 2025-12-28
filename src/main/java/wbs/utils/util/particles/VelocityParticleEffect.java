@@ -76,9 +76,9 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 	protected VelocityParticleEffect cloneInto(VelocityParticleEffect cloned) {
 		super.cloneInto(cloned);
 
-		cloned.setDirection(direction.val())
-				.setVariation(variation.val())
-				.setSpeed(speed.val());
+		cloned.setDirection(new VectorProvider(direction))
+				.setVariation(new NumProvider(variation))
+				.setSpeed(new NumProvider(speed));
 		
 		return cloned;
 	}

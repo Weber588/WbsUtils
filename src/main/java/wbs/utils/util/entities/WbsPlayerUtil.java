@@ -59,7 +59,7 @@ public final class WbsPlayerUtil {
     public static float toLevels(int points) {
         float level = 0;
         while (points >= 0) {
-            int expAtLevel = getExpAtLevel((int) level);
+            int expAtLevel = getExpToNextLevel((int) level);
 
             if (points - expAtLevel >= 0) {
                 level++;
@@ -83,6 +83,7 @@ public final class WbsPlayerUtil {
      * Retrieved from <a href="https://github.com/EssentialsX/Essentials/blob/1e0d7fb0a3545d15c3b0cc1d180b47551f98cb22/Essentials/src/main/java/com/earth2me/essentials/craftbukkit/SetExpFix.java">...</a>
      * on 25-07-21
      * @return Gets the actual experience of the player
+     * @deprecated Use {@link Player#calculateTotalExperiencePoints()}
      */
     public static int getExp(Player player) {
         int currentLevel = player.getLevel();
@@ -90,7 +91,7 @@ public final class WbsPlayerUtil {
 
         while (currentLevel > 0) {
             currentLevel--;
-            exp += getExpAtLevel(currentLevel);
+            exp += getExpToNextLevel(currentLevel);
         }
         if (exp < 0) {
             exp = Integer.MAX_VALUE;
@@ -102,8 +103,20 @@ public final class WbsPlayerUtil {
      * Calculation for experience internally.
      * Retrieved from <a href="https://github.com/EssentialsX/Essentials/blob/1e0d7fb0a3545d15c3b0cc1d180b47551f98cb22/Essentials/src/main/java/com/earth2me/essentials/craftbukkit/SetExpFix.java">...</a>
      * on 25-07-21
+     * @deprecated Misleading name; returns the amount of points needed to get to the level from the previous
      */
+    @Deprecated
     public static int getExpAtLevel(int level) {
+        if (level <= 15) {
+            return (2 * level) + 7;
+        }
+        if (level <= 30) {
+            return (5 * level) - 38;
+        }
+        return (9 * level) - 158;
+    }
+
+    public static int getExpToNextLevel(int level) {
         if (level <= 15) {
             return (2 * level) + 7;
         }
