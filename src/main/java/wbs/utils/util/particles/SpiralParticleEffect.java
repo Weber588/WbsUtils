@@ -96,10 +96,10 @@ public class SpiralParticleEffect extends CircleParticleEffect {
 			Vector vecSave = vec;
 			for (int k = 0; k < amount.intVal(); k++) {
 				vec = vecSave.clone();
-				if (options == null) {
+				if (preventDataUse(particle)) {
 					world.spawnParticle(particle, point, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed.val(), null, force);
 				} else {
-					world.spawnParticle(particle, point, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed.val(), particle.getDataType().cast(options), force);
+					world.spawnParticle(particle, point, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed.val(), particle.getDataType().cast(data), force);
 				}
 			}
 		}

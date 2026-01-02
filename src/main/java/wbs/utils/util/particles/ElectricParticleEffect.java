@@ -156,28 +156,28 @@ public class ElectricParticleEffect extends WbsParticleEffect {
 		locations = filterChances(locations);
 
 		if (player == null) {
-			if (options == null) {
+			if (preventDataUse(particle)) {
 				for (Location point : locations) {
 					world.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), null, force);
 				}
 			} else {
 				for (Location point : locations) {
-					world.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), particle.getDataType().cast(options), force);
+					world.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), particle.getDataType().cast(data), force);
 				}
 			}
 		} else {
-			if (options == null) {
+			if (preventDataUse(particle)) {
 				for (Location point : locations) {
 					player.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), null);
 				}
 			} else {
 				for (Location point : locations) {
-					player.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), particle.getDataType().cast(options));
+					player.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), particle.getDataType().cast(data));
 				}
 			}
 		}
 	}
-	
+
 	/*===============================*/
 	/*        GETTERS/SETTERS        */
 	/*===============================*/

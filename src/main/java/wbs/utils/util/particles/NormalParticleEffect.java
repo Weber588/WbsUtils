@@ -82,10 +82,10 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	@Override
 	public NormalParticleEffect play(Particle particle, Location loc, Player player) {
 
-		if (options == null) {
+		if (preventDataUse(particle)) {
 			player.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), null);
 		} else {
-			player.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), particle.getDataType().cast(options));
+			player.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), particle.getDataType().cast(data));
 		}
 
 		return this;
@@ -95,10 +95,10 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	public NormalParticleEffect play(Particle particle, Location loc) {
 		World world = loc.getWorld();
 		if (world != null) {
-			if (options == null) {
+			if (preventDataUse(particle)) {
 				world.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), null, force);
 			} else {
-				world.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), particle.getDataType().cast(options), force);
+				world.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), particle.getDataType().cast(data), force);
 			}
 		}
 		

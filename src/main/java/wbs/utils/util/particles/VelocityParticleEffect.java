@@ -105,10 +105,10 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 		for (int i = 0; i < points.size(); i++) {
 			Location point = locations.get(i);
 			Vector localDirection = localDirections.get(i);
-			if (options == null) {
+			if (preventDataUse(particle)) {
 				player.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), null);
 			} else {
-				player.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(options));
+				player.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(data));
 			}
 		}
 		return this;
@@ -138,10 +138,10 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 		for (int i = 0; i < locations.size(); i++) {
 			Location point = locations.get(i);
 			Vector localDirection = localDirections.get(i);
-			if (options == null) {
+			if (preventDataUse(particle)) {
 				world.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), null, force);
 			} else {
-				world.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(options), force);
+				world.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(data), force);
 			}
 		}
 		return this;

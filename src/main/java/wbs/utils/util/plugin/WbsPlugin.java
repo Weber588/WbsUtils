@@ -1,10 +1,8 @@
 package wbs.utils.util.plugin;
 
 import com.destroystokyo.paper.event.server.ServerTickEndEvent;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
@@ -33,7 +31,10 @@ import wbs.utils.util.string.WbsStrings;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -172,6 +173,16 @@ public abstract class WbsPlugin extends JavaPlugin {
 	/**
 	 * Get a {@link MessageBuilder} that allows a message to be built using plugin-specific
 	 * formatting, and supports chat events.
+	 * @param message The base message to appear after the prefix.
+	 * @return The message builder.
+	 */
+	public WbsMessageBuilder buildMessage(Component message) {
+		return new WbsMessageBuilder(this, prefix + " ").append(message.applyFallbackStyle(Style.style(getTextColour())));
+	}
+
+	/**
+	 * Get a {@link MessageBuilder} that allows a message to be built using plugin-specific
+	 * formatting, and supports chat events.
 	 * @param message The message to appear with the plugin's default colour.
 	 * @param sender The CommandSender to receive the message
 	 * @deprecated Use {@link #buildMessageNoPrefix(String)} and pass sender in when
@@ -191,6 +202,16 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 */
 	public WbsMessageBuilder buildMessageNoPrefix(String message) {
 		return new WbsMessageBuilder(this,colour + message);
+	}
+
+	/**
+	 * Get a {@link MessageBuilder} that allows a message to be built using plugin-specific
+	 * formatting, and supports chat events.
+	 * @param message The message to appear with the plugin's default colour.
+	 * @return The message builder.
+	 */
+	public WbsMessageBuilder buildMessageNoPrefix(Component message) {
+		return new WbsMessageBuilder(this,"").append(message);
 	}
 
 	/**

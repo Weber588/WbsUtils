@@ -72,7 +72,7 @@ public abstract class WbsParticleEffect {
 	
 	protected double chance = 100;
 	protected NumProvider amount;
-	protected Object options = null;
+	protected Object data = null;
 	protected boolean force = true;
 	
 	public WbsParticleEffect() {
@@ -123,8 +123,8 @@ public abstract class WbsParticleEffect {
 	 */
 	protected void refreshProviders() {
 		amount.refresh();
-		if (options instanceof Refreshable) {
-			((Refreshable) options).refresh();
+		if (data instanceof Refreshable) {
+			((Refreshable) data).refresh();
 		}
 	}
 
@@ -217,7 +217,7 @@ public abstract class WbsParticleEffect {
 	protected WbsParticleEffect cloneInto(WbsParticleEffect cloned) {
 		cloned.setAmount(new NumProvider(amount))
 				.setChance(chance)
-				.setOptions(options);
+				.setOptions(data);
 		
 		return cloned;
 	}
@@ -265,12 +265,55 @@ public abstract class WbsParticleEffect {
 	/**
 	 * @param options The particle specific options - different for redstone, falling dust etc
 	 * @return The same object.
+	 * @deprecated Misleading name. Use {@link #setData(Object)}
 	 */
+	@Deprecated
 	public WbsParticleEffect setOptions(Object options) {
-		this.options = options;
+		return setData(options);
+	}
+
+	/**
+	 * @return The particle specific options - different for redstone, falling dust etc
+	 * @deprecated Misleading name. Use {@link #setData(Object)}
+	 */
+	@Deprecated
+	public Object getOptions() {
+		return getData();
+	}
+
+	/**
+	 * @param options The particle specific options - different for redstone, falling dust etc
+	 * @return The same object.
+	 */
+	public WbsParticleEffect setData(Object options) {
+		this.data = options;
 		return this;
 	}
-	
+
+	/**
+	 * @return The particle specific options - different for redstone, falling dust etc
+	 */
+	public Object getData() {
+		return data;
+	}
+
+	protected boolean preventDataUse(Particle particle) {
+		if (data == null) {
+			return true;
+		}
+
+		if (!particle.getDataType().isAssignableFrom(data.getClass())) {
+			WbsUtils.getInstance().getLogger().warning(
+					"A plugin attempted to use data type " + data.getClass()
+							+ " for particle type " + particle
+							+ " (requiring " + particle.getDataType() + ").");
+			Thread.dumpStack();
+			return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * Set the chance of a given point spawning a particle.
 	 * Will not affect the NORMAL effect type

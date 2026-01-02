@@ -160,13 +160,13 @@ public class LineParticleEffect extends WbsParticleEffect {
 		ArrayList<Location> locations = WbsMath.offsetPoints(start, points);
 		locations = filterChances(locations);
 
-		if (options == null) {
+		if (preventDataUse(particle)) {
 			for (Location point : locations) {
 				player.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), null);
 			}
 		} else {
 			for (Location point : locations) {
-				player.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), particle.getDataType().cast(options));
+				player.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), particle.getDataType().cast(data));
 			}
 		}
 		return this;
@@ -199,13 +199,13 @@ public class LineParticleEffect extends WbsParticleEffect {
 		ArrayList<Location> locations = WbsMath.offsetPoints(start, points);
 		locations = filterChances(locations);
 		
-		if (options == null) {
+		if (preventDataUse(particle)) {
 			for (Location point : locations) {
 				world.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), null, force);
 			}
 		} else {
 			for (Location point : locations) {
-				world.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), particle.getDataType().cast(options), force);
+				world.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), particle.getDataType().cast(data), force);
 			}
 		}
 		return this;

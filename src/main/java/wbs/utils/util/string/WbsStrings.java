@@ -1,13 +1,17 @@
 package wbs.utils.util.string;
 
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.map.MinecraftFont;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.WbsUtils;
 import wbs.utils.util.VersionUtil;
 import wbs.utils.util.WbsColours;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -261,5 +265,53 @@ public final class WbsStrings {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Wrap a string into multiple lines of text, each with a maximum width.
+	 * @param toWrap The string to split into multiple lines.
+	 * @param maxWidth The maximum width of each line, according to its pixel width in the default Minecraft font (Mojangles).
+	 * @return A list of strings that, when read sequentially, will have the same content as the given string.
+	 */
+	public static List<String> wrapText(String toWrap, int maxWidth) {
+		return wrapText(toWrap, maxWidth, MinecraftFont.Font::getWidth);
+	}
+
+	/**
+	 * Wrap a string into multiple lines of text, each with a maximum width.
+	 * @param toWrap The string to split into multiple lines.
+	 * @param maxWidth The maximum width of each line, according to the given widthFunction.
+	 * @param widthFunction A function that accepts a string and returns its width, such as for a font or number of characters.
+	 * @return A list of strings that, when read sequentially, will have the same content as the given string.
+	 */
+	public static List<String> wrapText(String toWrap, int maxWidth, Function<String, Integer> widthFunction) {
+		String remaining = toWrap.trim();
+
+		List<String> lines = new LinkedList<>();
+
+		while (!remaining.isEmpty()) {
+			String line = null;
+			int currentWidth;
+			do {
+				int wordEnd = remaining.indexOf(" ");
+				if (wordEnd == -1) {
+					wordEnd = remaining.length();
+				}
+
+				String word = remaining.substring(0, wordEnd);
+
+				remaining = remaining.substring(word.length()).trim();
+
+				if (line == null) {
+					line = word;
+				} else {
+					line += " " + word.trim();
+				}
+				currentWidth = widthFunction.apply(line);
+			} while (currentWidth <= maxWidth && !remaining.isEmpty());
+			lines.add(line);
+		}
+
+		return lines;
 	}
 }
