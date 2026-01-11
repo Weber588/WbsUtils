@@ -23,13 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.WbsUtils;
 import wbs.utils.util.WbsLocationUtil;
-import wbs.utils.util.WbsMath;
-import wbs.utils.util.string.WbsStringify;
-import wbs.utils.util.string.WbsStrings;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -46,10 +40,11 @@ public final class WbsEntityUtil {
     }
 
     public static boolean isInWater(Entity entity) {
-        Block block = entity.getLocation().getBlock();
-        if (block.getType() == Material.WATER) {
+        if (entity.isInWater()) {
             return true;
         }
+
+        Block block = entity.getLocation().getBlock();
         BlockData data = block.getBlockData();
         if (data instanceof Waterlogged) {
             return ((Waterlogged) data).isWaterlogged();

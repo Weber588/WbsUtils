@@ -3,14 +3,9 @@ package wbs.utils.util;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.util.BoundingBox;
-import org.bukkit.util.Vector;
-import wbs.utils.WbsUtils;
 
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
-import java.util.logging.Logger;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class WbsLocationUtil {

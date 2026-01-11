@@ -34,6 +34,25 @@ public final class PacketEventsWrapper {
         return PluginHookManager.isPacketEventsInstalled();
     }
 
+    public static boolean updateTickRate(Player player, int tickRate) {
+        if (isActive()) {
+            return updateTickRateUnsafe(player, tickRate);
+        }
+        return false;
+    }
+
+    private static boolean updateTickRateUnsafe(Player player, int tickRate) {
+        WrapperPlayServerTickingState packet = new WrapperPlayServerTickingState(tickRate, false);
+
+        User user = getUser(player);
+        if (user == null) {
+            return false;
+        }
+
+        user.sendPacket(packet);
+        return true;
+    }
+
     public static boolean removeEntity(Player player, Entity entity) {
         if (isActive()) {
             return removeEntityUnsafe(player, entity);
