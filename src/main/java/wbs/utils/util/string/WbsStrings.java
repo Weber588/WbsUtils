@@ -286,8 +286,16 @@ public final class WbsStrings {
 	 */
 	public static List<String> wrapText(String toWrap, int maxWidth, Function<String, Integer> widthFunction) {
 		String remaining = toWrap.trim();
-
 		List<String> lines = new LinkedList<>();
+
+		String[] split = remaining.split("\n");
+		if (split.length > 1) {
+			for (String forcedLine : split) {
+				lines.addAll(wrapText(forcedLine, maxWidth, widthFunction));
+			}
+
+			return lines;
+		}
 
 		while (!remaining.isEmpty()) {
 			String line = null;
