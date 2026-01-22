@@ -19,7 +19,7 @@ public class RadiusSelector<T extends Entity> extends EntitySelector<T, RadiusSe
     protected @NotNull List<T> getSelection(Location loc) {
         World world = Objects.requireNonNull(loc.getWorld());
 
-        BoundingBox boundingBox = BoundingBox.of(loc, range / 2, range / 2, range / 2);
+        BoundingBox boundingBox = BoundingBox.of(loc, range, range, range);
 
         Collection<T> entities = filter(world.getNearbyEntities(boundingBox));
 
