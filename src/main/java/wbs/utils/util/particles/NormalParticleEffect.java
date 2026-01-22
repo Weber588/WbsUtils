@@ -59,7 +59,7 @@ public class NormalParticleEffect extends WbsParticleEffect {
 				.setZ(z.val())
 				.setSpeed(speed.val());
 		
-		return null;
+		return cloned;
 	}
 
 	@Override
