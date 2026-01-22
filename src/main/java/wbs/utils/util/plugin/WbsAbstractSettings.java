@@ -2,7 +2,6 @@ package wbs.utils.util.plugin;
 
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +60,11 @@ public abstract class WbsAbstractSettings {
      * @param error The error message
      * @param directory The directory in which the error took place
      */
-    public void logError(String error, String directory) {
+    public void logError(String error, @Nullable String directory) {
+        if (directory == null) {
+            directory = "?";
+            getLogger().warning("A null value was passed to WbsAbstractSettings#logError(String, String) -- adding a directory is recommended.");
+        }
         errors.add("&c" + error + " &7(" + directory + ")");
         getLogger().warning(error + " (" + directory + ")");
     }
