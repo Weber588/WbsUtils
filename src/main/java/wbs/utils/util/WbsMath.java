@@ -85,13 +85,38 @@ public final class WbsMath {
 	 * 0 &le; t &le; 1 representing the progress
 	 * from a to b, where t = 0 returns a and
 	 * t = 1 returns b
-	 * @param a The starting value
-	 * @param b The end value
-	 * @param t The progress from a to b
+	 * @param start The starting value
+	 * @param end The end value
+	 * @param progress The progress from a to b
 	 * @return The value between a and b represented by t
 	 */
-	public static double lerp(double a, double b, double t) {
-		return ((b - a) * t) + a;
+	public static double lerp(double start, double end, double progress) {
+		return ((end - start) * progress) + start;
+	}
+
+	public static double moduloLerp(double start, double end, double progress, double modulo) {
+		start = (start % modulo);
+		if (start < 0) {
+			start += modulo;
+		}
+		end = (end % modulo);
+		if (end < 0) {
+			end += modulo;
+		}
+
+		// If we increase to reach start
+		double positiveDistance = ((end - start) % modulo);
+		// If we decrease to reach end
+		double negativeDistance = ((start - end) % modulo);
+
+		double range;
+		if (Math.abs(positiveDistance) < Math.abs(negativeDistance)) {
+			range = positiveDistance;
+		} else {
+			range = negativeDistance;
+		}
+
+		return (float) WbsMath.lerp(0, range, progress);
 	}
 
 	public static double clamp(double a, double b, double value) {

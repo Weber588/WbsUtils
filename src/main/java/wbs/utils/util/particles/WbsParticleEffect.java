@@ -162,7 +162,7 @@ public abstract class WbsParticleEffect {
 	 * location.
 	 * @param particle The particle type to use
 	 * @param loc The location at which to run the effect.
-	 * @param player The only play who will see it
+	 * @param player The only player who will see it
 	 * @return The same object.
 	 */
 	public abstract WbsParticleEffect play(Particle particle, Location loc, Player player);

@@ -27,7 +27,7 @@ public class WbsLocationUtil {
     }
 
     public static Set<Block> getNearbyBlocksSphere(Location center, double radius) {
-        return getNearbyBlocks(center, radius).stream()
+        return getNearbyBlocks(center, radius * 2).stream()
                 .filter(block -> block.getLocation().distance(center) <= radius)
                 .collect(Collectors.toSet());
     }

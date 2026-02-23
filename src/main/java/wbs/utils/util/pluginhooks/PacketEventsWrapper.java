@@ -9,11 +9,13 @@ import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.resources.ResourceLocation;
+import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.WbsUtils;
 
@@ -40,13 +42,7 @@ public final class PacketEventsWrapper {
     private static boolean updateTickRateUnsafe(Player player, int tickRate) {
         WrapperPlayServerTickingState packet = new WrapperPlayServerTickingState(tickRate, false);
 
-        User user = getUser(player);
-        if (user == null) {
-            return false;
-        }
-
-        user.sendPacket(packet);
-        return true;
+        return sendPacket(player, packet);
     }
 
     public static boolean removeEntity(Player player, Entity entity) {
@@ -57,18 +53,23 @@ public final class PacketEventsWrapper {
     }
 
     private static boolean removeEntityUnsafe(Player player, Entity entity) {
-        EntityType entityType = SpigotConversionUtil.fromBukkitEntityType(entity.getType());
-        Location location = SpigotConversionUtil.fromBukkitLocation(entity.getLocation());
-        List<EntityData<?>> metadata = SpigotConversionUtil.getEntityMetadata(entity);
         WrapperPlayServerDestroyEntities packet = new WrapperPlayServerDestroyEntities(entity.getEntityId());
 
-        User user = getUser(player);
-        if (user == null) {
-            return false;
-        }
+        return sendPacket(player, packet);
+    }
 
-        user.sendPacket(packet);
-        return true;
+    public static boolean teleportEntity(Player player, Entity entity, org.bukkit.Location location) {
+        if (isActive()) {
+            return teleportEntityUnsafe(player, entity, location);
+        }
+        return false;
+    }
+
+    private static boolean teleportEntityUnsafe(Player player, Entity entity, org.bukkit.Location bukkitLocation) {
+        Location location = SpigotConversionUtil.fromBukkitLocation(bukkitLocation);
+        WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport(entity.getEntityId(), location, entity.isOnGround());
+
+        return sendPacket(player, packet);
     }
 
     public static boolean updateEntity(Player player, Entity entity) {
@@ -79,18 +80,10 @@ public final class PacketEventsWrapper {
     }
 
     private static boolean updateEntityUnsafe(Player player, Entity entity) {
-        EntityType entityType = SpigotConversionUtil.fromBukkitEntityType(entity.getType());
-        Location location = SpigotConversionUtil.fromBukkitLocation(entity.getLocation());
         List<EntityData<?>> metadata = SpigotConversionUtil.getEntityMetadata(entity);
         WrapperPlayServerEntityMetadata packet = new WrapperPlayServerEntityMetadata(entity.getEntityId(), metadata);
 
-        User user = getUser(player);
-        if (user == null) {
-            return false;
-        }
-
-        user.sendPacket(packet);
-        return true;
+        return sendPacket(player, packet);
     }
 
     public static boolean showFakeEntity(Player player, Entity entity) {
@@ -105,12 +98,9 @@ public final class PacketEventsWrapper {
         Location location = SpigotConversionUtil.fromBukkitLocation(entity.getLocation());
         WrapperPlayServerSpawnEntity packet = new WrapperPlayServerSpawnEntity(entity.getEntityId(), entity.getUniqueId(), entityType, location, location.getYaw(), 0, null);
 
-        User user = getUser(player);
-        if (user == null) {
+        if (!sendPacket(player, packet)) {
             return false;
         }
-
-        user.sendPacket(packet);
 
         return updateEntityUnsafe(player, entity);
     }
@@ -126,12 +116,7 @@ public final class PacketEventsWrapper {
         GameMode gameMode = SpigotConversionUtil.fromBukkitGameMode(bukkitGameMode);
         WrapperPlayServerChangeGameState packet = new WrapperPlayServerChangeGameState(WrapperPlayServerChangeGameState.Reason.CHANGE_GAME_MODE, gameMode.getId());
 
-        User user = getUser(player);
-        if (user == null) {
-            return false;
-        }
-        user.sendPacket(packet);
-        return true;
+        return sendPacket(player, packet);
     }
 
     public static boolean sendToast(org.bukkit.inventory.ItemStack icon, Component message, io.papermc.paper.advancement.AdvancementDisplay.Frame displayType, Player player) {
@@ -168,7 +153,9 @@ public final class PacketEventsWrapper {
                 0.0f
         );
 
-        final ResourceLocation resourceLocation = ResourceLocation.minecraft(UUID.randomUUID().toString());
+        @Subst("key")
+        String key = UUID.randomUUID().toString();
+        final ResourceLocation resourceLocation = ResourceLocation.minecraft(key);
 
         Advancement advancement = new Advancement(
                 null,
@@ -226,5 +213,15 @@ public final class PacketEventsWrapper {
         } catch (NullPointerException ignored) {
             return Optional.empty();
         }
+    }
+
+    private static boolean sendPacket(Player player, PacketWrapper<?> packet) {
+        User user = getUser(player);
+        if (user == null) {
+            return false;
+        }
+
+        user.sendPacket(packet);
+        return true;
     }
 }
