@@ -2,6 +2,7 @@ package wbs.utils.util.particles.entity.interpolation;
 
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import wbs.utils.util.particles.entity.EntityParticle;
 
@@ -10,7 +11,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public abstract class KeyframeGenerator<T extends Entity, V> {
+@NullMarked
+public abstract class KeyframeGenerator<S extends KeyframeGenerator<S, T, V>, T extends Entity, V> {
     protected int endTick;
     private int startTick = 0;
     @Nullable
@@ -20,32 +22,37 @@ public abstract class KeyframeGenerator<T extends Entity, V> {
         endTick = maxAge;
     }
 
-    public KeyframeGenerator<T, V> setSetter(ParticleSetter<T, V> setter) {
+    public S setSetter(ParticleSetter<T, V> setter) {
         this.setter = setter;
-        return this;
+        //noinspection unchecked
+        return (S) this;
     }
 
-    public KeyframeGenerator<T, V> setEntitySetter(BiConsumer<T, V> setter) {
+    public S setEntitySetter(BiConsumer<T, V> setter) {
         this.setter = (particle, v) -> {
             setter.accept(particle.getEntity(), v);
         };
-        return this;
+        //noinspection unchecked
+        return (S) this;
     }
 
-    public KeyframeGenerator<T, V> setTickRange(int start, int end) {
+    public S setTickRange(int start, int end) {
         this.startTick = start;
         this.endTick = end;
-        return this;
+        //noinspection unchecked
+        return (S) this;
     }
 
-    public KeyframeGenerator<T, V> setStartTick(int startTick) {
+    public S setStartTick(int startTick) {
         this.startTick = startTick;
-        return this;
+        //noinspection unchecked
+        return (S) this;
     }
 
-    public KeyframeGenerator<T, V> setEndTick(int endTick) {
+    public S setEndTick(int endTick) {
         this.endTick = endTick;
-        return this;
+        //noinspection unchecked
+        return (S) this;
     }
 
     public int getStartTick() {

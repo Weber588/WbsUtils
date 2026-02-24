@@ -1,13 +1,14 @@
 package wbs.utils.util.particles.entity.interpolation;
 
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @NullMarked
-public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGenerator<T, V> {
+public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGenerator<InterpolatedFrameGenerator<T, V>, T, V> {
     private final Interpolator<V> interpolator;
     private final V defaultValue;
     private final Map<Integer, V> frames = new HashMap<>();
@@ -16,6 +17,21 @@ public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGen
         super(maxAge);
         this.interpolator = interpolator;
         this.defaultValue = defaultValue;
+    }
+
+    public InterpolatedFrameGenerator<T, V> setFrame(int tick, V value) {
+        frames.put(tick, value);
+        return this;
+    }
+
+    public InterpolatedFrameGenerator<T, V> setFrame(@Range(from = 0, to = 1) double progress, V value) {
+        if (getEndTick() <= 0) {
+            throw new IllegalStateException("Cannot set relative keyframe before endTick is set.");
+        }
+
+        int closestTick = (int) Math.clamp((((double) getEndTick()) * progress), 0, getEndTick());
+
+        return setFrame(closestTick, value);
     }
 
     @Override
@@ -43,19 +59,18 @@ public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGen
                 .filter(tick -> tick < currentTick)
                 .mapToInt(val -> val)
                 .max() // Max frame less than this one
-                .orElseThrow();
-
+                .orElse(getStartTick());
 
         int nextFrame = frames.keySet().stream()
                 .filter(tick -> tick > currentTick)
                 .mapToInt(val -> val)
                 .min()
-                .orElseThrow();
+                .orElse(getEndTick());
 
-        V previousValue = frames.get(previousFrame);
-        V nextValue = frames.get(nextFrame);
+        V previousValue = frames.getOrDefault(previousFrame, defaultValue);
+        V nextValue = frames.getOrDefault(nextFrame, previousValue);
 
-        double progress = (double) (currentTick - getStartTick()) / ((getEndTick() - 1) - getStartTick());
+        double progress = (double) (currentTick - previousFrame) / ((nextFrame - 1) - previousFrame);
 
         return interpolator.interpolate(previousValue, nextValue, progress);
     }

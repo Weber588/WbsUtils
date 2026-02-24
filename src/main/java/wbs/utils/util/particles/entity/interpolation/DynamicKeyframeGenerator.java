@@ -1,10 +1,12 @@
 package wbs.utils.util.particles.entity.interpolation;
 
 import org.bukkit.entity.Entity;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Function;
 
-public class DynamicKeyframeGenerator<T extends Entity, V> extends KeyframeGenerator<T, V> {
+@NullMarked
+public class DynamicKeyframeGenerator<T extends Entity, V> extends KeyframeGenerator<DynamicKeyframeGenerator<T, V>, T, V> {
     private final ParticleValueSupplier<V> supplier;
 
     public DynamicKeyframeGenerator(ParticleValueSupplier<V> supplier, int maxAge) {

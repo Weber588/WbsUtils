@@ -10,7 +10,6 @@ import java.util.*;
 
 @SuppressWarnings("unused")
 public class RadiusSelector<T extends Entity> extends EntitySelector<T, RadiusSelector<T>> {
-
     public RadiusSelector(Class<T> clazz) {
         super(clazz);
     }

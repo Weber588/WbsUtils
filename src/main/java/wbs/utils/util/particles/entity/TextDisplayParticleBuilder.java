@@ -2,6 +2,7 @@ package wbs.utils.util.particles.entity;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
@@ -12,9 +13,9 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import wbs.utils.WbsUtils;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.particles.entity.interpolation.InterpolatedFrameGenerator;
-import wbs.utils.util.particles.entity.interpolation.KeyframeGenerator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
      */
     private static final Vector3f DUMB_TEXT_DISPLAY_FIX = new Vector3f(-1/40f, 0, 0);
 
-    private final Map<Integer, Double> rotationFrames = new HashMap<>();
+    private final Map<Integer, Float> rotationFrames = new HashMap<>();
 
     @Nullable
     protected Color backgroundColor;
@@ -48,29 +49,6 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
 
         // Set as default; bypass dynamic setter
         super.setScale(SCALE_TO_SQUARE);
-
-        InterpolatedFrameGenerator.Interpolator<Float> rotationInterpolator = (start, end, progress) -> (float) WbsMath.moduloLerp(start, end, progress, Math.TAU);
-
-        KeyframeGenerator<TextDisplay, Float> rotationBuilder = buildInterpolatedKeyframes(rotationInterpolator, 0f)
-                .setEntitySetter((textDisplay, rotation) -> {
-                    if (rotationFrames.isEmpty()) {
-                        return;
-                    }
-
-                    Transformation existing = textDisplay.getTransformation();
-
-                    Vector3f scaling = TextDisplayParticleBuilder.getScaling();
-                    textDisplay.setTransformation(new Transformation(
-                            new Vector3f(0, -1 / DEFAULT_TEXT_DISPLAY_HEIGHT / scaling.y / 2, 0)
-                                    .add(DUMB_TEXT_DISPLAY_FIX)
-                                    .rotateZ(rotation),
-                            new Quaternionf().rotateZ(rotation),
-                            existing.getScale(),
-                            existing.getRightRotation()
-                    ));
-                });
-
-        fillKeyframes("rotation", rotationBuilder);
     }
 
     @Override
@@ -87,6 +65,35 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
 
         display.setBackgroundColor(backgroundColor);
 
+        InterpolatedFrameGenerator.Interpolator<Float> rotationInterpolator = (start, end, progress) -> {
+            if (Bukkit.getCurrentTick() % 5 == 0) {
+                WbsUtils.getInstance().getLogger().info("start %s, end %s, progress %s".formatted(start, end, progress));
+            }
+            return (float) WbsMath.moduloLerp(start, end, progress, Math.TAU);
+        };
+
+        InterpolatedFrameGenerator<TextDisplay, Float> rotationBuilder = buildInterpolatedKeyframes(rotationInterpolator, 0f)
+                .setEntitySetter((textDisplay, rotation) -> {
+                    if (Bukkit.getCurrentTick() % 5 == 0) {
+                        WbsUtils.getInstance().getLogger().info("Rotation: " + rotation);
+                    }
+                    Transformation existing = textDisplay.getTransformation();
+
+                    Vector3f scaling = TextDisplayParticleBuilder.getScaling();
+                    textDisplay.setTransformation(new Transformation(
+                            new Vector3f(0, -1 / DEFAULT_TEXT_DISPLAY_HEIGHT / scaling.y / 2, 0)
+                                    .add(DUMB_TEXT_DISPLAY_FIX)
+                                    .rotateZ(rotation),
+                            new Quaternionf().rotateZ(rotation),
+                            existing.getScale(),
+                            existing.getRightRotation()
+                    ));
+                });
+
+        rotationFrames.forEach(rotationBuilder::setFrame);
+
+        fillKeyframes("rotation", rotationBuilder);
+
         super.configure(display);
     }
 
@@ -100,13 +107,13 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
         return this;
     }
 
-    public TextDisplayParticleBuilder setRotationDynamicKeyframe(int tick, double radians) {
+    public TextDisplayParticleBuilder setRotationDynamicKeyframe(int tick, float radians) {
         rotationFrames.put(tick, radians);
 
         return this;
     }
 
-    public TextDisplayParticleBuilder setRotationDynamicKeyframe(@Range(from = 0, to = 1) double progress, double radians) {
+    public TextDisplayParticleBuilder setRotationDynamicKeyframe(@Range(from = 0, to = 1) double progress, float radians) {
         if (maxAge <= 0) {
             throw new IllegalStateException("Cannot set relative keyframe before maxAge is set.");
         }

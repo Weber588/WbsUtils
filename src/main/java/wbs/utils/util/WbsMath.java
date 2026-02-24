@@ -106,8 +106,14 @@ public final class WbsMath {
 
 		// If we increase to reach start
 		double positiveDistance = ((end - start) % modulo);
+		if (positiveDistance < 0) {
+			positiveDistance += modulo;
+		}
 		// If we decrease to reach end
 		double negativeDistance = ((start - end) % modulo);
+		if (negativeDistance < 0) {
+			negativeDistance += modulo;
+		}
 
 		double range;
 		if (Math.abs(positiveDistance) < Math.abs(negativeDistance)) {
@@ -116,7 +122,7 @@ public final class WbsMath {
 			range = negativeDistance;
 		}
 
-		return (float) WbsMath.lerp(0, range, progress);
+		return (float) WbsMath.lerp(0, range, progress) + start;
 	}
 
 	public static double clamp(double a, double b, double value) {

@@ -112,13 +112,13 @@ public class EntityParticleBuilder<T extends Entity> {
 
     public EntityParticleBuilder<T> setKeyframe(@Range(from = 0, to = 1) double progress, Consumer<EntityParticle<T>> keyframe) {
         Preconditions.checkArgument(progress >= 0, "progress cannot be negative.");
-        Preconditions.checkArgument(progress < 1, "progress must be less than or equal to 1");
+        Preconditions.checkArgument(progress <= 1, "progress must be less than or equal to 1");
 
         if (maxAge <= 0) {
             throw new IllegalStateException("Cannot set relative keyframe before maxAge is set.");
         }
 
-        int closestTick = (int) Math.clamp((((double) maxAge) * progress), 0, maxAge);
+        int closestTick = (int) Math.clamp((((double) maxAge - 1) * progress), 0, maxAge);
 
         prependKeyframe(closestTick, keyframe);
         return this;
@@ -173,7 +173,7 @@ public class EntityParticleBuilder<T extends Entity> {
         return new InterpolatedFrameGenerator<>(maxAge, interpolator, defaultValue);
     }
 
-    public <V> EntityParticleBuilder<T> fillKeyframes(String key, KeyframeGenerator<T, V> builder) {
+    public <V> EntityParticleBuilder<T> fillKeyframes(String key, KeyframeGenerator<?, T, V> builder) {
         this.dynamicKeyframes.rowMap().remove(key);
 
         builder.generate().forEach((tick, keyframe) -> {
