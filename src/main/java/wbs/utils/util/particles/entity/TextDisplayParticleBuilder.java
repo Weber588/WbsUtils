@@ -2,7 +2,6 @@ package wbs.utils.util.particles.entity;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
@@ -14,6 +13,7 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import wbs.utils.WbsUtils;
+import wbs.utils.util.WbsColours;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.particles.entity.interpolation.InterpolatedFrameGenerator;
 
@@ -37,9 +37,10 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
      * In vanilla, text displays are 4/10th of a block pixel (1/40th of a block) too far to the left.
      * SOMETIMES it's 1/80th if the total pixels in the characters it contains is even.
      */
-    private static final Vector3f DUMB_TEXT_DISPLAY_FIX = new Vector3f(-1/40f, 0, 0);
+    public static final Vector3f DUMB_TEXT_DISPLAY_FIX = new Vector3f(-1/40f, 0, 0);
 
     private final Map<Integer, Float> rotationFrames = new HashMap<>();
+    private final Map<Integer, Color> colorFrames = new HashMap<>();
 
     @Nullable
     protected Color backgroundColor;
@@ -51,10 +52,14 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
         super.setScale(SCALE_TO_SQUARE);
     }
 
+    private static Float interpolateRotation(Float start, Float end, double progress) {
+        return (float) WbsMath.moduloLerp(start, end, progress, Math.TAU);
+    }
+
     @Override
     public DisplayParticleBuilder<TextDisplay> setScale(Vector3f scale) {
         // Treat square as default
-        return super.setScale(new Vector3f().mul(SCALE_TO_SQUARE));
+        return super.setScale(new Vector3f(scale).mul(SCALE_TO_SQUARE));
     }
 
     @Override
@@ -65,34 +70,33 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
 
         display.setBackgroundColor(backgroundColor);
 
-        InterpolatedFrameGenerator.Interpolator<Float> rotationInterpolator = (start, end, progress) -> {
-            if (Bukkit.getCurrentTick() % 5 == 0) {
-                WbsUtils.getInstance().getLogger().info("start %s, end %s, progress %s".formatted(start, end, progress));
-            }
-            return (float) WbsMath.moduloLerp(start, end, progress, Math.TAU);
-        };
+        if (!rotationFrames.isEmpty()) {
+            InterpolatedFrameGenerator<TextDisplay, Float> rotationBuilder = buildInterpolatedKeyframes(TextDisplayParticleBuilder::interpolateRotation, 0f)
+                    .setEntitySetter((textDisplay, rotation) -> {
+                        Transformation existing = textDisplay.getTransformation();
 
-        InterpolatedFrameGenerator<TextDisplay, Float> rotationBuilder = buildInterpolatedKeyframes(rotationInterpolator, 0f)
-                .setEntitySetter((textDisplay, rotation) -> {
-                    if (Bukkit.getCurrentTick() % 5 == 0) {
-                        WbsUtils.getInstance().getLogger().info("Rotation: " + rotation);
-                    }
-                    Transformation existing = textDisplay.getTransformation();
+                        textDisplay.setTransformation(new Transformation(
+                                new Vector3f(0, -1 / DEFAULT_TEXT_DISPLAY_HEIGHT / existing.getScale().y / 2, 0)
+                                        .add(DUMB_TEXT_DISPLAY_FIX)
+                                        .rotateZ(rotation),
+                                new Quaternionf().rotateZ(rotation),
+                                existing.getScale(),
+                                existing.getRightRotation()
+                        ));
+                    });
 
-                    Vector3f scaling = TextDisplayParticleBuilder.getScaling();
-                    textDisplay.setTransformation(new Transformation(
-                            new Vector3f(0, -1 / DEFAULT_TEXT_DISPLAY_HEIGHT / scaling.y / 2, 0)
-                                    .add(DUMB_TEXT_DISPLAY_FIX)
-                                    .rotateZ(rotation),
-                            new Quaternionf().rotateZ(rotation),
-                            existing.getScale(),
-                            existing.getRightRotation()
-                    ));
-                });
+            rotationFrames.forEach(rotationBuilder::setFrame);
+            fillKeyframes("rotation", rotationBuilder);
+        }
 
-        rotationFrames.forEach(rotationBuilder::setFrame);
+        if (!colorFrames.isEmpty()) {
+            InterpolatedFrameGenerator<TextDisplay, Color> colourBuilder =
+                    buildInterpolatedKeyframes(WbsColours::colourCircularLerp, Objects.requireNonNullElse(backgroundColor, Color.WHITE))
+                            .setEntitySetter(TextDisplay::setBackgroundColor);
 
-        fillKeyframes("rotation", rotationBuilder);
+            colorFrames.forEach(colourBuilder::setFrame);
+            fillKeyframes("color", colourBuilder);
+        }
 
         super.configure(display);
     }
@@ -121,5 +125,21 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
         int closestTick = (int) Math.clamp((((double) maxAge) * progress), 0, maxAge);
 
         return setRotationDynamicKeyframe(closestTick, radians);
+    }
+
+    public TextDisplayParticleBuilder setColorKeyframe(int tick, Color color) {
+        colorFrames.put(tick, color);
+
+        return this;
+    }
+
+    public TextDisplayParticleBuilder setColorKeyframe(@Range(from = 0, to = 1) double progress, Color color) {
+        if (maxAge <= 0) {
+            throw new IllegalStateException("Cannot set relative keyframe before maxAge is set.");
+        }
+
+        int closestTick = (int) Math.clamp((((double) maxAge) * progress), 0, maxAge);
+
+        return setColorKeyframe(closestTick, color);
     }
 }

@@ -3,9 +3,14 @@ package wbs.utils.util.particles.entity.interpolation;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
+import wbs.utils.WbsUtils;
+import wbs.utils.util.WbsMath;
+import wbs.utils.util.particles.entity.EntityParticle;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @NullMarked
 public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGenerator<InterpolatedFrameGenerator<T, V>, T, V> {
@@ -35,6 +40,21 @@ public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGen
     }
 
     @Override
+    public Map<Integer, Consumer<EntityParticle<T>>> generate() {
+        Map<Integer, Consumer<EntityParticle<T>>> generated = super.generate();
+
+        /*
+        WbsUtils.getInstance().getLogger().info(
+                "Frames: " + frames.keySet().stream().sorted().map(frame ->
+                        frame + " (" + frames.get(frame) + ")"
+                ).collect(Collectors.joining(", "))
+        );
+         */
+
+        return generated;
+    }
+
+    @Override
     protected V getValue(int currentTick) {
         if (currentTick < getStartTick() || currentTick > getEndTick()) {
             throw new IllegalStateException("Internal rotation frame invalid");
@@ -52,6 +72,7 @@ public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGen
 
         V explicitKeyframe = frames.get(currentTick);
         if (explicitKeyframe != null) {
+        //    WbsUtils.getInstance().getLogger().info( "EXPLICIT FRAME: " + currentTick + ": " + explicitKeyframe);
             return explicitKeyframe;
         }
 
@@ -67,12 +88,23 @@ public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGen
                 .min()
                 .orElse(getEndTick());
 
+
         V previousValue = frames.getOrDefault(previousFrame, defaultValue);
         V nextValue = frames.getOrDefault(nextFrame, previousValue);
 
-        double progress = (double) (currentTick - previousFrame) / ((nextFrame - 1) - previousFrame);
+        double progress = (double) (currentTick - previousFrame) / ((nextFrame) - previousFrame);
 
-        return interpolator.interpolate(previousValue, nextValue, progress);
+        V interpolated = interpolator.interpolate(previousValue, nextValue, progress);
+
+        /*
+        if (interpolated instanceof Number number) {
+            WbsUtils.getInstance().getLogger().info( previousFrame + " (" + previousValue + ")\t" +
+                    "< " + currentTick + " (" + WbsMath.roundTo(number.doubleValue(), 2) + ") >\t"
+                    + nextFrame + " (" + nextValue + ")\t" +
+                    "(" + (WbsMath.roundTo(progress * 100, 2)) + "%)");
+        }
+         */
+        return interpolated;
     }
 
     @FunctionalInterface

@@ -6,10 +6,12 @@ import com.google.common.collect.Table;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import wbs.utils.WbsUtils;
 import wbs.utils.util.particles.entity.interpolation.DynamicKeyframeGenerator;
 import wbs.utils.util.particles.entity.interpolation.InterpolatedFrameGenerator;
 import wbs.utils.util.particles.entity.interpolation.KeyframeGenerator;
@@ -40,7 +42,12 @@ public class EntityParticleBuilder<T extends Entity> {
     protected Consumer<T> configurationConsumer = t -> {};
     protected int maxAge = -1;
 
-    // TODO: Add options for initialVelocity, acceleration (applied every tick), gravity (vector for directional?), drag, rotation
+    protected boolean doBlockCollisions = false;
+
+    @Nullable
+    protected Vector tickForce = null; // Applied to the entity every tick
+    protected double drag = 0;
+
     protected final Map<Integer, Consumer<EntityParticle<T>>> keyframes = new HashMap<>();
     protected final Table<String, Integer, ?> interpolatedFrames = HashBasedTable.create();
     protected final Table<String, Integer, Consumer<EntityParticle<T>>> dynamicKeyframes = HashBasedTable.create();
@@ -74,7 +81,10 @@ public class EntityParticleBuilder<T extends Entity> {
     }
 
     protected @NotNull EntityParticle<T> buildInternal(T entity, List<Player> viewers) {
-        return new EntityParticle<>(entity, usePackets, maxAge, viewers, new HashMap<>(this.keyframes), HashBasedTable.create(this.dynamicKeyframes));
+        return new EntityParticle<>(entity, usePackets, maxAge, viewers, new HashMap<>(this.keyframes), HashBasedTable.create(this.dynamicKeyframes))
+                .setTickForce(tickForce != null ? tickForce.clone() : null)
+                .setDrag(drag)
+                .doBlockCollisions(doBlockCollisions);
     }
 
     public EntityParticle<T> playParticle(Location location) {
@@ -182,10 +192,23 @@ public class EntityParticleBuilder<T extends Entity> {
         return this;
     }
 
-
     public <V> EntityParticleBuilder<T> removeDynamicKeyframes(String key) {
         this.dynamicKeyframes.rowMap().remove(key);
         return this;
     }
 
+    public EntityParticleBuilder<T> setTickForce(@Nullable Vector tickForce) {
+        this.tickForce = tickForce;
+        return this;
+    }
+
+    public EntityParticleBuilder<T> setDrag(double drag) {
+        this.drag = drag;
+        return this;
+    }
+
+    public EntityParticleBuilder<T> doBlockCollisions(boolean doBlockCollisions) {
+        this.doBlockCollisions = doBlockCollisions;
+        return this;
+    }
 }

@@ -4,19 +4,25 @@ import com.google.common.collect.HashBasedTable;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+import wbs.utils.WbsUtils;
 
 import java.util.HashMap;
 import java.util.List;
 
 @NullMarked
 public class DisplayParticleBuilder<T extends Display> extends EntityParticleBuilder<T> {
+    public static final int MAX_TP_DURATION = 59;
     protected boolean doDynamicTeleportDuration = false;
     protected boolean doDynamicInterpolationDuration = false;
 
+    @Range(from = 0, to = 59)
     protected int teleportDuration = 0;
     protected int interpolationDuration = 0;
 
@@ -26,6 +32,10 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
     protected Vector3f scale = new Vector3f();
     protected Quaternionf leftRotation = new Quaternionf();
 
+    @Nullable
+    protected Vector angularVelocity = null; // Magnitude is speed, direction is axis of rotation
+    protected double angularDrag = 0;
+
     public DisplayParticleBuilder(Class<T> entityClass) {
         super(entityClass);
     }
@@ -34,7 +44,12 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
     protected @NotNull EntityParticle<T> buildInternal(T entity, List<Player> viewers) {
         return new DisplayParticle<>(entity, usePackets, maxAge, viewers, new HashMap<>(this.keyframes), HashBasedTable.create(this.dynamicKeyframes))
                 .doDynamicTeleportDuration(doDynamicTeleportDuration)
-                .doDynamicInterpolationDuration(doDynamicInterpolationDuration);
+                .doDynamicInterpolationDuration(doDynamicInterpolationDuration)
+                .setAngularVelocity(angularVelocity != null ? angularVelocity.clone() : null)
+                .setAngularDrag(angularDrag)
+                .setTickForce(tickForce != null ? tickForce.clone() : null)
+                .setDrag(drag)
+                .doBlockCollisions(doBlockCollisions);
     }
 
     @Override
@@ -49,7 +64,7 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
             }
 
             if (doDynamicTeleportDuration) {
-                display.setTeleportDuration(firstKeyframe);
+                display.setTeleportDuration(Math.min(firstKeyframe, MAX_TP_DURATION));
             }
         });
 
@@ -64,6 +79,13 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
     }
 
     public DisplayParticleBuilder<T> setTeleportDuration(int teleportDuration) {
+        if (teleportDuration < 0 || teleportDuration > MAX_TP_DURATION) {
+            WbsUtils.getInstance().getLogger().warning("Invalid teleport duration " + teleportDuration
+                    + ". Must be between 0 and " + MAX_TP_DURATION + " inclusive.");
+            //noinspection CallToPrintStackTrace
+            new RuntimeException().printStackTrace();
+            teleportDuration = Math.clamp(teleportDuration, 0, MAX_TP_DURATION);
+        }
         this.teleportDuration = teleportDuration;
         return this;
     }
@@ -106,6 +128,16 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
     public DisplayParticleBuilder<T> setDoDynamicDurations(boolean doDynamicDuration) {
         this.doDynamicInterpolationDuration = doDynamicDuration;
         this.doDynamicTeleportDuration = doDynamicDuration;
+        return this;
+    }
+
+    public DisplayParticleBuilder<T> setAngularVelocity(@Nullable Vector angularVelocity) {
+        this.angularVelocity = angularVelocity;
+        return this;
+    }
+
+    public DisplayParticleBuilder<T> setAngularDrag(double angularDrag) {
+        this.angularDrag = angularDrag;
         return this;
     }
 }

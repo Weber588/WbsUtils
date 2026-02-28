@@ -5,7 +5,10 @@ import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import wbs.utils.WbsUtils;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -184,17 +187,21 @@ public final class WbsColours {
         delta = max - min;
 
         // Saturation
-        if (max == 0) return new double[]{-1, 0, value};
+        if (max == 0) return new double[]{0, 0, value};
 
         saturation = delta / max;
 
-        // H
-        if (red == max) {
-            hue = (green - blue) / delta;
-        } else if (green == max) {
-            hue = 2 + (blue - red) / delta;
+        if (delta == 0) {
+            hue = 0;
         } else {
-            hue = 4 + (red - green) / delta;
+            // H
+            if (red == max) {
+                hue = (green - blue) / delta;
+            } else if (green == max) {
+                hue = 2 + (blue - red) / delta;
+            } else {
+                hue = 4 + (red - green) / delta;
+            }
         }
 
         hue *= 60;
@@ -207,17 +214,33 @@ public final class WbsColours {
 
     public static Color colourLerp(Color start, Color end, double interval) {
         double[] hsv1 = getHSV(start);
-
         double[] hsv2 = getHSV(end);
 
-        double lerpedH = lerp(hsv1[0], hsv2[0], interval);
-        double lerpedS = lerp(hsv1[1], hsv2[1], interval);
-        double lerpedV = lerp(hsv1[2], hsv2[2], interval);
+        double lerpedH = WbsMath.lerp(hsv1[0], hsv2[0], interval);
+        double lerpedS = WbsMath.lerp(hsv1[1], hsv2[1], interval);
+        double lerpedV = WbsMath.lerp(hsv1[2], hsv2[2], interval);
 
-        return fromHSB(lerpedH / 360.0f, lerpedS, lerpedV);
+/*
+        DecimalFormat format = new DecimalFormat("0.00");
+        WbsUtils.getInstance().getLogger().info(format.format(hsv1[0]) + ", " + format.format(hsv1[1]) + ", " + format.format(hsv1[2])
+                + " -> " + format.format(hsv2[0]) + ", " + format.format(hsv2[1]) + ", " + format.format(hsv2[2]) + "; "
+                + format.format(interval) + " ==> "
+                + format.format(lerpedH) + ", " + format.format(lerpedS) + ", " + format.format(lerpedV));
+*/
+
+        return fromHSB(lerpedH / 360.0f, lerpedS, lerpedV)
+                .setAlpha((int) WbsMath.lerp(start.getAlpha(), end.getAlpha(), interval));
     }
 
-    private static double lerp(double a, double b, double interval) {
-        return (b - a) * interval + a;
+    public static Color colourCircularLerp(Color start, Color end, double interval) {
+        double[] hsv1 = getHSV(start);
+        double[] hsv2 = getHSV(end);
+
+        double lerpedH = WbsMath.moduloLerp(hsv1[0], hsv2[0], interval, 360);
+        double lerpedS = WbsMath.lerp(hsv1[1], hsv2[1], interval);
+        double lerpedV = WbsMath.lerp(hsv1[2], hsv2[2], interval);
+
+        return fromHSB(lerpedH / 360.0f, lerpedS, lerpedV)
+                .setAlpha((int) WbsMath.lerp(start.getAlpha(), end.getAlpha(), interval));
     }
 }

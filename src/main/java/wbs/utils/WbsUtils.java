@@ -11,6 +11,7 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.util.Ticks;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -18,11 +19,13 @@ import org.bukkit.block.Vault;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.generator.structure.GeneratedStructure;
 import org.bukkit.generator.structure.Structure;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.WbsColours;
 import wbs.utils.util.WbsKeyed;
@@ -33,6 +36,8 @@ import wbs.utils.util.commands.brigadier.argument.WbsSimpleArgument;
 import wbs.utils.util.entities.state.EntityStateManager;
 import wbs.utils.util.particles.CuboidParticleEffect;
 import wbs.utils.util.particles.WbsParticleEffect;
+import wbs.utils.util.particles.entity.DisplayParticle;
+import wbs.utils.util.particles.entity.TextDisplayParticleBuilder;
 import wbs.utils.util.persistent.BlockChunkStorageUtil;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.pluginhooks.PluginHookManager;
@@ -47,6 +52,7 @@ import java.util.stream.Collectors;
 /**
  * The base plugin, a simple implementation of {@link WbsPlugin}.
  */
+@SuppressWarnings("UnstableApiUsage")
 public class WbsUtils extends WbsPlugin {
 	
 	private static WbsUtils instance = null;
@@ -95,6 +101,62 @@ public class WbsUtils extends WbsPlugin {
 
                         }),
 						getLocateSubcommand(),
+						WbsSubcommand.simpleSubcommand(this, "testparticle", context -> {
+							CommandSender sender = context.getSource().getSender();
+							if (!(sender instanceof Player player)) {
+								return;
+							}
+
+							Vector facingVector = WbsMath.getFacingVector(player);
+							Location spawnLocation = player.getEyeLocation().add(facingVector);
+
+							TextDisplayParticleBuilder builder = new TextDisplayParticleBuilder();
+
+							int maxAge = 40;
+							builder.setMaxAge(maxAge);
+							builder.setTeleportDuration(1);
+							builder.setInterpolationDuration(1);
+
+							builder.usePackets(true);
+
+							Color color1 = WbsColours.fromHSB(0.067f, 1, 0.5);
+							builder.setColorKeyframe(0f, color1);
+							Color color2 = WbsColours.fromHSB(0.067f, 0.9, 0.25);
+							builder.setColorKeyframe(0.5f, color2);
+							Color color3 = WbsColours.fromHSB(0.067f, 0.001, 0.2);
+							builder.setColorKeyframe(maxAge - 1, color3);
+
+							Vector fieldForce = new Vector(0, 0.03, 0);
+							builder.setTickForce(fieldForce);
+							builder.setDrag(0.25);
+
+							builder.setAngularVelocity(new Vector(0, 0, Math.toRadians(15)));
+							builder.setAngularDrag(0.01);
+
+							builder.doBlockCollisions(true);
+
+							double initialSpeed = 0.15;
+
+							runTimerNTimes(runnable -> {
+								for (int i = 0; i < 5; i++) {
+									Vector initialVelocityDir = WbsMath.scaleVector(WbsMath.randomVector(5).setY(1), Math.max(0.01, Math.random() * initialSpeed));
+
+									builder.configure(particle -> {
+										particle.setVelocity(initialVelocityDir);
+									});
+
+									builder.setKeyframe(0.25,particle -> {
+										particle.setTickForce(fieldForce.clone().add(initialVelocityDir.multiply(-0.035)));
+									});
+
+									builder.setKeyframe(0.67,particle -> {
+										particle.setTickForce(fieldForce.clone().add(initialVelocityDir.multiply(-1)));
+									});
+
+									builder.playParticle(spawnLocation.clone().add(initialVelocityDir));
+								}
+							}, 250, 1, 1);
+						}),
 						WbsSubcommand.simpleSubcommand(this, "whereami", context -> {
 							CommandSender sender = context.getSource().getSender();
 
@@ -183,6 +245,15 @@ public class WbsUtils extends WbsPlugin {
 		setDisplays("&8[&7WbsUtils&8]", ChatColor.GRAY, ChatColor.AQUA, ChatColor.RED);
 
 		configure();
+	}
+
+	private static @NotNull String colourString(Color color1) {
+		return color1.getRed() + ", " + color1.getGreen() + ", " + color1.getBlue();
+	}
+
+	private static @NotNull String colourStringHSV(Color color) {
+		double[] hsv = WbsColours.getHSV(color);
+		return hsv[0] + ", " + hsv[1] + ", " + hsv[2];
 	}
 
 	private WbsSubcommand getLocateSubcommand() {

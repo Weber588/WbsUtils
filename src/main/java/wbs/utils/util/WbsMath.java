@@ -95,34 +95,32 @@ public final class WbsMath {
 	}
 
 	public static double moduloLerp(double start, double end, double progress, double modulo) {
-		start = (start % modulo);
-		if (start < 0) {
-			start += modulo;
-		}
-		end = (end % modulo);
-		if (end < 0) {
-			end += modulo;
-		}
+		start = modulo(start, modulo);
+		end = modulo(end, modulo);
 
 		// If we increase to reach start
-		double positiveDistance = ((end - start) % modulo);
-		if (positiveDistance < 0) {
-			positiveDistance += modulo;
-		}
+		double positiveDistance = modulo((end - start), modulo);
 		// If we decrease to reach end
-		double negativeDistance = ((start - end) % modulo);
-		if (negativeDistance < 0) {
-			negativeDistance += modulo;
-		}
+		double negativeDistance = modulo((start - end), modulo);
 
 		double range;
-		if (Math.abs(positiveDistance) < Math.abs(negativeDistance)) {
+		if (positiveDistance < negativeDistance) {
 			range = positiveDistance;
 		} else {
-			range = negativeDistance;
+			range = -negativeDistance;
 		}
 
-		return (float) WbsMath.lerp(0, range, progress) + start;
+        return modulo(WbsMath.lerp(0, range, progress) + start, modulo);
+	}
+
+	public static double modulo(double value, double modulo) {
+		value = value % modulo;
+
+		if (value < 0) {
+			value += modulo;
+		}
+
+		return value;
 	}
 
 	public static double clamp(double a, double b, double value) {

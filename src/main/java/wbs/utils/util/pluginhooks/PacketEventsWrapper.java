@@ -2,6 +2,7 @@ package wbs.utils.util.pluginhooks;
 
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.advancements.*;
+import com.github.retrooper.packetevents.protocol.entity.EntityPositionData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityType;
 import com.github.retrooper.packetevents.protocol.item.ItemStack;
@@ -9,12 +10,14 @@ import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.resources.ResourceLocation;
+import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.WbsUtils;
@@ -68,6 +71,26 @@ public final class PacketEventsWrapper {
     private static boolean teleportEntityUnsafe(Player player, Entity entity, org.bukkit.Location bukkitLocation) {
         Location location = SpigotConversionUtil.fromBukkitLocation(bukkitLocation);
         WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport(entity.getEntityId(), location, entity.isOnGround());
+
+        return sendPacket(player, packet);
+    }
+
+    public static boolean updateEntityPosition(Player player, Entity entity) {
+        if (isActive()) {
+            return updateEntityPositionUnsafe(player, entity);
+        }
+        return false;
+    }
+
+    private static boolean updateEntityPositionUnsafe(Player player, Entity entity) {
+        Vector velocity = entity.getVelocity();
+        EntityPositionData entityPositionData = new EntityPositionData(
+                new Vector3d(entity.getX(), entity.getY(), entity.getZ()),
+                new Vector3d(velocity.getX(), velocity.getY(), velocity.getZ()),
+                entity.getYaw(),
+                entity.getPitch()
+        );
+        WrapperPlayServerEntityPositionSync packet = new WrapperPlayServerEntityPositionSync(entity.getEntityId(), entityPositionData, entity.isOnGround());
 
         return sendPacket(player, packet);
     }

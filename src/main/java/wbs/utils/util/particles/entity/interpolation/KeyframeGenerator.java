@@ -73,7 +73,7 @@ public abstract class KeyframeGenerator<S extends KeyframeGenerator<S, T, V>, T 
     public Map<Integer, Consumer<EntityParticle<T>>> generate() {
         Map<Integer, Consumer<EntityParticle<T>>> frames = new HashMap<>();
 
-        for (int i = getStartTick(); i <= getEndTick(); i++) {
+        for (int i = getStartTick(); i < getEndTick(); i++) {
             final int tick = i;
 
             Consumer<EntityParticle<T>> dynamicKeyframe = particle -> {
