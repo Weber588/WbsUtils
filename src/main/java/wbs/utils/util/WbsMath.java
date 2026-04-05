@@ -3,7 +3,9 @@ package wbs.utils.util;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import wbs.utils.WbsUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,9 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public final class WbsMath {
+
+	public static final Vector VECTOR_Y = new Vector(0, 1, 0);
+
 	private WbsMath() {}
 
 	//==========//
@@ -113,6 +118,10 @@ public final class WbsMath {
         return modulo(WbsMath.lerp(0, range, progress) + start, modulo);
 	}
 
+	public static double sineInterpolate(double start, double end, double progress) {
+		return ((Math.sin((progress - 0.5) * Math.PI) + 1) / 2) * (end - start) + start;
+	}
+
 	public static double modulo(double value, double modulo) {
 		value = value % modulo;
 
@@ -161,7 +170,50 @@ public final class WbsMath {
 
 		return flatVector.setY(slopedY);
 	}
-	
+
+	@Contract("_, _, _ -> new")
+	public static Vector rotatePitchYaw(Vector toRotate, Vector from, Vector to) {
+		double sourcePitch = getPitch(toRotate);
+		double sourceYaw = getYaw(toRotate);
+
+		double fromPitch = getPitch(from);
+		double fromYaw = getYaw(from);
+
+		double toPitch = getPitch(to);
+		double toYaw = getYaw(to);
+
+		double pitchDiff = toPitch - fromPitch;
+		double yawDiff = toYaw - fromYaw;
+
+		return vectorFromPitchYaw(toRotate.length(), sourcePitch + pitchDiff, sourceYaw + yawDiff);
+	}
+
+	public static double getYaw(Vector vector) {
+		Vector cloned = vector.clone();
+		return -Math.atan2(cloned.normalize().getX(), cloned.normalize().getZ());
+	}
+
+	public static double getPitch(Vector vector) {
+		return Math.asin(-vector.clone().normalize().getY());
+	}
+
+	public static @NotNull Vector vectorFromPitchYaw(double magnitude, double pitch, double yaw) {
+        double y;
+		double planeMagnitude;
+		if (pitch == 0) {
+			y = 0;
+			planeMagnitude = magnitude;
+		} else {
+			y = (magnitude * Math.sin(0 - pitch));
+			planeMagnitude = Math.min(magnitude, Math.abs(y / Math.tan(0 - pitch)));
+		}
+
+        double x = planeMagnitude * Math.cos(yaw + (Math.PI / 2));
+        double z = planeMagnitude * Math.sin(yaw + (Math.PI / 2));
+
+		return new Vector(x, y, z);
+	}
+
 	/**
 	 * Rotate a list of Vectors based on a vector.
 	 * This method assumes the given vectors are populated around the "from"
@@ -170,6 +222,7 @@ public final class WbsMath {
 	 * @param with The vector of rotation
 	 * @return A copy of toRotate, rotated.
 	 */
+	@Contract("_, _, _ -> new")
 	public static List<Vector> rotateFrom(List<Vector> toRotate, Vector from, Vector with) {
 		Vector aboutVector = with.clone().crossProduct(from);
 		
@@ -178,6 +231,7 @@ public final class WbsMath {
 		return rotateVectors(toRotate, aboutVector, Math.toDegrees(angle));
 	}
 
+	@Contract("_, _, _ -> new")
 	public static Vector rotateFrom(Vector toRotate, Vector from, Vector with) {
 		Vector aboutVector = with.clone().crossProduct(from);
 
@@ -185,7 +239,8 @@ public final class WbsMath {
 
 		return rotateVector(toRotate, aboutVector, Math.toDegrees(angle));
 	}
-	
+
+	@Contract("_, _, _ -> new")
 	public static List<Vector> rotateVectors(List<Vector> toRotate, Vector about, double degrees) {
 		ArrayList<Vector> rotatedList = new ArrayList<>();
 		if (degrees == 0) {
@@ -219,7 +274,8 @@ public final class WbsMath {
 
 		return rotatedList;
 	}
-	
+
+	@Contract("_, _, _ -> new")
 	public static Vector rotateVector(Vector toRotate, Vector about, double degrees) {
 		Vector rotated;
 		if (degrees == 0) {

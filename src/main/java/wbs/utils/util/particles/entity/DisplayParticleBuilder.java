@@ -1,6 +1,7 @@
 package wbs.utils.util.particles.entity;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.LinkedHashMultimap;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
@@ -19,8 +20,6 @@ import java.util.List;
 @NullMarked
 public class DisplayParticleBuilder<T extends Display> extends EntityParticleBuilder<T> {
     public static final int MAX_TP_DURATION = 59;
-    protected boolean doDynamicTeleportDuration = false;
-    protected boolean doDynamicInterpolationDuration = false;
 
     @Range(from = 0, to = 59)
     protected int teleportDuration = 0;
@@ -42,9 +41,7 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
 
     @Override
     protected @NotNull EntityParticle<T> buildInternal(T entity, List<Player> viewers) {
-        return new DisplayParticle<>(entity, usePackets, maxAge, viewers, new HashMap<>(this.keyframes), HashBasedTable.create(this.dynamicKeyframes))
-                .doDynamicTeleportDuration(doDynamicTeleportDuration)
-                .doDynamicInterpolationDuration(doDynamicInterpolationDuration)
+        return new DisplayParticle<>(entity, usePackets, maxAge, viewers, LinkedHashMultimap.create(this.keyframes), LinkedHashMultimap.create(this.dynamicKeyframes))
                 .setAngularVelocity(angularVelocity != null ? angularVelocity.clone() : null)
                 .setAngularDrag(angularDrag)
                 .setTickForce(tickForce != null ? tickForce.clone() : null)
@@ -56,17 +53,6 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
     protected void configure(T display) {
         display.setInterpolationDuration(interpolationDuration);
         display.setTeleportDuration(teleportDuration);
-
-        // Set interpolation as time to first non-zero keyframe
-        keyframes.keySet().stream().mapToInt(val -> val).filter(val -> val > 0).min().ifPresent(firstKeyframe -> {
-            if (doDynamicInterpolationDuration) {
-                display.setInterpolationDuration(firstKeyframe);
-            }
-
-            if (doDynamicTeleportDuration) {
-                display.setTeleportDuration(Math.min(firstKeyframe, MAX_TP_DURATION));
-            }
-        });
 
         display.setTransformation(new Transformation(
                 translation,
@@ -112,22 +98,6 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
 
     public DisplayParticleBuilder<T> setLeftRotation(Quaternionf leftRotation) {
         this.leftRotation = leftRotation;
-        return this;
-    }
-
-    public DisplayParticleBuilder<T> setDoDynamicTeleportDuration(boolean doDynamicTeleportDuration) {
-        this.doDynamicTeleportDuration = doDynamicTeleportDuration;
-        return this;
-    }
-
-    public DisplayParticleBuilder<T> setDoDynamicInterpolationDuration(boolean doDynamicInterpolationDuration) {
-        this.doDynamicInterpolationDuration = doDynamicInterpolationDuration;
-        return this;
-    }
-
-    public DisplayParticleBuilder<T> setDoDynamicDurations(boolean doDynamicDuration) {
-        this.doDynamicInterpolationDuration = doDynamicDuration;
-        this.doDynamicTeleportDuration = doDynamicDuration;
         return this;
     }
 

@@ -46,21 +46,23 @@ public class WbsEventUtils {
         return addedItem;
     }
 
-    public static <T extends Event> void register(WbsPlugin plugin, Class<T> eventClass, EventHandlerMethod<T> handler) {
-        register(plugin, eventClass, handler, EventPriority.NORMAL);
+    public static <T extends Event> EventHandlerMethod<T> register(WbsPlugin plugin, Class<T> eventClass, EventHandlerMethod<T> handler) {
+        return register(plugin, eventClass, handler, EventPriority.NORMAL);
     }
 
-    public static <T extends Event> void register(WbsPlugin plugin, Class<T> eventClass, EventHandlerMethod<T> handler, EventPriority priority) {
-        register(plugin, eventClass, handler, priority, true);
+    public static <T extends Event> EventHandlerMethod<T> register(WbsPlugin plugin, Class<T> eventClass, EventHandlerMethod<T> handler, EventPriority priority) {
+        return register(plugin, eventClass, handler, priority, true);
     }
 
-    public static <T extends Event> void register(WbsPlugin plugin, Class<T> eventClass, EventHandlerMethod<T> handler, EventPriority priority, boolean ignoreCancelled) {
+    public static <T extends Event> EventHandlerMethod<T> register(WbsPlugin plugin, Class<T> eventClass, EventHandlerMethod<T> handler, EventPriority priority, boolean ignoreCancelled) {
         Bukkit.getPluginManager().registerEvent(eventClass,
                 handler,
                 priority,
                 (ignored, event) -> execute(eventClass, handler, event),
                 plugin,
                 ignoreCancelled);
+
+        return handler;
     }
 
     private static <T extends Event> void execute(Class<T> eventClass, EventHandlerMethod<T> handler, Event event) {

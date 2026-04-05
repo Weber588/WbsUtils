@@ -5,8 +5,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import wbs.utils.util.particles.entity.EntityParticle;
+import wbs.utils.util.particles.entity.Keyframe;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -70,8 +73,8 @@ public abstract class KeyframeGenerator<S extends KeyframeGenerator<S, T, V>, T 
         return setter;
     }
 
-    public Map<Integer, Consumer<EntityParticle<T>>> generate() {
-        Map<Integer, Consumer<EntityParticle<T>>> frames = new HashMap<>();
+    public List<Keyframe<T>> generate() {
+        List<Keyframe<T>> frames = new LinkedList<>();
 
         for (int i = getStartTick(); i < getEndTick(); i++) {
             final int tick = i;
@@ -80,7 +83,7 @@ public abstract class KeyframeGenerator<S extends KeyframeGenerator<S, T, V>, T 
                 getSetter().set(particle, getValue(tick));
             };
 
-            frames.put(tick, dynamicKeyframe);
+            frames.add(Keyframe.particle(tick, dynamicKeyframe));
         }
 
         return frames;

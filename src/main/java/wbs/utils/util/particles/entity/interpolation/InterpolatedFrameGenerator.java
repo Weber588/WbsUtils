@@ -3,14 +3,9 @@ package wbs.utils.util.particles.entity.interpolation;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
-import wbs.utils.WbsUtils;
-import wbs.utils.util.WbsMath;
-import wbs.utils.util.particles.entity.EntityParticle;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @NullMarked
 public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGenerator<InterpolatedFrameGenerator<T, V>, T, V> {
@@ -39,19 +34,23 @@ public class InterpolatedFrameGenerator<T extends Entity, V> extends KeyframeGen
         return setFrame(closestTick, value);
     }
 
-    @Override
-    public Map<Integer, Consumer<EntityParticle<T>>> generate() {
-        Map<Integer, Consumer<EntityParticle<T>>> generated = super.generate();
+    public InterpolatedFrameGenerator<T, V> setFrames(Map<Double, V> frames) {
+        this.frames.clear();
 
-        /*
-        WbsUtils.getInstance().getLogger().info(
-                "Frames: " + frames.keySet().stream().sorted().map(frame ->
-                        frame + " (" + frames.get(frame) + ")"
-                ).collect(Collectors.joining(", "))
-        );
-         */
+        frames.forEach(this::setFrame);
 
-        return generated;
+        return this;
+    }
+
+    @SafeVarargs
+    public final InterpolatedFrameGenerator<T, V> setFrames(ValueKeyframe<V>... keyframes) {
+        this.frames.clear();
+
+        for (ValueKeyframe<V> keyframe : keyframes) {
+            setFrame(keyframe.getTick(getEndTick()), keyframe.getValue());
+        }
+
+        return this;
     }
 
     @Override

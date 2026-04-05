@@ -3,33 +3,34 @@ package wbs.utils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
-import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.TypedKey;
+import io.papermc.paper.registry.tag.Tag;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.util.Ticks;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.Vault;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.generator.structure.GeneratedStructure;
 import org.bukkit.generator.structure.Structure;
 import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import wbs.utils.util.WbsColours;
-import wbs.utils.util.WbsKeyed;
-import wbs.utils.util.WbsMath;
+import wbs.utils.util.*;
 import wbs.utils.util.commands.brigadier.WbsCommand;
 import wbs.utils.util.commands.brigadier.WbsSubcommand;
 import wbs.utils.util.commands.brigadier.argument.WbsSimpleArgument;
@@ -37,16 +38,16 @@ import wbs.utils.util.entities.state.EntityStateManager;
 import wbs.utils.util.particles.CuboidParticleEffect;
 import wbs.utils.util.particles.WbsParticleEffect;
 import wbs.utils.util.particles.entity.DisplayParticle;
+import wbs.utils.util.particles.entity.EntityParticle;
 import wbs.utils.util.particles.entity.TextDisplayParticleBuilder;
+import wbs.utils.util.particles.entity.interpolation.InterpolatedFrameGenerator;
+import wbs.utils.util.particles.entity.interpolation.ValueKeyframe;
 import wbs.utils.util.persistent.BlockChunkStorageUtil;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 import wbs.utils.util.pluginhooks.VaultWrapper;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +55,6 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("UnstableApiUsage")
 public class WbsUtils extends WbsPlugin {
-	
 	private static WbsUtils instance = null;
 	public static WbsUtils getInstance() {
 		return instance;
@@ -85,21 +85,67 @@ public class WbsUtils extends WbsPlugin {
 						}),
 						WbsSubcommand.simpleSubcommand(this, "trial_key", context -> {
 							CommandSender sender = context.getSource().getSender();
-                            if (!(sender instanceof Player player)) {
+							if (!(sender instanceof Player player)) {
 								sendMessage("This command is only usable by players.", sender);
 								return;
-                            }
+							}
 
-							;
 							Block targetBlock = player.getTargetBlockExact(5);
-                            if (targetBlock == null || !(targetBlock.getState() instanceof Vault vault)) {
+							if (targetBlock == null || !(targetBlock.getState() instanceof Vault vault)) {
 								sendMessage("Look at a Vault to get its key.", sender);
 								return;
 							}
 
 							player.give(vault.getKeyItem());
 
-                        }),
+						}),
+						WbsSubcommand.simpleSubcommand(this, "blocktags", context -> {
+							CommandSender sender = context.getSource().getSender();
+							if (!(sender instanceof Player player)) {
+								sendMessage("This command is only usable by players.", sender);
+								return;
+							}
+
+							Block targetBlock = player.getTargetBlockExact(5);
+							if (targetBlock == null || targetBlock.getType().isAir()) {
+								sendMessage("Look at a block to check its tags.", sender);
+								return;
+							}
+
+							Set<Tag<@NotNull BlockType>> tags = WbsRegistryUtil.getBlockTagsWith(targetBlock);
+
+
+							Component component = Component.text("In tags: ");
+
+							List<Component> tagComponents = new LinkedList<>();
+
+							for (Tag<@NotNull BlockType> tag : tags) {
+								Component tagEnchants = Component.join(
+										JoinConfiguration.builder().separator(Component.text(", ").color(getTextColour())).build(),
+										tag.values().stream()
+												.distinct()
+												.sorted()
+												.map(TypedKey::key)
+												.map(Key::asString)
+												.map(Component::text)
+												.toList()
+								);
+
+								TextComponent tagComponent = Component.text("#" + tag.tagKey().key().asMinimalString()).color(getTextHighlightColour())
+										.hoverEvent(HoverEvent.showText(tagEnchants));
+
+								tagComponents.add(tagComponent);
+							}
+
+							Component message = component.append(
+									Component.join(
+											JoinConfiguration.builder().separator(Component.text(", ").color(getTextColour())).build(),
+											tagComponents
+									)
+							);
+							// TODO: Make this look better
+							player.sendMessage(message);
+						}),
 						getLocateSubcommand(),
 						WbsSubcommand.simpleSubcommand(this, "testparticle", context -> {
 							CommandSender sender = context.getSource().getSender();
@@ -119,41 +165,57 @@ public class WbsUtils extends WbsPlugin {
 
 							builder.usePackets(true);
 
-							Color color1 = WbsColours.fromHSB(0.067f, 1, 0.5);
-							builder.setColorKeyframe(0f, color1);
-							Color color2 = WbsColours.fromHSB(0.067f, 0.9, 0.25);
-							builder.setColorKeyframe(0.5f, color2);
-							Color color3 = WbsColours.fromHSB(0.067f, 0.001, 0.2);
-							builder.setColorKeyframe(maxAge - 1, color3);
-
 							Vector fieldForce = new Vector(0, 0.03, 0);
 							builder.setTickForce(fieldForce);
 							builder.setDrag(0.25);
 
-							builder.setAngularVelocity(new Vector(0, 0, Math.toRadians(15)));
+							int initialAngularSpeed = 15;
 							builder.setAngularDrag(0.01);
 
 							builder.doBlockCollisions(true);
 
 							double initialSpeed = 0.15;
+							WbsColour color1 = new WbsColour(0.067, 1, 0.5);
+							WbsColour color2 = new WbsColour(0.067, 0.9, 0.25);
+							WbsColour color3 = new WbsColour(0.067, 0.001, 0.2);
+
+							InterpolatedFrameGenerator<@NotNull TextDisplay, Double> scaleFrames = builder.buildInterpolatedKeyframes(WbsMath::sineInterpolate, 1d)
+									.setSetter((display, scale) -> {
+										((DisplayParticle<@NotNull TextDisplay>) display).setScale(scale.floatValue());
+									})
+									.setFrames(
+											ValueKeyframe.of(0d, 1d),
+											ValueKeyframe.of(0.25d, 1d),
+											ValueKeyframe.of(maxAge - 1, 0.01d)
+									);
+
+							builder.fillKeyframes("scale", scaleFrames);
 
 							runTimerNTimes(runnable -> {
 								for (int i = 0; i < 5; i++) {
-									Vector initialVelocityDir = WbsMath.scaleVector(WbsMath.randomVector(5).setY(1), Math.max(0.01, Math.random() * initialSpeed));
+									builder.setColorKeyframe(0f, varyColour(color1));
+									builder.setColorKeyframe(0.5f, varyColour(color2));
+									builder.setColorKeyframe(maxAge - 1, varyColour(color3));
+
+									builder.setAngularVelocity(new Vector(0, 0, Math.toRadians(initialAngularSpeed * (Math.random() > 0.5 ? 1 : -1))));
+
+									Vector initialVelocityDir = WbsMath.scaleVector(WbsMath.randomVector(5), initialSpeed);
 
 									builder.configure(particle -> {
 										particle.setVelocity(initialVelocityDir);
 									});
 
-									builder.setKeyframe(0.25,particle -> {
-										particle.setTickForce(fieldForce.clone().add(initialVelocityDir.multiply(-0.035)));
-									});
-
-									builder.setKeyframe(0.67,particle -> {
-										particle.setTickForce(fieldForce.clone().add(initialVelocityDir.multiply(-1)));
-									});
+									builder.setSimpleKeyframeGroupProgress(
+											"tickForce",
+											EntityParticle::setTickForce,
+											Map.of(
+													0.2, initialVelocityDir.clone().multiply(-0.04).add(fieldForce)
+											)
+									);
 
 									builder.playParticle(spawnLocation.clone().add(initialVelocityDir));
+									runnable.cancel();
+									return;
 								}
 							}, 250, 1, 1);
 						}),
@@ -245,6 +307,10 @@ public class WbsUtils extends WbsPlugin {
 		setDisplays("&8[&7WbsUtils&8]", ChatColor.GRAY, ChatColor.AQUA, ChatColor.RED);
 
 		configure();
+	}
+
+	private static Color varyColour(WbsColour color1) {
+		return color1.clone().shiftHue(Math.random() * 0.05).toBukkitColor();
 	}
 
 	private static @NotNull String colourString(Color color1) {

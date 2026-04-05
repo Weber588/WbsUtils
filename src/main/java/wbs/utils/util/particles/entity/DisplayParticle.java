@@ -1,6 +1,6 @@
 package wbs.utils.util.particles.entity;
 
-import com.google.common.collect.Table;
+import com.google.common.collect.Multimap;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
@@ -12,29 +12,29 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
-import static wbs.utils.util.particles.entity.TextDisplayParticleBuilder.DEFAULT_TEXT_DISPLAY_HEIGHT;
-import static wbs.utils.util.particles.entity.TextDisplayParticleBuilder.DUMB_TEXT_DISPLAY_FIX;
+import static wbs.utils.util.particles.entity.TextDisplayParticleBuilder.*;
 
 @NullMarked
 public class DisplayParticle<T extends Display> extends EntityParticle<T> {
     public static final double MINIMUM_ANGULAR_SPEED = 0.001;
-    protected boolean doDynamicTeleportDuration = false;
-    protected boolean doDynamicInterpolationDuration = false;
 
     @Nullable
     protected Vector angularVelocity = null; // Magnitude is speed (radians per tick), direction is axis of rotation
     protected double angularDrag = 0;
 
+    // Transformation components
+    protected Vector3f translation = new Vector3f();
+    protected Quaternionf rightRotation = new Quaternionf();
+    protected Vector3f scale = new Vector3f();
+    protected Quaternionf leftRotation = new Quaternionf();
 
     public DisplayParticle(T entity,
                            boolean usePackets,
                            int maxAge,
                            List<Player> viewers,
-                           Map<Integer, Consumer<EntityParticle<T>>> keyframes,
-                           Table<String, Integer, Consumer<EntityParticle<T>>> dynamicKeyframes) {
+                           Multimap<String, Keyframe<T>> keyframes,
+                           Multimap<String, Keyframe<T>> dynamicKeyframes) {
         super(entity, usePackets, maxAge, viewers, keyframes, dynamicKeyframes);
     }
 
@@ -42,82 +42,44 @@ public class DisplayParticle<T extends Display> extends EntityParticle<T> {
     protected void startTick(int currentAge) {
         if (angularVelocity != null && angularVelocity.length() > MINIMUM_ANGULAR_SPEED) {
             Transformation transformation = entity.getTransformation();
-            Vector3f translation = transformation.getTranslation();
             Vector3f scale = transformation.getScale();
 
             double angularSpeed = angularVelocity.length();
 
-            Quaternionf updatedRotation = transformation.getLeftRotation().rotateAxis((float) angularSpeed, angularVelocity.toVector3f());
+            Quaternionf updatedRotation = leftRotation.rotateAxis((float) angularSpeed, angularVelocity.toVector3f());
 
             if (entity instanceof TextDisplay) {
-                translation = new Vector3f(0, -1 / DEFAULT_TEXT_DISPLAY_HEIGHT / scale.y / 2, 0)
+                setTranslation(new Vector3f(0, -1 / DEFAULT_TEXT_DISPLAY_HEIGHT / scale.y / 2, 0)
                         .add(DUMB_TEXT_DISPLAY_FIX)
-                        .rotate(updatedRotation);
+                        .rotate(updatedRotation));
             }
 
-            entity.setTransformation(new Transformation(
-                    translation,
-                    updatedRotation,
-                    scale,
-                    transformation.getRightRotation()
-            ));
+            setLeftRotation(updatedRotation);
 
             if (angularDrag > 0) {
                 angularVelocity.normalize().multiply(Math.max(angularSpeed - (angularSpeed * angularDrag), MINIMUM_ANGULAR_SPEED));
             }
         }
+
+        entity.setTransformation(new Transformation(
+                translation,
+                rightRotation,
+                scale,
+                leftRotation
+        ));
     }
 
     @Override
     protected void beforeKeyframe(int currentFrame) {
-        if (!doDynamicInterpolationDuration && !doDynamicTeleportDuration) {
-            return;
-        }
 
-        int lastKeyframe = getLastKeyframe();
-
-        if (currentFrame >= lastKeyframe) {
-            lastKeyframe = maxAge - 1;
-        }
-
-        int nextFrame = getNextKeyframe(currentFrame, lastKeyframe);
-
-        if (doDynamicInterpolationDuration) {
-            // TODO: Figure out why this works differently with packets
-            entity.setInterpolationDuration(nextFrame - currentFrame);
-        }
-        if (doDynamicTeleportDuration) {
-            entity.setTeleportDuration(Math.clamp(nextFrame - currentFrame, 0, DisplayParticleBuilder.MAX_TP_DURATION));
-        }
-    }
-
-    public int getNextKeyframe(int currentFrame, int lastKeyframe) {
-        int nextFrame = lastKeyframe;
-        for (int i = currentFrame + 1; i <= lastKeyframe; i++) {
-            if (keyframes.containsKey(i)) {
-                nextFrame = i;
-                break;
-            }
-        }
-        return nextFrame;
-    }
-
-    public int getLastKeyframe() {
-        return keyframes.keySet().stream().mapToInt(val -> val).max().orElseThrow();
-    }
-
-    public DisplayParticle<T> doDynamicTeleportDuration(boolean doDynamicTeleportDuration) {
-        this.doDynamicTeleportDuration = doDynamicTeleportDuration;
-        return this;
-    }
-
-    public DisplayParticle<T> doDynamicInterpolationDuration(boolean doDynamicInterpolationDuration) {
-        this.doDynamicInterpolationDuration = doDynamicInterpolationDuration;
-        return this;
     }
 
     public DisplayParticle<T> setAngularVelocity(@Nullable Vector angularVelocity) {
-        this.angularVelocity = angularVelocity;
+        if (angularVelocity != null) {
+            this.angularVelocity = angularVelocity.clone();
+        } else {
+            this.angularVelocity = null;
+        }
         return this;
     }
 
@@ -150,5 +112,29 @@ public class DisplayParticle<T extends Display> extends EntityParticle<T> {
 
     public double getAngularDrag() {
         return angularDrag;
+    }
+
+    public DisplayParticle<T> setTranslation(Vector3f translation) {
+        this.translation = translation;
+        return this;
+    }
+
+    public DisplayParticle<T> setRightRotation(Quaternionf rightRotation) {
+        this.rightRotation = rightRotation;
+        return this;
+    }
+
+    public DisplayParticle<T> setScale(Vector3f scale) {
+        this.scale = new Vector3f(scale).mul(SCALE_TO_SQUARE);
+        return this;
+    }
+
+    public DisplayParticle<T> setScale(float scale) {
+        return setScale(new Vector3f(scale));
+    }
+
+    public DisplayParticle<T> setLeftRotation(Quaternionf leftRotation) {
+        this.leftRotation = leftRotation;
+        return this;
     }
 }

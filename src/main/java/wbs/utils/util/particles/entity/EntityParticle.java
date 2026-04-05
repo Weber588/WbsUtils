@@ -1,7 +1,7 @@
 package wbs.utils.util.particles.entity;
 
 import com.github.retrooper.packetevents.util.reflection.Reflection;
-import com.google.common.collect.Table;
+import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static org.jetbrains.annotations.ApiStatus.OverrideOnly;
@@ -29,8 +28,8 @@ public class EntityParticle<T extends Entity> {
     protected final T entity;
     protected final boolean usePackets;
     protected final List<Player> viewers;
-    protected final Map<Integer, Consumer<EntityParticle<T>>> keyframes;
-    protected final Table<String, Integer, Consumer<EntityParticle<T>>> dynamicKeyframes;
+    protected final Multimap<String, Keyframe<T>> keyframes;
+    protected final Multimap<String, Keyframe<T>> dynamicKeyframes;
 
     protected boolean doBlockCollisions = false;
 
@@ -47,8 +46,8 @@ public class EntityParticle<T extends Entity> {
                           boolean usePackets,
                           int maxAge,
                           List<Player> viewers,
-                          Map<Integer, Consumer<EntityParticle<T>>> keyframes,
-                          Table<String, Integer, Consumer<EntityParticle<T>>> dynamicKeyframes) {
+                          Multimap<String, Keyframe<T>> keyframes,
+                          Multimap<String, Keyframe<T>> dynamicKeyframes) {
         this.entity = entity;
         this.usePackets = usePackets;
         this.maxAge = maxAge;
@@ -106,7 +105,7 @@ public class EntityParticle<T extends Entity> {
 
         startTick(currentAge);
 
-        playKeyframeIfPresent(currentAge);
+        playKeyframes(currentAge);
 
         if (usePackets) {
             viewers.forEach(viewer -> {
@@ -152,20 +151,9 @@ public class EntityParticle<T extends Entity> {
         });
     }
 
-    private void playKeyframeIfPresent(int currentAge) {
-        Consumer<EntityParticle<T>> keyframe = keyframes.get(currentAge);
-        if (keyframe != null) {
-            beforeKeyframe(currentAge);
-            playKeyframe(currentAge, keyframe);
-            afterKeyframe(currentAge);
-        }
-
-        dynamicKeyframes.rowMap().forEach((key, column) -> {
-            Consumer<EntityParticle<T>> dynamicKeyframe = column.get(currentAge);
-            if (dynamicKeyframe != null) {
-                dynamicKeyframe.accept(this);
-            }
-        });
+    private void playKeyframes(int currentAge) {
+        keyframes.values().forEach(keyframe -> keyframe.runIfMatch(this, currentAge));
+        dynamicKeyframes.values().forEach(keyframe -> keyframe.runIfMatch(this, currentAge));
     }
 
     @OverrideOnly
@@ -242,7 +230,11 @@ public class EntityParticle<T extends Entity> {
     }
 
     public EntityParticle<T> setTickForce(@Nullable Vector tickForce) {
-        this.tickForce = tickForce;
+        if (tickForce != null) {
+            this.tickForce = tickForce.clone();
+        } else {
+            this.tickForce = null;
+        }
         return this;
     }
 

@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.WbsUtils;
 import wbs.utils.util.WbsLocationUtil;
+import wbs.utils.util.WbsMath;
 
 import java.util.Set;
 import java.util.logging.Logger;
@@ -99,18 +100,7 @@ public final class WbsEntityUtil {
         double pitch = Math.toRadians(entity.getLocation().getPitch());
         double yaw = Math.toRadians(entity.getLocation().getYaw());
 
-        double planeMagnitude;
-        if (pitch == 0) {
-            y = 0;
-            planeMagnitude = magnitude;
-        } else {
-            y = (magnitude * Math.sin(0 - pitch));
-            planeMagnitude = Math.min(magnitude, Math.abs(y / Math.tan(0 - pitch)));
-        }
-        x = planeMagnitude * Math.cos(yaw + (Math.PI/2));
-        z = planeMagnitude * Math.sin(yaw + (Math.PI/2));
-
-        return new Vector(x, y, z);
+        return WbsMath.vectorFromPitchYaw(magnitude, pitch, yaw);
     }
 
     @NotNull

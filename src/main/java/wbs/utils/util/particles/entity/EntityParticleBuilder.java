@@ -1,27 +1,19 @@
 package wbs.utils.util.particles.entity;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
+import com.google.common.collect.*;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import wbs.utils.WbsUtils;
-import wbs.utils.util.particles.entity.interpolation.DynamicKeyframeGenerator;
-import wbs.utils.util.particles.entity.interpolation.InterpolatedFrameGenerator;
-import wbs.utils.util.particles.entity.interpolation.KeyframeGenerator;
-import wbs.utils.util.particles.entity.interpolation.ParticleValueSupplier;
+import wbs.utils.util.particles.entity.interpolation.*;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@SuppressWarnings("unused")
 @NullMarked
 public class EntityParticleBuilder<T extends Entity> {
     public static List<Player> getViewers(Location location, @Nullable Player player) {
@@ -48,9 +40,8 @@ public class EntityParticleBuilder<T extends Entity> {
     protected Vector tickForce = null; // Applied to the entity every tick
     protected double drag = 0;
 
-    protected final Map<Integer, Consumer<EntityParticle<T>>> keyframes = new HashMap<>();
-    protected final Table<String, Integer, ?> interpolatedFrames = HashBasedTable.create();
-    protected final Table<String, Integer, Consumer<EntityParticle<T>>> dynamicKeyframes = HashBasedTable.create();
+    protected final Multimap<String, Keyframe<T>> keyframes = LinkedHashMultimap.create();
+    protected final Multimap<String, Keyframe<T>> dynamicKeyframes = LinkedHashMultimap.create();
 
     public EntityParticleBuilder(Class<T> entityClass) {
         this.entityClass = entityClass;
@@ -81,7 +72,7 @@ public class EntityParticleBuilder<T extends Entity> {
     }
 
     protected @NotNull EntityParticle<T> buildInternal(T entity, List<Player> viewers) {
-        return new EntityParticle<>(entity, usePackets, maxAge, viewers, new HashMap<>(this.keyframes), HashBasedTable.create(this.dynamicKeyframes))
+        return new EntityParticle<>(entity, usePackets, maxAge, viewers, HashMultimap.create(this.keyframes), HashMultimap.create(this.dynamicKeyframes))
                 .setTickForce(tickForce != null ? tickForce.clone() : null)
                 .setDrag(drag)
                 .doBlockCollisions(doBlockCollisions);
@@ -112,62 +103,39 @@ public class EntityParticleBuilder<T extends Entity> {
         return this;
     }
 
-    public EntityParticleBuilder<T> setKeyframe(int tick, Consumer<EntityParticle<T>> keyframe) {
-        Preconditions.checkArgument(tick >= 0, "tick cannot be negative.");
-        Preconditions.checkArgument(tick < maxAge, "tick must be less than maxAge");
+    public <V> EntityParticleBuilder<T> setSimpleKeyframeGroup(String group, ParticleSetter<T, V> setter, Map<Integer, V> frames) {
+        this.keyframes.removeAll(group);
 
-        this.keyframes.put(tick, keyframe);
+        frames.forEach((frame, value) -> {
+            this.keyframes.put(group, Keyframe.particle(frame,particle -> setter.set(particle, value)));
+        });
+
         return this;
     }
 
-    public EntityParticleBuilder<T> setKeyframe(@Range(from = 0, to = 1) double progress, Consumer<EntityParticle<T>> keyframe) {
-        Preconditions.checkArgument(progress >= 0, "progress cannot be negative.");
-        Preconditions.checkArgument(progress <= 1, "progress must be less than or equal to 1");
+    public <V> EntityParticleBuilder<T> setSimpleKeyframeGroupProgress(String group, ParticleSetter<T, V> setter, Map<Double, V> frames) {
+        this.keyframes.removeAll(group);
 
-        if (maxAge <= 0) {
-            throw new IllegalStateException("Cannot set relative keyframe before maxAge is set.");
-        }
+        frames.forEach((frame, value) -> {
+            this.keyframes.put(group, Keyframe.particle(frame,particle -> setter.set(particle, value)));
+        });
 
-        int closestTick = (int) Math.clamp((((double) maxAge - 1) * progress), 0, maxAge);
-
-        prependKeyframe(closestTick, keyframe);
         return this;
     }
 
-    public EntityParticleBuilder<T> setEntityKeyframe(int tick, Consumer<? super T> keyframe) {
-        return setKeyframe(tick, particle -> keyframe.accept(particle.getEntity()));
+    public EntityParticleBuilder<T> setKeyframe(String group, Keyframe<T> keyframe) {
+        clearKeyframes(group);
+        this.keyframes.put(group, keyframe);
+        return this;
     }
 
-    public EntityParticleBuilder<T> appendKeyframe(int tick, Consumer<EntityParticle<T>> runAfterExisting) {
-        Consumer<EntityParticle<T>> currentKeyframe = this.keyframes.get(tick);
-
-        if (currentKeyframe != null) {
-            Consumer<EntityParticle<T>> existingKeyframe = currentKeyframe;
-            currentKeyframe = particle -> {
-                existingKeyframe.accept(particle);
-                runAfterExisting.accept(particle);
-            };
-        } else {
-            currentKeyframe = runAfterExisting;
-        }
-
-        return setKeyframe(tick, currentKeyframe);
+    public EntityParticleBuilder<T> addKeyframe(String group, Keyframe<T> keyframe) {
+        this.keyframes.put(group, keyframe);
+        return this;
     }
 
-    public EntityParticleBuilder<T> prependKeyframe(int tick, Consumer<EntityParticle<T>> runAfterExisting) {
-        Consumer<EntityParticle<T>> currentKeyframe = this.keyframes.get(tick);
-
-        if (currentKeyframe != null) {
-            Consumer<EntityParticle<T>> existingKeyframe = currentKeyframe;
-            currentKeyframe = particle -> {
-                runAfterExisting.accept(particle);
-                existingKeyframe.accept(particle);
-            };
-        } else {
-            currentKeyframe = runAfterExisting;
-        }
-
-        setKeyframe(tick, currentKeyframe);
+    public EntityParticleBuilder<T> clearKeyframes(String group) {
+        this.keyframes.removeAll(group);
         return this;
     }
 
@@ -184,21 +152,25 @@ public class EntityParticleBuilder<T extends Entity> {
     }
 
     public <V> EntityParticleBuilder<T> fillKeyframes(String key, KeyframeGenerator<?, T, V> builder) {
-        this.dynamicKeyframes.rowMap().remove(key);
+        this.dynamicKeyframes.removeAll(key);
 
-        builder.generate().forEach((tick, keyframe) -> {
-            dynamicKeyframes.put(key, tick, keyframe);
+        builder.generate().forEach(keyframe -> {
+            dynamicKeyframes.put(key, keyframe);
         });
         return this;
     }
 
-    public <V> EntityParticleBuilder<T> removeDynamicKeyframes(String key) {
-        this.dynamicKeyframes.rowMap().remove(key);
+    public EntityParticleBuilder<T> removeDynamicKeyframes(String key) {
+        this.dynamicKeyframes.removeAll(key);
         return this;
     }
 
     public EntityParticleBuilder<T> setTickForce(@Nullable Vector tickForce) {
-        this.tickForce = tickForce;
+        if (tickForce != null) {
+            this.tickForce = tickForce.clone();
+        } else {
+            this.tickForce = null;
+        }
         return this;
     }
 

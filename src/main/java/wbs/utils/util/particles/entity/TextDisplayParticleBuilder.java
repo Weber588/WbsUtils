@@ -12,10 +12,10 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import wbs.utils.WbsUtils;
 import wbs.utils.util.WbsColours;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.particles.entity.interpolation.InterpolatedFrameGenerator;
+import wbs.utils.util.particles.entity.interpolation.ValueKeyframe;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ import java.util.Objects;
 
 @NullMarked
 public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDisplay> {
-    private static final Vector3f SCALE_TO_SQUARE = new Vector3f(2f, 1f, 2f);
+    static final Vector3f SCALE_TO_SQUARE = new Vector3f(2f, 1f, 2f);
     public static final @NotNull TextComponent DEFAULT_TEXT = Component.text(" ");
     private @Nullable TextComponent text;
 
@@ -122,7 +122,7 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
             throw new IllegalStateException("Cannot set relative keyframe before maxAge is set.");
         }
 
-        int closestTick = (int) Math.clamp((((double) maxAge) * progress), 0, maxAge);
+        int closestTick = getClosestTick(progress);
 
         return setRotationDynamicKeyframe(closestTick, radians);
     }
@@ -138,8 +138,31 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
             throw new IllegalStateException("Cannot set relative keyframe before maxAge is set.");
         }
 
-        int closestTick = (int) Math.clamp((((double) maxAge) * progress), 0, maxAge);
+        int closestTick = getClosestTick(progress);
 
         return setColorKeyframe(closestTick, color);
     }
+
+    private int getClosestTick(double progress) {
+        return (int) Math.clamp((((double) maxAge) * progress), 0, maxAge);
+    }
+
+    public TextDisplayParticleBuilder setColorFrames(Map<Double, Color> frames) {
+        this.colorFrames.clear();
+
+        frames.forEach(this::setColorKeyframe);
+
+        return this;
+    }
+    @SafeVarargs
+    public final TextDisplayParticleBuilder setColorFrames(ValueKeyframe<Color> ... keyframes) {
+        this.colorFrames.clear();
+
+        for (ValueKeyframe<Color> keyframe : keyframes) {
+            setColorKeyframe(keyframe.getTick(maxAge - 1), keyframe.getValue());
+        }
+
+        return this;
+    }
+
 }
