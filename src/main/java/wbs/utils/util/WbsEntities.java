@@ -188,7 +188,7 @@ public final class WbsEntities {
 	 * @param radius The radius around the location to check in.
 	 * @param exclude A set of entities to ignore
 	 * @param clazz The type of LivingEntity to be retrieved
-	 * @param predicate A predicate to filter by before returning
+	 * @param predicate A testObjChecker to filter by before returning
 	 * @return A Set of LivingEntities within the radius specified with range.
 	 */
 	public static <T extends Entity> Set<T> getNearbySpherical(Location loc, double radius, Set<T> exclude, Class<T> clazz, Predicate<T> predicate) {

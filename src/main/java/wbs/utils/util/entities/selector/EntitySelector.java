@@ -263,11 +263,11 @@ public abstract class EntitySelector<T extends Entity, E extends EntitySelector<
     }
 
     /**
-     * @return A new predicate against Entity that returns true if:
+     * @return A new testObjChecker against Entity that returns true if:
      * <ul>
      *     <li>The entity is of type {@link T};</li>
      *     <li>The entity is not in the exclusion list as defined by {@link #exclude(Collection)}; and</li>
-     *     <li>The custom predicate returns true, as defined by {@link #setPredicate(Predicate)}</li>
+     *     <li>The custom testObjChecker returns true, as defined by {@link #setPredicate(Predicate)}</li>
      * </ul>
      */
     @NotNull
@@ -278,7 +278,7 @@ public abstract class EntitySelector<T extends Entity, E extends EntitySelector<
 
     /**
      * @param entity The entity to test.
-     * @return true if the entity is not excluded, and the custom predicate passes.
+     * @return true if the entity is not excluded, and the custom testObjChecker passes.
      */
     protected boolean isValid(T entity) {
         return !exclude.contains(entity) && predicate.test(entity);
@@ -321,7 +321,7 @@ public abstract class EntitySelector<T extends Entity, E extends EntitySelector<
     }
 
     /**
-     * The current entity predicate.
+     * The current entity testObjChecker.
      * @return The same object.
      */
     public final @NotNull Predicate<T> getPredicate() {
@@ -329,7 +329,7 @@ public abstract class EntitySelector<T extends Entity, E extends EntitySelector<
     }
 
     /**
-     * @param predicate The new predicate
+     * @param predicate The new testObjChecker
      * @return The same object.
      */
     public final E setPredicate(Predicate<T> predicate) {
@@ -338,7 +338,7 @@ public abstract class EntitySelector<T extends Entity, E extends EntitySelector<
     }
 
     /**
-     * @param predicate The new predicate, which will also require a test for being an instance of T.
+     * @param predicate The new testObjChecker, which will also require a test for being an instance of T.
      * @return The same object.
      */
     public final E setPredicateRaw(Predicate<Entity> predicate) {

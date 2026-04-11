@@ -16,6 +16,11 @@ public class InvalidConfigurationException extends RuntimeException {
     public InvalidConfigurationException() {
         isLogged = true;
     }
+
+    /**
+     * @deprecated Use {@link InvalidConfigurationException#InvalidConfigurationException(String, String)}
+     */
+    @Deprecated
     public InvalidConfigurationException(String msg) {
         super(msg);
     }

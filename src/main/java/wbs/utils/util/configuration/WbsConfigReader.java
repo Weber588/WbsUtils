@@ -5,6 +5,7 @@ import io.papermc.paper.registry.RegistryKey;
 import org.apache.commons.lang.math.NumberRange;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
@@ -20,13 +21,9 @@ import wbs.utils.util.string.WbsStrings;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * A static class to read configs and automatically provide errors to the WbsSettings object without external logic
@@ -112,7 +109,7 @@ public final class WbsConfigReader {
     }
 
     /**
-     * Get a list of {@link T} from a String list
+     * Get a required enum from a ConfigurationSection, and throw an error if missing.
      * @param section The section to read from
      * @param field The name of the field that contains a String to parse as {@link T}
      * @param settings The settings to log to if a value is invalid for the given enum class
@@ -126,7 +123,7 @@ public final class WbsConfigReader {
     }
 
     /**
-     * Get a list of {@link T} from a String list
+     * Get a required enum from a ConfigurationSection, and throw an error if missing.
      * @param section The section to read from
      * @param field The name of the field that contains a String to parse as {@link T}
      * @param settings The settings to log to if a value is invalid for the given enum class
@@ -140,7 +137,7 @@ public final class WbsConfigReader {
     }
 
     /**
-     * Get a list of {@link T} from a String list
+     * Get an enum from a ConfigurationSection
      * @param section The section to read from
      * @param field The name of the field that contains a String to parse as {@link T}
      * @param settings The settings to log to if a value is invalid for the given enum class
@@ -611,5 +608,62 @@ public final class WbsConfigReader {
         }
 
         return null;
+    }
+
+    /// Gets a list of sections at the given path.
+    ///
+    /// If path does not exist, or is not a collection or configuration section, an empty list is returned.
+    ///
+    /// # Example
+    /// ```yaml
+    /// # Returns 3 anonymous sections, the last of which is empty
+    /// root1:
+    ///   - key1: value1
+    ///     key2:
+    ///       key3: value2
+    ///   - key4:
+    ///       key5: value3
+    ///   - {}
+    /// ```
+    /// @param section The section to read the path below.
+    /// @param path The path at which the method will attempt to read a list of sections.
+    /// @return A list of sections, either from a map list, or from child configuration sections. Order is not guaranteed for map-like sections.
+    @NotNull
+    public static List<@NotNull ConfigurationSection> getSectionList(ConfigurationSection section, String path) {
+        List<@NotNull ConfigurationSection> sections = new ArrayList<>();
+
+        Object rawValue = section.get(path);
+        if (rawValue == null) {
+            return sections;
+        }
+
+        if (!(rawValue instanceof Collection<?>)) {
+            return sections;
+        }
+
+        List<Map<?, ?>> mapList = section.getMapList(path);
+        if (!mapList.isEmpty()) {
+            for (Map<?, ?> value : mapList) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> map = (Map<String, Object>) value;
+
+                // Can be empty if an empty json object is provided, like `- {}`
+                if (map.isEmpty()) {
+                    continue;
+                }
+
+                ConfigurationSection root = new MemoryConfiguration();
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    if (entry.getValue() instanceof Map<?, ?> subMap) {
+                        root.createSection(entry.getKey(), subMap);
+                    } else {
+                        root.set(entry.getKey(), entry.getValue());
+                    }
+                }
+                sections.add(root);
+            }
+        }
+
+        return sections;
     }
 }
