@@ -36,7 +36,7 @@ public class ConnectionWrapper {
         try {
             return DriverManager.getConnection(database.getDatabasePath());
         } catch (SQLException dbException) {
-            plugin.logger.info("Database failed to connect.");
+            plugin.getLogger().info("Database failed to connect.");
             dbException.printStackTrace();
             return null;
         }

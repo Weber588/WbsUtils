@@ -2,7 +2,7 @@ main: wbs.utils.WbsUtils
 bootstrapper: wbs.utils.WbsUtilsBootstrap
 name: WbsUtils
 version: 0.0.1
-api-version: 1.21.1
+api-version: 26.2.1
 author: Weber588
 load: STARTUP
 

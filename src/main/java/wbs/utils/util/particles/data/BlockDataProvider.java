@@ -227,4 +227,9 @@ public class BlockDataProvider implements BlockData, Provider {
     public void copyTo(@NotNull BlockData blockData) {
         current.copyTo(blockData);
     }
+
+    @Override
+    public boolean isReplaceable() {
+        return current.isReplaceable();
+    }
 }

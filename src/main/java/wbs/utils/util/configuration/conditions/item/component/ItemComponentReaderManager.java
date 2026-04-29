@@ -1,39 +1,38 @@
 package wbs.utils.util.configuration.conditions.item.component;
 
-import org.bukkit.configuration.ConfigurationSection;
-import org.jspecify.annotations.Nullable;
-import wbs.utils.util.configuration.ConfigConstructor;
-import wbs.utils.util.configuration.SectionConfigConstructor;
-import wbs.utils.util.plugin.WbsSettings;
+import io.papermc.paper.datacomponent.DataComponentType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.Keyed;
+import org.bukkit.NamespacedKey;
+import wbs.utils.util.configuration.RegexRoutedConstructorManager;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class ItemComponentReaderManager {
-    private static final Set<RegisteredReader> READERS = new HashSet<>();
+@SuppressWarnings({"rawtypes", "UnstableApiUsage"})
+public class ItemComponentReaderManager extends RegexRoutedConstructorManager<ItemComponentReader> {
+    public static final ItemComponentReaderManager INSTANCE = new ItemComponentReaderManager(ItemComponentReader.class);
 
     static {
-        register("attribute", AttributeValueReader::new);
-        register("damage", DamageReader::new);
+        RegistryAccess.registryAccess().getRegistry(RegistryKey.DATA_COMPONENT_TYPE).stream().forEach(type -> {
+            if (type instanceof DataComponentType.Valued<?> valued) {
+                //noinspection unchecked
+                INSTANCE.register(getRegexForKey(valued), () -> new RawComponentReader(valued));
+            }
+        });
+
+        INSTANCE.register("(minecraft:)?attribute((_|\\s)modifiers?)?", AttributeValueReader::new);
+        INSTANCE.register(getRegexForKey(DataComponentTypes.DAMAGE), DamageReader::new);
     }
 
-    public static void register(String regex, SectionConfigConstructor<? extends ItemComponentReader<?>> constructor) {
-        READERS.add(new RegisteredReader(regex, constructor));
+    private static String getRegexForKey(Keyed keyed) {
+        return getRegexForKey(keyed.getKey());
     }
-    public static void register(String regex, ConfigConstructor<? extends ItemComponentReader<?>> constructor) {
-        READERS.add(new RegisteredReader(regex, constructor));
-    }
-
-    public static ItemComponentReader<?> buildReader(ConfigurationSection parent, String key, @Nullable WbsSettings settings, @Nullable String directory) {
-        return READERS.stream()
-                .filter(reader -> key.matches(reader.regex))
-                .findFirst()
-                .map(registration -> registration.constructor.construct(parent, key, settings, directory))
-                .orElse(null);
+    private static String getRegexForKey(NamespacedKey key) {
+        //noinspection RedundantEscapeInRegexReplacement
+        return "(" + key.namespace() + ":)?" + (key.getKey().replaceAll("_", "(_|\\s)"));
     }
 
-    private record RegisteredReader(
-            String regex,
-            ConfigConstructor<? extends ItemComponentReader<?>> constructor
-    ) {}
+    private ItemComponentReaderManager(Class<ItemComponentReader> classToConstruct) {
+        super(classToConstruct);
+    }
 }

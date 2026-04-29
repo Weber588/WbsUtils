@@ -72,7 +72,7 @@ public class WbsTable {
             PreparedStatement statement = connection.prepareStatement(query);
 
             if (debugMode) {
-                database.getPlugin().logger.info("addFieldIfNotExists: " + statement);
+                database.getPlugin().getLogger().info("addFieldIfNotExists: " + statement);
             }
 
             statement.execute();
@@ -124,7 +124,7 @@ public class WbsTable {
             PreparedStatement statement = connection.prepareStatement(query);
 
             if (debugMode) {
-                database.getPlugin().logger.info("updateField: " + statement);
+                database.getPlugin().getLogger().info("updateField: " + statement);
             }
 
             statement.execute();
@@ -220,7 +220,7 @@ public class WbsTable {
             statement.setObject(1, match);
 
             if (debugMode) {
-                database.getPlugin().logger.info("selectOnField: " + statement);
+                database.getPlugin().getLogger().info("selectOnField: " + statement);
             }
 
             records = database.select(statement);
@@ -263,7 +263,7 @@ public class WbsTable {
             }
 
             if (debugMode) {
-                database.getPlugin().logger.info("selectOnField: " + statement);
+                database.getPlugin().getLogger().info("selectOnField: " + statement);
             }
 
             records = database.select(statement);
@@ -305,7 +305,7 @@ public class WbsTable {
             }
 
             if (debugMode) {
-                database.getPlugin().logger.info("upsert (insert/update sort): " + statement);
+                database.getPlugin().getLogger().info("upsert (insert/update sort): " + statement);
             }
 
             ResultSet set = statement.executeQuery();
@@ -392,7 +392,7 @@ public class WbsTable {
         try (Connection connection = database.getConnection()){
             return insert(records, connection);
         } catch (SQLException e) {
-            database.getPlugin().logger.info("Failed to insert; connection error.");
+            database.getPlugin().getLogger().info("Failed to insert; connection error.");
             e.printStackTrace();
         } catch (WbsDatabaseException e) {
             Logger logger = database.getPlugin().logger;
@@ -433,7 +433,7 @@ public class WbsTable {
         try (Connection connection = database.getConnection()){
             return update(records, connection, whereClause);
         } catch (SQLException e) {
-            database.getPlugin().logger.info("Failed to update; connection error.");
+            database.getPlugin().getLogger().info("Failed to update; connection error.");
             e.printStackTrace();
         } catch (WbsDatabaseException e) {
             Logger logger = database.getPlugin().logger;
@@ -502,7 +502,7 @@ public class WbsTable {
                         if (hasDefault) {
                             field.prepare(statement, index, field.getDefaultValue());
                         } else {
-                            database.getPlugin().logger.info("Missing required field: " + field.getFieldName());
+                            database.getPlugin().getLogger().info("Missing required field: " + field.getFieldName());
                             return false;
                         }
                     } else {
@@ -514,7 +514,7 @@ public class WbsTable {
             }
 
             if (debugMode) {
-                database.getPlugin().logger.info("update: " + statement);
+                database.getPlugin().getLogger().info("update: " + statement);
             }
 
             statement.executeUpdate();
@@ -544,7 +544,7 @@ public class WbsTable {
                     if (hasDefault) {
                         field.prepare(statement, index, field.getDefaultValue());
                     } else {
-                        database.getPlugin().logger.info("Missing required field: " + field.getFieldName());
+                        database.getPlugin().getLogger().info("Missing required field: " + field.getFieldName());
                         return false;
                     }
                 } else {
@@ -557,7 +557,7 @@ public class WbsTable {
         }
 
         if (debugMode) {
-            database.getPlugin().logger.info("runWithRecord: " + statement);
+            database.getPlugin().getLogger().info("runWithRecord: " + statement);
         }
 
         statement.executeUpdate();

@@ -58,7 +58,7 @@ public class WbsDatabase {
         if (!plugin.getDataFolder().exists()) {
             boolean success = plugin.getDataFolder().mkdir();
             if (!success) {
-                plugin.logger.severe("Plugin folder failed to create");
+                plugin.getLogger().severe("Plugin folder failed to create");
             }
             return success;
         }
@@ -86,10 +86,10 @@ public class WbsDatabase {
 
         try (Connection connection = connectionWrapper.getConnection()) {
             if (connection == null) {
-                plugin.logger.severe("Database \"" + dbName + "\" failed to create.");
+                plugin.getLogger().severe("Database \"" + dbName + "\" failed to create.");
             }
         } catch (SQLException e) {
-            plugin.logger.severe("Database \"" + dbName + "\" failed to create.");
+            plugin.getLogger().severe("Database \"" + dbName + "\" failed to create.");
             e.printStackTrace();
             return false;
         }
@@ -109,14 +109,14 @@ public class WbsDatabase {
                     connection.prepareStatement(tableCreationQuery).executeUpdate();
 
                 } catch (SQLException e) {
-                    plugin.logger.info("Query: " + tableCreationQuery);
+                    plugin.getLogger().info("Query: " + tableCreationQuery);
                     throw e;
                 }
             }
 
             return true;
         } catch (SQLException e) {
-            plugin.logger.severe("Failed to create tables.");
+            plugin.getLogger().severe("Failed to create tables.");
             e.printStackTrace();
             return false;
         }
@@ -152,7 +152,7 @@ public class WbsDatabase {
             set.close();
             return records;
         } catch (SQLException e) {
-            plugin.logger.severe("Selection failed: " + query);
+            plugin.getLogger().severe("Selection failed: " + query);
             e.printStackTrace();
             return records;
         }
@@ -172,7 +172,7 @@ public class WbsDatabase {
                 return null;
             }
         } catch (SQLException e) {
-            plugin.logger.severe("Query failed to run: " + query);
+            plugin.getLogger().severe("Query failed to run: " + query);
             e.printStackTrace();
             return null;
         }
@@ -187,7 +187,7 @@ public class WbsDatabase {
             statement.execute();
             return true;
         } catch (SQLException e) {
-            plugin.logger.severe("Query failed to run: " + query);
+            plugin.getLogger().severe("Query failed to run: " + query);
             e.printStackTrace();
             return false;
         }

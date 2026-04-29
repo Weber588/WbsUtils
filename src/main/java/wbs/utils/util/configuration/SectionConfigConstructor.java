@@ -9,16 +9,16 @@ import wbs.utils.util.plugin.WbsSettings;
 @NullMarked
 @FunctionalInterface
 public interface SectionConfigConstructor<T> extends ConfigConstructor<T> {
-    T construct(ConfigurationSection section, @Nullable WbsSettings settings, @Nullable String directory);
+    T construct(ConfigurationSection section, @Nullable WbsSettings settings, @Nullable String directory) throws InvalidConfigurationException;
 
     @Override
-    default T construct(ConfigurationSection parent, String key, @Nullable WbsSettings settings, @Nullable String directory) {
+    default T construct(ConfigurationSection parent, String key, @Nullable WbsSettings settings, @Nullable String directory) throws InvalidConfigurationException {
         ConfigurationSection section = parent.getConfigurationSection(key);
 
         if (section == null) {
-            throw new InvalidConfigurationException("Must be a section.", directory + "/key");
+            throw new InvalidConfigurationException("Must be a section.", directory + "/" + key);
         }
 
-        return construct(section, settings, directory);
+        return construct(section, settings, directory + "/" + key);
     }
 }

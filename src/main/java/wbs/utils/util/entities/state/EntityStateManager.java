@@ -95,7 +95,7 @@ public final class EntityStateManager {
         Class<? extends EntityState<?>> clazz = registeredClasses.get(escapedClassName);
 
         if (clazz == null) {
-            WbsUtils.getInstance().logger.warning("Registered class not found: " + escapedClassName);
+            WbsUtils.getInstance().getLogger().warning("Registered class not found: " + escapedClassName);
             return null;
         }
 
@@ -103,7 +103,7 @@ public final class EntityStateManager {
                 deserializers.get(clazz);
 
         if (deserializer == null) {
-            WbsUtils.getInstance().logger.warning("Deserializer not found for class " + escapedClassName);
+            WbsUtils.getInstance().getLogger().warning("Deserializer not found for class " + escapedClassName);
             return null;
         }
 

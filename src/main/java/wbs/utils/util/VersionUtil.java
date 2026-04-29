@@ -26,13 +26,13 @@ public final class VersionUtil {
      */
     public static double getVersion() {
         if (serverVersion == -1) {
-            String versionString = Bukkit.getBukkitVersion();
-            versionString = versionString.split("-")[0].substring(2);
+            String versionString = Bukkit.getMinecraftVersion();
+            String versionSubstring = versionString.split("-")[0].replaceFirst("1\\.", "");
             try {
-                serverVersion = Double.parseDouble(versionString);
+                serverVersion = Double.parseDouble(versionSubstring);
             } catch (NumberFormatException e) {
-                WbsUtils.getInstance().logger.warning("The server version failed to parse: " + versionString);
-                WbsUtils.getInstance().logger.warning("This may limit functionality to API Version 1.14.");
+                WbsUtils.getInstance().getLogger().warning("The server version failed to parse: " + versionSubstring + " from total version " + versionString);
+                WbsUtils.getInstance().getLogger().warning("This may limit functionality to API Version 1.14.");
                 serverVersion = -2; // Only display this message once then stop trying.
             }
         }

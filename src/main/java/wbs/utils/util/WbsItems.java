@@ -91,6 +91,7 @@ public class WbsItems {
             case LEGS -> EntityEffect.BREAK_EQUIPMENT_LEGGINGS;
             case CHEST -> EntityEffect.BREAK_EQUIPMENT_CHESTPLATE;
             case HEAD -> EntityEffect.BREAK_EQUIPMENT_HELMET;
+            case SADDLE -> EntityEffect.BREAK_EQUIPMENT_SADDLE;
             case BODY -> throw new IllegalArgumentException("the 'Body' EquipmentSlot does not represent a single slot.");
         };
 

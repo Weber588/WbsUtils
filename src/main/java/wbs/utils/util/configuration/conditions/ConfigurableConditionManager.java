@@ -9,6 +9,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.configuration.ConfigConstructor;
+import wbs.utils.util.configuration.SectionConfigConstructor;
 import wbs.utils.util.configuration.TrivialConfigConstructor;
 import wbs.utils.util.configuration.conditions.item.ItemComponentCondition;
 import wbs.utils.util.plugin.WbsSettings;
@@ -43,12 +44,19 @@ public class ConfigurableConditionManager {
 
         registerCondition("ALL_?(OF)?", AllCondition::new);
         registerCondition("ANY_?(OF)?", AnyCondition::new);
+        registerCondition("COMPONENT(_?VALUE)?", ItemComponentCondition::new);
         registerCondition("COMPONENT", ItemComponentCondition::new);
-        registerCondition("EXISTS", (TrivialConfigConstructor<ConfigurableCondition>) ExistsCondition::new);
+        registerCondition("EXISTS", ExistsCondition::new);
     }
 
-    private static boolean registerCondition(String regex, ConfigConstructor<ConfigurableCondition> constructor) {
-        return CONDITIONS.add(new RegisteredCondition(regex, constructor));
+    public static void registerCondition(String regex, TrivialConfigConstructor<ConfigurableCondition> constructor) {
+        registerCondition(regex, (ConfigConstructor<ConfigurableCondition>) constructor);
+    }
+    public static void registerCondition(String regex, SectionConfigConstructor<ConfigurableCondition> constructor) {
+        registerCondition(regex, (ConfigConstructor<ConfigurableCondition>) constructor);
+    }
+    private static void registerCondition(String regex, ConfigConstructor<ConfigurableCondition> constructor) {
+        CONDITIONS.add(new RegisteredCondition(regex, constructor));
     }
 
     public static <C extends ConfigurableCondition, T> void registerConditionType(Class<C> conditionClass, Class<T> testObjClass, BiFunction<C, T, Boolean> tester) {

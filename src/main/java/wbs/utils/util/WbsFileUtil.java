@@ -204,8 +204,8 @@ public class WbsFileUtil {
      * @param replace Whether to replace files already existing.
      */
     public static void saveResourceFolder(Class<? extends JavaPlugin> clazz, File dataFolder, BiConsumer<Level, String> logger, String folderName, boolean replace) {
-        if (!folderName.startsWith(File.separator)) {
-            folderName = File.separator + folderName;
+        if (!folderName.startsWith("/")) {
+            folderName = "/" + folderName;
         }
 
         URI uri;
