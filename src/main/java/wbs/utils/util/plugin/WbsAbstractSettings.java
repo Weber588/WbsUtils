@@ -1,7 +1,7 @@
 package wbs.utils.util.plugin;
 
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;

@@ -1,6 +1,7 @@
 package wbs.utils.util.plugin;
 
 import com.destroystokyo.paper.event.server.ServerTickEndEvent;
+import com.google.common.base.Strings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
@@ -26,9 +27,11 @@ import wbs.utils.util.WbsEventUtils;
 import wbs.utils.util.WbsFileUtil;
 import wbs.utils.util.commands.brigadier.WbsErrorsSubcommand;
 import wbs.utils.util.commands.brigadier.WbsReloadSubcommand;
+import wbs.utils.util.plugin.bootstrap.WbsBootstrapSettings;
 import wbs.utils.util.pluginhooks.PlaceholderAPIWrapper;
 import wbs.utils.util.string.WbsStrings;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -291,6 +294,10 @@ public abstract class WbsPlugin extends JavaPlugin {
 	}
 
 	public WbsSettings getSettings() {
+		return null;
+	}
+
+	public WbsBootstrapSettings<?> getBoostrapSettings() {
 		return null;
 	}
 
@@ -569,6 +576,26 @@ public abstract class WbsPlugin extends JavaPlugin {
 			}
 		}.runTaskTimerAsynchronously(this, delay, interval).getTaskId();
 	}
+
+	// Overriding this to prevent the pointless warnings when replace is false and the file already exists.
+	@Override
+	public void saveResource(String resourcePath, boolean replace) {
+        if (Strings.isNullOrEmpty(resourcePath)) {
+			throw new IllegalArgumentException("ResourcePath cannot be null or empty");
+        }
+
+		if (!replace) {
+			resourcePath = resourcePath.replace('\\', '/');
+
+			File outFile = new File(this.getDataFolder(), resourcePath);
+
+			if (outFile.exists()) {
+				return;
+			}
+		}
+
+        super.saveResource(resourcePath, replace);
+    }
 
 	public void saveResourceFolder(String folderName, boolean replace) {
 		WbsFileUtil.saveResourceFolder(this, folderName, replace);

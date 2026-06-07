@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.plugin.bootstrap.WbsBootstrapSettings;
 
 import java.util.List;
 
@@ -51,6 +52,12 @@ public abstract class WbsErrorsSubcommand extends WbsSubcommand {
         WbsSettings settings = getSettings();
 
         List<String> errors = settings.getErrors();
+
+        WbsBootstrapSettings<?> boostrapSettings = plugin.getBoostrapSettings();
+        if (boostrapSettings != null) {
+            boostrapSettings.getErrors().stream().map(error -> "[Bootstrap] " + error).forEach(errors::add);
+        }
+
         if (errors.isEmpty()) {
             plugin.sendMessage("&aThere were no errors in the last reload.", sender);
         } else {
