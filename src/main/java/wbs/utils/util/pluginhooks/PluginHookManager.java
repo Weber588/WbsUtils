@@ -4,7 +4,14 @@ import com.palmergames.bukkit.towny.Towny;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 import wbs.utils.WbsUtils;
+import wbs.utils.util.pluginhooks.hooks.PacketEventsWrapper;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a central point to check if supported plugins are installed
@@ -13,9 +20,68 @@ import wbs.utils.WbsUtils;
 public final class PluginHookManager {
     private PluginHookManager() {}
 
+    private static final Map<String, PluginHook> HOOKS = new HashMap<>();
+    private static final Map<String, String> HOOK_CLASS_NAMES = new HashMap<>();
+
+    static {
+        HOOK_CLASS_NAMES.put(PacketEventsWrapper.PLUGIN_NAME, "wbs.utils.util.pluginhooks.hooks.PacketEventsHook");
+    }
+
+    @Nullable
+    public static <T extends PluginHookWrapper> T getHook(Class<T> wrapperClass, String pluginName) {
+        PluginHook hook = getHook(pluginName);
+
+        if (hook == null) {
+            return null;
+        }
+
+        //noinspection unchecked
+        return (T) hook;
+    }
+
+    @Nullable
+    public static PluginHook getHook(String pluginName) {
+        pluginName = pluginName.toLowerCase();
+
+        if (isInstalled(pluginName)) {
+            PluginHook hook = HOOKS.get(pluginName);
+
+            if (hook == null) {
+                String hookClassName = HOOK_CLASS_NAMES.get(pluginName);
+                if (hookClassName == null) {
+                    return null;
+                }
+
+                try {
+                    Class<?> checkClass = Class.forName(hookClassName);
+
+                    if (!PluginHook.class.isAssignableFrom(checkClass)) {
+                        throw new RuntimeException("Hook class must extend PluginHook.");
+                    }
+
+                    Class<? extends PluginHook> hookClass = (Class<? extends PluginHook>) checkClass;
+
+                    Constructor<? extends PluginHook> constructor = hookClass.getConstructor();
+
+                    hook = constructor.newInstance();
+                    HOOKS.put(pluginName, hook);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("Invalid hook class " + hookClassName + " for plugin " + pluginName + ".", e);
+                } catch (NoSuchMethodException | IllegalAccessException e) {
+                    throw new RuntimeException("Hook class " + hookClassName + " for plugin " + pluginName + " must have a public no-args constructor.", e);
+                } catch (InvocationTargetException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            return hook;
+        }
+        return null;
+    }
+
     public static boolean isConfigured = false;
 
-    private static boolean isInstalled(String pluginName) {
+    static boolean isInstalled(String pluginName) {
         Plugin plugin = Bukkit.getPluginManager().getPlugin(pluginName);
         return plugin != null && plugin.isEnabled();
     }
