@@ -5,13 +5,13 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NullMarked;
+import org.slf4j.event.Level;
 import wbs.utils.util.WbsFileUtil;
 import wbs.utils.util.plugin.WbsAbstractSettings;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
@@ -59,12 +59,38 @@ public abstract class WbsBootstrapSettings<T extends WbsPlugin> extends WbsAbstr
         protected BootstrapLogger() {
             super(clazz.getCanonicalName(), null);
 
-            this.setLevel(Level.ALL);
+            this.setLevel(java.util.logging.Level.ALL);
         }
 
         public void log(@NotNull LogRecord logRecord) {
-            logRecord.setMessage(clazz.getCanonicalName() + logRecord.getMessage());
-            super.log(logRecord);
+            String levelString = logRecord.getLevel().getName();
+
+            Level level = switch (levelString.toLowerCase()) {
+                case "severe" -> Level.ERROR;
+                case "warning" -> Level.WARN;
+                case "fine", "finer", "finest" -> Level.DEBUG;
+                case "all" -> Level.TRACE;
+                default -> Level.INFO;
+            };
+
+            ComponentLogger logger = context.getLogger();
+            switch (level) {
+                case ERROR -> {
+                    logger.error(logRecord.getMessage());
+                }
+                case WARN -> {
+                    logger.warn(logRecord.getMessage());
+                }
+                case INFO -> {
+                    logger.info(logRecord.getMessage());
+                }
+                case DEBUG -> {
+                    logger.debug(logRecord.getMessage());
+                }
+                case TRACE -> {
+                    logger.trace(logRecord.getMessage());
+                }
+            }
         }
     }
 
