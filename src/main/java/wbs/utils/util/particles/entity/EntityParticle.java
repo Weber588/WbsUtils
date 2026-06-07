@@ -12,7 +12,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 import wbs.utils.WbsUtils;
-import wbs.utils.util.pluginhooks.PacketEventsWrapper;
+import wbs.utils.util.pluginhooks.hooks.PacketEventsWrapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -68,8 +68,8 @@ public class EntityParticle<T extends Entity> {
 
             if (maxAge > 0 && currentAge >= maxAge) {
                 if (usePackets) {
-                    viewers.forEach(viewer -> {
-                        PacketEventsWrapper.removeEntity(viewer, entity);
+                    PacketEventsWrapper.get().ifPresent(pe -> {
+                        viewers.forEach(viewer -> pe.removeEntity(entity, viewer));
                     });
                 } else {
                     entity.remove();
@@ -108,8 +108,10 @@ public class EntityParticle<T extends Entity> {
         playKeyframes(currentAge);
 
         if (usePackets) {
-            viewers.forEach(viewer -> {
-                PacketEventsWrapper.updateEntity(viewer, entity);
+            PacketEventsWrapper.get().ifPresent(pe -> {
+                viewers.forEach(viewer -> {
+                    pe.updateEntity(entity, viewer);
+                });
             });
         }
 
@@ -147,7 +149,7 @@ public class EntityParticle<T extends Entity> {
         }
 
         viewers.forEach(viewer -> {
-            PacketEventsWrapper.updateEntityPosition(viewer, entity);
+            PacketEventsWrapper.get().ifPresent(pe -> pe.updateEntityPosition(entity, viewer));
         });
     }
 
@@ -188,8 +190,10 @@ public class EntityParticle<T extends Entity> {
         isSpawned = true;
 
         if (usePackets) {
-            viewers.forEach(viewer -> {
-                PacketEventsWrapper.showFakeEntity(viewer, entity);
+            PacketEventsWrapper.get().ifPresent(pe -> {
+                viewers.forEach(viewer -> {
+                    pe.showFakeEntity(entity, viewer);
+                });
             });
         } else {
             entity.getWorld().addEntity(entity);
@@ -215,8 +219,10 @@ public class EntityParticle<T extends Entity> {
 
     public EntityParticle<T> teleport(Location location) {
         if (usePackets) {
-            viewers.forEach(viewer -> {
-                PacketEventsWrapper.teleportEntity(viewer, entity, location);
+            PacketEventsWrapper.get().ifPresent(pe -> {
+                viewers.forEach(viewer -> {
+                    pe.teleportEntity(entity, location, viewer);
+                });
             });
         } else {
             entity.teleport(location);

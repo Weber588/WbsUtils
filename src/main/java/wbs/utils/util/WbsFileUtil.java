@@ -1,5 +1,8 @@
 package wbs.utils.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -187,6 +190,91 @@ public class WbsFileUtil {
                     }
                 }
             }
+        }
+    }
+
+    public static long getLastModifiedRecursive(File folderPath) {
+        long lastModified = -1;
+        File[] children = folderPath.listFiles();
+        if (children != null) {
+            for(File childFile : children) {
+                lastModified = Math.max(lastModified, getLastModifiedRecursive(childFile));
+            }
+        } else {
+            lastModified = Math.max(lastModified, folderPath.lastModified());
+        }
+
+        return lastModified;
+    }
+
+    /**
+     * Writes an object to a file as JSON, only updating the file if the JSON contents are non-equivalent.
+     * @param file The file to create/update
+     * @param object The object to serialize to JSON and write to file
+     * @return Whether the file was updated.
+     */
+    public static boolean writeJSONToFile(File file, Object object) {
+        return writeJSONToFile(file, object, true);
+    }
+
+    /**
+     * Writes an object to a file as JSON, only updating the file if the JSON contents are non-equivalent.
+     * @param file The file to create/update
+     * @param object The object to serialize to JSON and write to file
+     * @param replace Whether the existing file should be replaced if it already exists.
+     * @return Whether the file was updated.
+     */
+    public static boolean writeJSONToFile(File file, Object object, boolean replace) {
+        return writeJSONToFile(file, object, replace, true);
+    }
+
+    /**
+     * Writes an object to a file as JSON, only updating the file if the JSON contents are non-equivalent.
+     * @param file The file to create/update
+     * @param object The object to serialize to JSON and write to file
+     * @param replace Whether the existing file should be replaced if it already exists.
+     * @param checkJSONEquivalency Whether to abort writing if the JSON in the file is equivalent to the serialized object. This will affect the return value.
+     * @return Whether the file was updated.
+     */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static boolean writeJSONToFile(File file, Object object, boolean replace, boolean checkJSONEquivalency) {
+        try {
+            File parentFile = file.getParentFile();
+
+            if (!parentFile.exists()) {
+                parentFile.mkdirs();
+            }
+
+            if (!file.getName().endsWith(".json")) {
+                file = parentFile.toPath().resolve(file.getName() + ".json").toFile();
+            }
+
+            Gson gson = new Gson();
+
+            if (!file.exists()) {
+                file.createNewFile();
+            } else {
+                if (!replace) {
+                    return false;
+                }
+
+                if (checkJSONEquivalency) {
+                    String jsonFile = Files.readString(file.toPath());
+                    JsonElement existingElement = JsonParser.parseString(jsonFile);
+                    JsonElement updatedElement = JsonParser.parseString(gson.toJson(object));
+
+                    // Only update the file if we need to; avoid unneeded IO
+                    if (existingElement.equals(updatedElement)) {
+                        return false;
+                    }
+                }
+            }
+            try (FileWriter writer = new FileWriter(file)) {
+                gson.toJson(object, writer);
+                return true;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
     

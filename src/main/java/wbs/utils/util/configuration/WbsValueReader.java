@@ -2,13 +2,18 @@ package wbs.utils.util.configuration;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
-import org.apache.commons.lang.math.NumberRange;
+import org.apache.commons.lang3.NumberRange;
+import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -18,6 +23,8 @@ import wbs.utils.util.plugin.WbsSettings;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -240,8 +247,15 @@ public class WbsValueReader {
     }
 
     private void log(String error) {
+        log(error, directory());
+    }
+
+    private void log(InvalidConfigurationException ex) {
+        log(ex.getMessage(), ex.getDirectory());
+    }
+    private void log(String error, @Nullable String directory) {
         if (settings != null) {
-            settings.logError(error, directory());
+            settings.logError(error, directory);
         }
     }
     
@@ -365,9 +379,16 @@ public class WbsValueReader {
             return validateNullability(defaultValue);
         }
 
-        NamespacedKey namespacedKey = NamespacedKey.fromString(asString, defaultNamespace);
+        NamespacedKey namespacedKey = parseNamespacedKey(asString, defaultNamespace);
 
         return validateParsing(namespacedKey, "Invalid namespaced key: %s".formatted(asString), defaultValue);
+    }
+
+    public static @Nullable NamespacedKey parseNamespacedKey(@Nullable String asString, @Nullable Plugin defaultNamespace) {
+        if (asString == null) {
+            return null;
+        }
+        return NamespacedKey.fromString(asString, defaultNamespace);
     }
 
     @UnknownNullability
@@ -390,13 +411,20 @@ public class WbsValueReader {
             return nullOrThrow();
         }
 
-        T registryEntry = RegistryAccess.registryAccess().getRegistry(registryKey).get(namespacedKey);
-        
+        T registryEntry = parseRegistryEntry(registryKey, namespacedKey);
+
         return validateParsing(
                 registryEntry,
                 "Invalid key for registry %s: %s".formatted(registryKey.key().asString(), namespacedKey.asString()),
                 defaultValue
         );
+    }
+
+    public static <T extends Keyed> @Nullable T parseRegistryEntry(RegistryKey<T> registryKey, @Nullable NamespacedKey namespacedKey) {
+        if (namespacedKey == null) {
+            return null;
+        }
+        return RegistryAccess.registryAccess().getRegistry(registryKey).get(namespacedKey);
     }
 
     @UnknownNullability
@@ -468,20 +496,19 @@ public class WbsValueReader {
     }
 
     @UnknownNullability
-    public NumberRange readNumberRange(@Nullable NumberRange defaultValue) {
+    public NumberRange<Number> readNumberRange(@Nullable NumberRange<Number> defaultValue) {
         if (defaultValue == null) {
-            defaultValue = new NumberRange(Long.MIN_VALUE, Long.MAX_VALUE);
+            defaultValue = new NumberRange<>(Long.MIN_VALUE, Long.MAX_VALUE, null);
         }
 
-        NumberRange finalDefaultValue = defaultValue;
-
-        Number min = defaultValue.getMinimumNumber();
-        Number max = defaultValue.getMaximumNumber();
+        NumberRange<Number> finalDefaultValue = defaultValue;
+        Number min = defaultValue.getMinimum();
+        Number max = defaultValue.getMaximum();
         if (section.isConfigurationSection(key)) {
             ConfigurationSection asSection = section.getConfigurationSection(key);
             if (asSection != null) {
-                min = readFromChildSection(asSection, "min", reader -> reader.readNumber(finalDefaultValue.getMinimumNumber()));
-                max = readFromChildSection(asSection, "max", reader -> reader.readNumber(finalDefaultValue.getMaximumNumber()));
+                min = readFromChildSection(asSection, "min", reader -> reader.readNumber(finalDefaultValue.getMinimum()));
+                max = readFromChildSection(asSection, "max", reader -> reader.readNumber(finalDefaultValue.getMaximum()));
             }
         } else if (section.isString(key)) {
             String string = section.getString(key);
@@ -500,7 +527,7 @@ public class WbsValueReader {
         }
 
         try {
-            return new NumberRange(min, max);
+            return new NumberRange<>(min, max, null);
         } catch (IllegalArgumentException ex) {
             return defaultValue; // defaultValue is non-null at this point
         }
@@ -508,7 +535,96 @@ public class WbsValueReader {
 
     @UnknownNullability
     public String readString() {
-        return section.getString(key);
+        return validateNullability(section.getString(key));
+    }
+
+    @Contract("!null -> !null")
+    @UnknownNullability
+    public ItemStack readItem(@Nullable ItemStack defaultValue) {
+        if (section.isItemStack(key)) {
+            return validateNullability(section.getItemStack(key, defaultValue));
+        }
+
+        String asString = section.getString(key);
+
+        if (asString == null) {
+            return validateNullability(defaultValue);
+        }
+
+        ItemStack stack;
+        try {
+            stack = Bukkit.getItemFactory().createItemStack(asString);
+        } catch (IllegalArgumentException ex) {
+            log("Failed to parse item stack ", ex.getMessage());
+            return validateNullability(defaultValue);
+        }
+
+        return validateNullability(stack);
+    }
+
+    @UnknownNullability
+    public ShapelessRecipe readShapelessRecipe(NamespacedKey recipeKey, ItemStack result) {
+        if (section.isList(key)) {
+            List<ItemType> ingredients = getListFromType(true, true, true, String.class, asString ->
+                    parseRegistryEntry(RegistryKey.ITEM, parseNamespacedKey(asString, null))
+            );
+
+            ShapelessRecipe recipe = new ShapelessRecipe(recipeKey, result);
+
+
+            // TODO :Full item support
+            for (ItemType ingredient : ingredients) {
+                recipe.addIngredient(ingredient.createItemStack());
+            }
+            return recipe;
+        }
+
+        ConfigurationSection childSection = readSection();
+        return nullOrThrow();
+    }
+
+    @UnknownNullability
+    public <I, T> List<T> getListFromType(boolean allowNullEntries, boolean treatExceptionsAsNull, boolean logErrors, Class<I> iClass, Function<@NotNull I, @Nullable T> reader) {
+        return getList(allowNullEntries, treatExceptionsAsNull, logErrors, o -> {
+            if (iClass.isAssignableFrom(o.getClass())) {
+                return reader.apply(iClass.cast(o));
+            }
+            return null;
+        });
+    }
+    @UnknownNullability
+    public <T> List<T> getList(boolean bypassNullabilityCheck, boolean treatExceptionsAsNull, boolean logErrors, Function<@NotNull Object, @Nullable T> reader) {
+        List<?> list = section.getList(key);
+        
+        if (list == null) {
+            return nullOrThrow("Must be a list.");
+        }
+        
+        List<@UnknownNullability T> parsedList = new LinkedList<>();
+
+        for (Object object : list) {
+            T parsed = null;
+
+            if (treatExceptionsAsNull) {
+                try {
+                    parsed = reader.apply(object);
+                } catch (InvalidConfigurationException ex) {
+                    if (logErrors) {
+                        log(ex);
+                    }
+                }
+            } else {
+                parsed = reader.apply(object);
+            }
+            
+            if (!bypassNullabilityCheck) {
+                parsed = validateNullability(parsed);
+            }
+            
+            parsedList.add(parsed);
+        }
+
+        return parsedList;
     }
 
     //endregion

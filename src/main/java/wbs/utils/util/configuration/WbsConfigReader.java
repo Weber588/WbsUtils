@@ -2,7 +2,7 @@ package wbs.utils.util.configuration;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
-import org.apache.commons.lang.math.NumberRange;
+import org.apache.commons.lang3.NumberRange;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -27,8 +27,10 @@ import java.util.function.BiPredicate;
 
 /**
  * A static class to read configs and automatically provide errors to the WbsSettings object without external logic
+ * @deprecated Use {@link WbsValueReader}
  */
 @NullMarked
+@Deprecated
 @SuppressWarnings("unused")
 public final class WbsConfigReader {
     private WbsConfigReader() {}
@@ -525,17 +527,17 @@ public final class WbsConfigReader {
         return new Vector(x, y, z);
     }
 
-    public static NumberRange getNumberRange(ConfigurationSection section, String key) {
+    public static NumberRange<Number> getNumberRange(ConfigurationSection section, String key) {
         return getNumberRange(section, key, null);
     }
 
-    public static NumberRange getNumberRange(ConfigurationSection section, String key, @Nullable NumberRange defaultValue) {
+    public static NumberRange<Number> getNumberRange(ConfigurationSection section, String key, @Nullable NumberRange<Number> defaultValue) {
         if (defaultValue == null) {
-            defaultValue = new NumberRange(Long.MIN_VALUE, Long.MAX_VALUE);
+            defaultValue = new NumberRange<Number>(Long.MIN_VALUE, Long.MAX_VALUE, null);
         }
 
-        Number min = defaultValue.getMinimumNumber();
-        Number max = defaultValue.getMaximumNumber();
+        Number min = defaultValue.getMinimum();
+        Number max = defaultValue.getMaximum();
         if (section.isConfigurationSection(key)) {
             ConfigurationSection asSection = section.getConfigurationSection(key);
             if (asSection != null) {
@@ -559,7 +561,7 @@ public final class WbsConfigReader {
         }
 
         try {
-            return new NumberRange(min, max);
+            return new NumberRange<>(min, max, null);
         } catch (IllegalArgumentException ex) {
             return defaultValue;
         }

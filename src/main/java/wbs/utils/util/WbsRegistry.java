@@ -9,6 +9,7 @@ import wbs.utils.exceptions.InvalidConfigurationException;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class WbsRegistry<T extends Keyed> implements Function<NamespacedKey, T> {
-    private final HashMap<Key, T> registry = new HashMap<>();
+    private final LinkedHashMap<Key, T> registry = new LinkedHashMap<>();
 
     public WbsRegistry() {}
 

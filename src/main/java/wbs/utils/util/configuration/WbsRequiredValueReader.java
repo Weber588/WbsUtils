@@ -1,7 +1,7 @@
 package wbs.utils.util.configuration;
 
 import io.papermc.paper.registry.RegistryKey;
-import org.apache.commons.lang.math.NumberRange;
+import org.apache.commons.lang3.NumberRange;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -130,7 +130,7 @@ public class WbsRequiredValueReader extends WbsValueReader {
     }
 
     @Override
-    public @NotNull NumberRange readNumberRange(@NotNull NumberRange defaultValue) {
+    public @NotNull NumberRange<Number> readNumberRange(@NotNull NumberRange<Number> defaultValue) {
         return super.readNumberRange(defaultValue);
     }
 }
