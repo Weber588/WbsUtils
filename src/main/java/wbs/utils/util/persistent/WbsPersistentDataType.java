@@ -1,6 +1,10 @@
 package wbs.utils.util.persistent;
 
 import io.papermc.paper.persistence.PersistentDataContainerView;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.Tag;
+import org.apache.logging.log4j.util.Strings;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -9,8 +13,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.UUID;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public final class WbsPersistentDataType {
@@ -42,6 +48,45 @@ public final class WbsPersistentDataType {
                                            @Nullable T defaultValue) {
         if (value != defaultValue && value != null) {
             container.set(key, type, value);
+        }
+    }
+
+    public static String toString(PersistentDataContainerView container) {
+        try (DataInputStream dataInput = new DataInputStream(new ByteArrayInputStream(container.serializeToBytes()))) {
+            CompoundTag compound = NbtIo.read(dataInput);
+            return compound.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Nullable
+    public static String toString(PersistentDataContainerView container, NamespacedKey key) {
+        try (DataInputStream dataInput = new DataInputStream(new ByteArrayInputStream(container.serializeToBytes()))) {
+            CompoundTag compound = NbtIo.read(dataInput);
+            Tag tag = compound.get(key.asString());
+
+            return tag != null ? tag.toString() : null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Nullable
+    public static String toString(PersistentDataContainerView container, String namespace) {
+        try (DataInputStream dataInput = new DataInputStream(new ByteArrayInputStream(container.serializeToBytes()))) {
+            CompoundTag compound = NbtIo.read(dataInput);
+
+            List<String> tagStrings = new LinkedList<>();
+            for (Map.Entry<String, Tag> entry : compound.entrySet()) {
+                if (entry.getKey().split(":")[0].startsWith(namespace)) {
+                    tagStrings.add(entry.getValue().toString());
+                }
+            }
+
+            return Strings.join(tagStrings, ';');
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

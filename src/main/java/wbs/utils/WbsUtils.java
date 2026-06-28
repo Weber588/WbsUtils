@@ -2,9 +2,15 @@ package wbs.utils;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver;
+import io.papermc.paper.math.BlockPosition;
+import io.papermc.paper.persistence.PersistentDataViewHolder;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
@@ -22,6 +28,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.Vault;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.generator.structure.GeneratedStructure;
@@ -44,6 +51,7 @@ import wbs.utils.util.particles.entity.TextDisplayParticleBuilder;
 import wbs.utils.util.particles.entity.interpolation.InterpolatedFrameGenerator;
 import wbs.utils.util.particles.entity.interpolation.ValueKeyframe;
 import wbs.utils.util.persistent.BlockChunkStorageUtil;
+import wbs.utils.util.persistent.WbsPersistentDataType;
 import wbs.utils.util.plugin.WbsPlugin;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 import wbs.utils.util.pluginhooks.VaultWrapper;
@@ -84,7 +92,8 @@ public class WbsUtils extends WbsPlugin {
 							configure();
 							sendMessage("Reloaded! See console for details.", context.getSource().getSender());
 						}),
-						getMinimessageCommand(),
+						getMiniMessageCommand(),
+						getDebugPDCCommand(),
 						WbsSubcommand.simpleSubcommand(this, "trial_key", context -> {
 							CommandSender sender = context.getSource().getSender();
 							if (!(sender instanceof Player player)) {
@@ -315,17 +324,81 @@ public class WbsUtils extends WbsPlugin {
 		return color1.clone().shiftHue(Math.random() * 0.05).toBukkitColor();
 	}
 
-	private static @NotNull String colourString(Color color1) {
-		return color1.getRed() + ", " + color1.getGreen() + ", " + color1.getBlue();
+	private @NotNull WbsSubcommand getDebugPDCCommand() {
+		return WbsCommand.getStatic(this, "pdc")
+				.addSubcommands(
+						new WbsSubcommand(this, "entity") {
+							@Override
+							protected void addThens(LiteralArgumentBuilder<CommandSourceStack> builder) {
+								builder.then(Commands.argument("entity", ArgumentTypes.entity())
+										.executes(context -> {
+											CommandSender sender = context.getSource().getSender();
+
+											EntitySelectorArgumentResolver entityResolver = context.getArgument("entity", EntitySelectorArgumentResolver.class);
+
+											List<Entity> resolved = entityResolver.resolve(context.getSource());
+
+											if (resolved.isEmpty()) {
+												sendMessage("No entity found.", sender);
+												return 0;
+											}
+
+											Entity entity = resolved.getFirst();
+											sendMessage("PDC: \n" + WbsPersistentDataType.toString(entity.getPersistentDataContainer()), sender);
+
+											return Command.SINGLE_SUCCESS;
+										}));
+							}
+
+							@Override
+							protected int executeNoArgs(CommandContext<CommandSourceStack> context) {
+								sendMessage("Usage: /" + context.getInput().substring(0, context.getInput().lastIndexOf(" ")) + " <entity|chunk|block>", context.getSource().getSender());
+								return Command.SINGLE_SUCCESS;
+							}
+						},
+						new WbsSubcommand(this, "block") {
+							@Override
+							protected void addThens(LiteralArgumentBuilder<CommandSourceStack> builder) {
+								builder.then(Commands.argument("block", ArgumentTypes.blockPosition())
+										.executes(context -> {
+											CommandSender sender = context.getSource().getSender();
+
+											BlockPositionResolver blockPositionResolver = context.getArgument("block", BlockPositionResolver.class);
+
+											BlockPosition resolved = blockPositionResolver.resolve(context.getSource());
+
+											Location location = resolved.toLocation(sender instanceof Player player ? player.getWorld() : Bukkit.getWorlds().getFirst());
+
+											Block block = location.getBlock();
+											if (block.getState() instanceof PersistentDataViewHolder holder) {
+												sendMessage("PDC: \n" + WbsPersistentDataType.toString(holder.getPersistentDataContainer()), sender);
+											} else {
+												sendMessage("That block cannot store persistent data.", sender);
+											}
+
+											return Command.SINGLE_SUCCESS;
+										}));
+							}
+
+							@Override
+							protected int executeNoArgs(CommandContext<CommandSourceStack> context) {
+								sendMessage("Usage: /" + context.getInput().substring(0, context.getInput().lastIndexOf(" ")) + " <entity|chunk|block>", context.getSource().getSender());
+								return Command.SINGLE_SUCCESS;
+							}
+						},
+						WbsSubcommand.simpleSubcommand(this, "chunk", context -> {
+							CommandSender sender = context.getSource().getSender();
+							if (!(sender instanceof Player player)) {
+								sendMessage("This command can only be run by players.", sender);
+								return;
+							}
+
+							sendMessage("PDC: \n" + WbsPersistentDataType.toString(player.getChunk().getPersistentDataContainer()), sender);
+						})
+				);
 	}
 
-	private static @NotNull String colourStringHSV(Color color) {
-		double[] hsv = WbsColours.getHSV(color);
-		return hsv[0] + ", " + hsv[1] + ", " + hsv[2];
-	}
-
-
-	private @NotNull WbsSubcommand getMinimessageCommand() {
+	private @NotNull WbsSubcommand getMiniMessageCommand() {
 		WbsSimpleArgument<@Nullable String> messageArg = new WbsSimpleArgument<>("message", StringArgumentType.greedyString(), null, String.class);
 		return WbsSubcommand.simpleArgumentSubcommand(this, "minimessage", List.of(messageArg), (context, map) -> {
 			String message = map.get(messageArg);
