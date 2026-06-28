@@ -22,6 +22,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import wbs.utils.util.WbsEventUtils;
 import wbs.utils.util.WbsFileUtil;
 import wbs.utils.util.commands.brigadier.WbsErrorsSubcommand;
@@ -175,7 +176,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * @return The message builder.
 	 */
 	public WbsMessageBuilder buildMessage(String message) {
-		return new WbsMessageBuilder(this, prefix).append(dynamicColourise(message).applyFallbackStyle(defaultStyle));
+		return new WbsMessageBuilder(this, prefix).append(" ").append(dynamicColourise(message).applyFallbackStyle(defaultStyle));
 	}
 
 	/**
@@ -185,7 +186,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 	 * @return The message builder.
 	 */
 	public WbsMessageBuilder buildMessage(Component message) {
-		return new WbsMessageBuilder(this, prefix).append(message.applyFallbackStyle(defaultStyle));
+		return new WbsMessageBuilder(this, prefix).append(" ").append(message.applyFallbackStyle(defaultStyle));
 	}
 
 	/**
@@ -462,7 +463,7 @@ public abstract class WbsPlugin extends JavaPlugin {
 
 	// Overriding this to prevent the pointless warnings when replace is false and the file already exists.
 	@Override
-	public void saveResource(String resourcePath, boolean replace) {
+	public void saveResource(@NonNull String resourcePath, boolean replace) {
         if (Strings.isNullOrEmpty(resourcePath)) {
 			throw new IllegalArgumentException("ResourcePath cannot be null or empty");
         }
