@@ -372,7 +372,7 @@ public class WbsTable {
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (WbsDatabaseException e) {
-            Logger logger = database.getPlugin().logger;
+            Logger logger = database.getPlugin().getLogger();
             e.forEach((sqlEx, exceptionQuery) -> {
                 logger.info("Failed to upsert. Query: " + exceptionQuery);
                 sqlEx.printStackTrace();
@@ -395,7 +395,7 @@ public class WbsTable {
             database.getPlugin().getLogger().info("Failed to insert; connection error.");
             e.printStackTrace();
         } catch (WbsDatabaseException e) {
-            Logger logger = database.getPlugin().logger;
+            Logger logger = database.getPlugin().getLogger();
             e.forEach((sqlEx, exceptionQuery) -> {
                 logger.info("Failed to upsert. Query: " + exceptionQuery);
                 sqlEx.printStackTrace();
@@ -436,7 +436,7 @@ public class WbsTable {
             database.getPlugin().getLogger().info("Failed to update; connection error.");
             e.printStackTrace();
         } catch (WbsDatabaseException e) {
-            Logger logger = database.getPlugin().logger;
+            Logger logger = database.getPlugin().getLogger();
             e.forEach((sqlEx, exceptionQuery) -> {
                 logger.info("Failed to update. Query: " + exceptionQuery);
                 sqlEx.printStackTrace();

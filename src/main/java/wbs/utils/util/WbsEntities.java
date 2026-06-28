@@ -1,16 +1,6 @@
 package wbs.utils.util;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Predicate;
-
-import org.bukkit.Bukkit;
-import org.bukkit.EntityEffect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
@@ -28,6 +18,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * @deprecated Use {@link wbs.utils.util.entities.WbsEntityUtil} or {@link wbs.utils.util.entities.WbsPlayerUtil}
@@ -533,7 +528,7 @@ public final class WbsEntities {
 			
 			// Credits to 469512345 on spigot.com
 			dragon.setHealth(dragon.getHealth() - damage);
-			dragon.playEffect(EntityEffect.HURT);
+			dragon.playHurtAnimation(0);
 			dragon.getWorld().playSound(dragon.getLocation(), Sound.ENTITY_ENDER_DRAGON_HURT, 100, 1);
 			
 			dragon.setLastDamageCause(event);

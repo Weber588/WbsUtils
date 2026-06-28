@@ -210,7 +210,7 @@ public final class WbsEntityUtil {
 
             // Credits to 469512345 on spigot.com
             dragon.setHealth(dragon.getHealth() - damage);
-            dragon.playEffect(EntityEffect.HURT);
+            dragon.playHurtAnimation(0);
             dragon.getWorld().playSound(dragon.getLocation(), Sound.ENTITY_ENDER_DRAGON_HURT, 100, 1);
 
             dragon.setLastDamageCause(event);

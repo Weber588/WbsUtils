@@ -101,7 +101,7 @@ public class WbsCommand extends WbsSubcommand {
 
     protected int executeNoArgs(CommandContext<CommandSourceStack> context) {
         List<Component> components = subcommandMap.values().stream().map(subcommand -> Component.text(subcommand.label)
-                .color(plugin.getTextHighlightColour())
+                .style(plugin.getHighlightStyle())
                 .hoverEvent(subcommand)
         ).collect(Collectors.toUnmodifiableList());
 

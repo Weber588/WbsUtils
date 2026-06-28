@@ -1,18 +1,11 @@
 package wbs.utils.util.string;
 
-import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.map.MinecraftFont;
 import org.jetbrains.annotations.NotNull;
-import wbs.utils.WbsUtils;
-import wbs.utils.util.VersionUtil;
-import wbs.utils.util.WbsColours;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -89,20 +82,6 @@ public final class WbsStrings {
 
 	private static final Pattern HEX_CODES = Pattern.compile("&#([0-9a-fA-F]{6})");
 
-	public static String colourise(String string) {
-		if (VersionUtil.getVersion() >= 16) {
-			Matcher rgbMatcher = HEX_CODES.matcher(string);
-
-			while (rgbMatcher.find()) {
-				String colour = string.substring(rgbMatcher.start(), rgbMatcher.end());
-
-				string = string.replace(colour, ChatColor.of(colour.substring(1)).toString());
-				rgbMatcher = HEX_CODES.matcher(string);
-			}
-		}
-
-		return ChatColor.translateAlternateColorCodes('&', string);
-	}
 	/**
 	 * Reveal a string concealed by {@link #getInvisibleString(String)}
 	 * @param invisibleString An "invisible" string created by {@link #getInvisibleString(String)}
@@ -215,39 +194,6 @@ public final class WbsStrings {
         	uncoloured = uncoloured.substring(0, uncolouredArray.length);
         }
         return uncoloured;
-	}
-
-	public static String addColourGradient(String string, Color startColour, Color endColour) {
-		return addColourGradient(string, startColour, endColour, true);
-	}
-
-	public static String addColourGradient(String string, Color startColour, Color endColour, boolean colourise) {
-		int length = string.length();
-
-		double step = 1.0f / (length - 1);
-
-		StringBuilder newMessageBuilder = new StringBuilder();
-
-		double progress = 0;
-		Color currentColour;
-		for (int i = 0; i < length; i++) {
-			// TODO: Make colour cycle ignore spaces
-			newMessageBuilder.append("&#");
-
-			currentColour = WbsColours.colourLerp(startColour, endColour, progress);
-
-			newMessageBuilder.append(String.format("%06X", currentColour.asRGB()))
-					.append(string.charAt(i));
-
-			progress += step;
-			if (progress > 1) progress = 1; // Yay floating point error
-		}
-
-		if (colourise) {
-			return WbsStrings.colourise(newMessageBuilder.toString());
-		} else {
-			return newMessageBuilder.toString();
-		}
 	}
 
 	/**

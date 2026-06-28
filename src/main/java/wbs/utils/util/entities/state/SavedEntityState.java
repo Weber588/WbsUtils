@@ -114,7 +114,7 @@ public class SavedEntityState<T extends Entity> implements ConfigurationSerializ
 
         SavedEntityState<? extends Entity> savedState = new SavedEntityState<>();
 
-        Logger logger = WbsUtils.getInstance().logger;
+        Logger logger = WbsUtils.getInstance().getLogger();
 
         if (stateNames instanceof List) {
             for (Object check : (List<?>) stateNames) {

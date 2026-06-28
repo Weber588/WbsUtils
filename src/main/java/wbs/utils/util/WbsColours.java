@@ -1,16 +1,9 @@
 package wbs.utils.util;
 
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import wbs.utils.WbsUtils;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Utility class for dealing with colours, including chat colours and colour format conversions.
@@ -18,28 +11,6 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public final class WbsColours {
     private WbsColours() {}
-
-    // Backwards compatibility with pre-1.16, since ChatColor.of didn't exist
-    private static final Map<ChatColor, Integer> legacyColours = new HashMap<>();
-
-    static {
-        legacyColours.put(ChatColor.BLACK, 0);
-        legacyColours.put(ChatColor.DARK_BLUE, 170);
-        legacyColours.put(ChatColor.DARK_GREEN, 43520);
-        legacyColours.put(ChatColor.DARK_AQUA, 43690);
-        legacyColours.put(ChatColor.DARK_RED, 11141120);
-        legacyColours.put(ChatColor.DARK_PURPLE, 11141290);
-        legacyColours.put(ChatColor.GOLD, 16755200);
-        legacyColours.put(ChatColor.GRAY, 11184810);
-        legacyColours.put(ChatColor.DARK_GRAY, 5592405);
-        legacyColours.put(ChatColor.BLUE, 5592575);
-        legacyColours.put(ChatColor.GREEN, 5635925);
-        legacyColours.put(ChatColor.AQUA, 5636095);
-        legacyColours.put(ChatColor.RED, 16733525);
-        legacyColours.put(ChatColor.LIGHT_PURPLE, 16733695);
-        legacyColours.put(ChatColor.YELLOW, 16777045);
-        legacyColours.put(ChatColor.WHITE, 16777215);
-    }
 
     @Nullable
     public static Color fromHexOrDyeString(String input) {
@@ -66,35 +37,6 @@ public final class WbsColours {
     public static Color fromHexOrDyeString(String input, Color defaultColour) {
         Color colour =  fromHexOrDyeString(input);
         return colour != null ? colour : defaultColour;
-    }
-
-    /**
-     * Backwards compatible version of {@link ChatColor#of(java.awt.Color)} that
-     * accepts a Bukkit {@link Color} instead.
-     * @param colour The colour to convert
-     * @return The closest ChatColor if pre-1.16, or the {@link ChatColor} associated with the
-     * RGB of the colour
-     */
-    public static ChatColor toChatColour(Color colour) {
-        if (VersionUtil.getVersion() >= 16.0) {
-            return ChatColor.of(new java.awt.Color(colour.asRGB()));
-        }
-
-        double[] inputHSV = getHSV(colour);
-
-        double shortestDistance = Double.MAX_VALUE; // distance in HSV space
-        ChatColor closest = ChatColor.BLACK;
-        for (ChatColor chatColour : ChatColor.values()) {
-            double[] hsv = getHSV(Color.fromRGB(chatColour.getColor().getRGB()));
-
-            double distanceSquared = arrayVectorDistance(inputHSV, hsv);
-            if (distanceSquared < shortestDistance) {
-                closest = chatColour;
-                shortestDistance = distanceSquared;
-            }
-        }
-
-        return closest;
     }
 
     @NotNull

@@ -1,6 +1,8 @@
 package wbs.utils.util.pluginhooks;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -70,19 +72,19 @@ public final class SimplePlaceholder extends PlaceholderExpansion {
 
     private String parseWbsPluginPlaceholder(WbsPlugin plugin, String params) {
         if (params.equalsIgnoreCase("prefix")) {
-            return plugin.prefix;
+            return MiniMessage.miniMessage().serialize(plugin.getPrefix());
         }
 
         if (params.equalsIgnoreCase("formatting_colour")) {
-            return plugin.getColour().toString();
+            return MiniMessage.miniMessage().serialize(Component.text(" ").style(plugin.getDefaultStyle()));
         }
 
         if (params.equalsIgnoreCase("formatting_highlight")) {
-            return plugin.getHighlight().toString();
+            return MiniMessage.miniMessage().serialize(Component.text(" ").style(plugin.getHighlightStyle()));
         }
 
         if (params.equalsIgnoreCase("formatting_error")) {
-            return plugin.getErrorColour().toString();
+            return MiniMessage.miniMessage().serialize(Component.text(" ").style(plugin.getErrorStyle()));
         }
 
         return null;

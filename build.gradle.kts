@@ -94,7 +94,7 @@ dependencies {
 }
 
 group = "io.github.Weber588"
-version = "1.0-SNAPSHOT"
+version = "2.0-SNAPSHOT"
 description = "WbsUtils"
 java {
     // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 11 installed for example.
@@ -116,6 +116,7 @@ paperPluginYaml {
     bootstrapper = "wbs.utils.WbsUtilsBootstrap"
     authors.add("Weber588")
     apiVersion = "26.2.1"
+    version = "${project.version}"
     dependencies {
         server.create("PlaceholderAPI", {
             load = PaperPluginYaml.Load.BEFORE

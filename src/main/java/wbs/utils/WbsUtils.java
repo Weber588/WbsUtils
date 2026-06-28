@@ -14,14 +14,12 @@ import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.Vault;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.generator.structure.GeneratedStructure;
@@ -121,7 +119,7 @@ public class WbsUtils extends WbsPlugin {
 
 							for (Tag<@NotNull BlockType> tag : tags) {
 								Component tagEnchants = Component.join(
-										JoinConfiguration.builder().separator(Component.text(", ").color(getTextColour())).build(),
+										JoinConfiguration.builder().separator(Component.text(", ").style(getDefaultStyle())).build(),
 										tag.values().stream()
 												.distinct()
 												.sorted()
@@ -131,7 +129,7 @@ public class WbsUtils extends WbsPlugin {
 												.toList()
 								);
 
-								TextComponent tagComponent = Component.text("#" + tag.tagKey().key().asMinimalString()).color(getTextHighlightColour())
+								TextComponent tagComponent = Component.text("#" + tag.tagKey().key().asMinimalString()).style(getHighlightStyle())
 										.hoverEvent(HoverEvent.showText(tagEnchants));
 
 								tagComponents.add(tagComponent);
@@ -139,7 +137,7 @@ public class WbsUtils extends WbsPlugin {
 
 							Component message = component.append(
 									Component.join(
-											JoinConfiguration.builder().separator(Component.text(", ").color(getTextColour())).build(),
+											JoinConfiguration.builder().separator(Component.text(", ").style(getDefaultStyle())).build(),
 											tagComponents
 									)
 							);
@@ -304,7 +302,7 @@ public class WbsUtils extends WbsPlugin {
 				.register();
 
 		// TODO: Actually add a config omg
-		setDisplays("&8[&7WbsUtils&8]", ChatColor.GRAY, ChatColor.AQUA, ChatColor.RED);
+		setDisplays("&8[&7WbsUtils&8]", NamedTextColor.GRAY, NamedTextColor.AQUA, NamedTextColor.RED);
 
 		configure();
 	}

@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
  * Reflection based utilities.
  * @deprecated Abandoned
  */
+@Deprecated(forRemoval = true)
 @SuppressWarnings("unused")
 public final class ReflectionUtil {
     private ReflectionUtil() {}

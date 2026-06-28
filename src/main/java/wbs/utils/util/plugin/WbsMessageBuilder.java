@@ -2,16 +2,11 @@ package wbs.utils.util.plugin;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEventSource;
-import net.kyori.adventure.text.format.TextColor;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import wbs.utils.util.serializers.bungee.BungeeComponentSerializer;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -27,49 +22,38 @@ public class WbsMessageBuilder {
     @NotNull
     private Component mostRecent;
 
-
-    private static Component fromBungee(@SuppressWarnings("deprecation") BaseComponent ... bungeeComponent) {
-        return BungeeComponentSerializer.get().deserialize(bungeeComponent);
-    }
-    @SuppressWarnings("deprecation")
-    private static TextComponent fromBungeeText(net.md_5.bungee.api.chat.TextComponent bungeeComponent) {
-        return (TextComponent) fromBungee(bungeeComponent);
-    }
-
     public WbsMessageBuilder(@NotNull WbsPlugin plugin, String message) {
+        this.plugin = plugin;
+        append(message);
+    }
+    public WbsMessageBuilder(@NotNull WbsPlugin plugin, Component message) {
         this.plugin = plugin;
         append(message);
     }
 
     public WbsMessageBuilder append(String string) {
-        return append(plugin.formatAsTextComponent(string));
+        return append(plugin.getFormattedMessage(string));
     }
     public WbsMessageBuilder appendRaw(String string) {
         return append(Component.text(string));
     }
     public WbsMessageBuilder append(Component text) {
-        text = text.applyFallbackStyle(plugin.getTextColour());
+        text = text.applyFallbackStyle(plugin.getDefaultStyle());
         mostRecent = text;
         components.add(text);
         return this;
     }
-    public WbsMessageBuilder append(@SuppressWarnings("deprecation") net.md_5.bungee.api.chat.TextComponent text) {
-        return append(fromBungeeText(text));
-    }
 
     public WbsMessageBuilder prepend(String string) {
-        return prepend(plugin.formatAsTextComponent(string));
+        return prepend(plugin.getFormattedMessage(string));
     }
     public WbsMessageBuilder prependRaw(String string) {
         return prepend(Component.text(string));
     }
     public WbsMessageBuilder prepend(Component text) {
         mostRecent = text;
-        components.add(0, text);
+        components.addFirst(text);
         return this;
-    }
-    public WbsMessageBuilder prepend(@SuppressWarnings("deprecation") net.md_5.bungee.api.chat.TextComponent text) {
-        return prepend(fromBungeeText(text));
     }
 
     // Components are immutable -- after updating it, this should be called to replace the most recent element, too
@@ -88,12 +72,8 @@ public class WbsMessageBuilder {
         updateMostRecent();
         return this;
     }
-    @SuppressWarnings("deprecation")
-    public WbsMessageBuilder onHover(net.md_5.bungee.api.chat.HoverEvent onHover) {
-        return onHover(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, fromBungee(onHover.getValue())));
-    }
     public WbsMessageBuilder addHoverText(String string) {
-        return onHover(HoverEvent.showText(fromBungeeText(plugin.formatAsTextComponent(string))));
+        return onHover(HoverEvent.showText(plugin.getFormattedMessage(string)));
     }
     public WbsMessageBuilder addHoverTextRaw(String string) {
         return addHoverText(Component.text(string));
@@ -102,37 +82,18 @@ public class WbsMessageBuilder {
         return onHover(component);
     }
 
-    @SuppressWarnings("deprecation")
-    public WbsMessageBuilder onClick(net.md_5.bungee.api.chat.ClickEvent onClick) {
-        ClickEvent.Action action = switch (onClick.getAction()) {
-            case OPEN_URL -> ClickEvent.Action.OPEN_URL;
-            case OPEN_FILE -> ClickEvent.Action.OPEN_FILE;
-            case RUN_COMMAND -> ClickEvent.Action.RUN_COMMAND;
-            case SUGGEST_COMMAND -> ClickEvent.Action.SUGGEST_COMMAND;
-            case CHANGE_PAGE -> ClickEvent.Action.CHANGE_PAGE;
-            case COPY_TO_CLIPBOARD -> ClickEvent.Action.COPY_TO_CLIPBOARD;
-        };
-        return onClick(ClickEvent.clickEvent(action, onClick.getValue()));
-    }
-    public WbsMessageBuilder onClick(ClickEvent onClick) {
+    public WbsMessageBuilder onClick(ClickEvent<?> onClick) {
         mostRecent = mostRecent.clickEvent(onClick);
         updateMostRecent();
         return this;
     }
     public WbsMessageBuilder addClickCommand(String command) {
-        ClickEvent onClick = ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, command);
+        ClickEvent<?> onClick = ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, ClickEvent.Payload.string(command));
         return onClick(onClick);
     }
     public WbsMessageBuilder addClickCommandSuggestion(String command) {
-        ClickEvent onClick = ClickEvent.clickEvent(ClickEvent.Action.SUGGEST_COMMAND, command);
+        ClickEvent<?> onClick = ClickEvent.clickEvent(ClickEvent.Action.SUGGEST_COMMAND, ClickEvent.Payload.string(command));
         return onClick(onClick);
-    }
-
-    @SuppressWarnings("deprecation")
-    public WbsMessageBuilder setColour(ChatColor colour) {
-        mostRecent = mostRecent.color(TextColor.color(colour.getColor().getRGB()));
-        updateMostRecent();
-        return this;
     }
 
     public WbsMessage build() {

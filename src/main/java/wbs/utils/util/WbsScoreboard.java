@@ -1,5 +1,6 @@
 package wbs.utils.util;
 
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
@@ -42,7 +43,7 @@ public class WbsScoreboard {
 
     public void setTitle(String title) {
         this.title = title;
-        obj.setDisplayName(plugin.dynamicColourise(title));
+        obj.displayName(plugin.dynamicColourise(title));
     }
 
     /**
@@ -69,7 +70,8 @@ public class WbsScoreboard {
             scoreboard.resetScores(scores.get(i).getEntry());
         }
 
-        Score score = obj.getScore(plugin.dynamicColourise(line));
+        // Why do scores support colors when passed as sections but not components :(
+        Score score = obj.getScore(LegacyComponentSerializer.legacySection().serialize(plugin.dynamicColourise(line)));
         score.setScore(16 - i);
 
         if (scores.size() > i) {
@@ -92,10 +94,9 @@ public class WbsScoreboard {
 
     private void registerObjective() {
         ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
-        assert scoreboardManager != null;
         scoreboard = scoreboardManager.getNewScoreboard();
 
-        obj = scoreboard.registerNewObjective(namespace, "", plugin.dynamicColourise(title));
+        obj = scoreboard.registerNewObjective(namespace, Criteria.DUMMY, plugin.dynamicColourise(title));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 

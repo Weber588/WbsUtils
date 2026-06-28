@@ -1,6 +1,7 @@
 package wbs.utils.util.menus;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -110,16 +111,16 @@ public class MenuSlot {
 
         ItemMeta meta = Objects.requireNonNull(formattedItem.getItemMeta());
 
-        String displayName = meta.getDisplayName();
-        displayName = formatString(player, displayName);
-        meta.setDisplayName(displayName);
+        Component displayName = item.effectiveName();
+        displayName = formatComponent(player, displayName);
+        meta.displayName(displayName);
 
         if (meta.hasLore()) {
-            List<String> newLore = new LinkedList<>();
-            for (String loreLine : Objects.requireNonNull(meta.getLore())) {
-                newLore.add(formatString(player, loreLine));
+            List<Component> newLore = new LinkedList<>();
+            for (Component loreLine : Objects.requireNonNull(meta.lore())) {
+                newLore.add(formatComponent(player, loreLine));
             }
-            meta.setLore(newLore);
+            meta.lore(newLore);
         }
 
         formattedItem.setItemMeta(meta);
@@ -127,13 +128,16 @@ public class MenuSlot {
         return formattedItem;
     }
 
-    protected String formatString(@Nullable Player player, String string) {
+    protected Component formatComponent(@Nullable Player player, Component component) {
         if (fillPlaceholders && player != null) {
-            string = PlaceholderAPIWrapper.setPlaceholders(player, string);
+            if (component instanceof TextComponent textComponent) {
+                String content = textComponent.content();
+                content = PlaceholderAPIWrapper.setPlaceholders(player, content);
+                component = textComponent.content(content);
+            }
         }
-        string = plugin.dynamicColourise(string);
 
-        return string;
+        return component;
     }
 
     @NotNull

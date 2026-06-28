@@ -1,7 +1,8 @@
 package wbs.utils.util.plugin;
 
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jspecify.annotations.NullMarked;
 
@@ -40,10 +41,28 @@ public abstract class WbsSettings extends WbsAbstractSettings {
 		String errorChar = config.getString("error-colour", "c");
 
         String newPrefix = config.getString("message-prefix", defaultPrefix);
-        ChatColor newColour = ChatColor.getByChar(messageChar);
-        ChatColor newHighlight = ChatColor.getByChar(highlightChar);
-        ChatColor newErrorColour = ChatColor.getByChar(errorChar);
-        plugin.setDisplays(newPrefix, newColour, newHighlight, newErrorColour);
+
+		if (messageChar.length() == 1) {
+			messageChar = "&" + messageChar;
+		}
+		if (highlightChar.length() == 1) {
+			highlightChar = "&" + highlightChar;
+		}
+		if (errorChar.length() == 1) {
+			errorChar = "&" + errorChar;
+		}
+
+		MiniMessage miniMessage = MiniMessage.miniMessage();
+		Style defaultStyle = plugin.deserializeKnownFormats(messageChar + " ").style();
+		Style highlightStyle = plugin.deserializeKnownFormats(highlightChar + " ").style();
+		Style errorStyle = plugin.deserializeKnownFormats(errorChar + " ").style();
+
+		plugin.setDisplays(
+				newPrefix,
+				defaultStyle,
+				highlightStyle,
+				errorStyle
+		);
 	}
 
 	/**

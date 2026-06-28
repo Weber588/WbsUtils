@@ -14,10 +14,8 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.components.FoodComponent;
-import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import wbs.utils.util.WbsEnums;
 import wbs.utils.util.WbsMath;
 
 @SuppressWarnings("unused")
@@ -85,6 +83,7 @@ public final class WbsPlayerUtil {
      * @return Gets the actual experience of the player
      * @deprecated Use {@link Player#calculateTotalExperiencePoints()}
      */
+    @Deprecated
     public static int getExp(Player player) {
         int currentLevel = player.getLevel();
         int exp = Math.round(getExpAtLevel(currentLevel) * player.getExp());
