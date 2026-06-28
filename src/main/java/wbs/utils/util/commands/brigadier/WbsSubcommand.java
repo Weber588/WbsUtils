@@ -15,13 +15,10 @@ import wbs.utils.util.commands.brigadier.argument.WbsSimpleArgument;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
+import java.util.function.*;
 
 @SuppressWarnings({"UnstableApiUsage", "unused"})
 public abstract class WbsSubcommand implements HoverEventSource<Component> {
@@ -41,6 +38,30 @@ public abstract class WbsSubcommand implements HoverEventSource<Component> {
                 return executor.apply(context);
             }
         };
+    }
+    public static WbsSubcommand simpleArgumentSubcommand(WbsPlugin plugin, String label, Collection<WbsSimpleArgument<?>> arguments, BiFunction<CommandContext<CommandSourceStack>, WbsSimpleArgument.ConfiguredArgumentMap, Integer> executor) {
+        if (arguments.isEmpty()) {
+            plugin.getLogger().severe("Failed to register command \"%s\": argument subcommand had no arguments passed.");
+            return simpleSubcommand(plugin, label, context -> {
+                plugin.sendMessage("Invalid command configuration. Please report this to the author of %s.".formatted(plugin.getName()), context.getSource().getSender());
+            });
+        }
+
+        WbsSubcommand anon = new WbsSubcommand(plugin, label) {
+            @Override
+            protected int executeNoArgs(CommandContext<CommandSourceStack> context) {
+                return sendSimpleArgumentUsage(context);
+            }
+
+            @Override
+            protected int onSimpleArgumentCallback(CommandContext<CommandSourceStack> context, WbsSimpleArgument.ConfiguredArgumentMap configuredArgumentMap) {
+                return executor.apply(context, configuredArgumentMap);
+            }
+        };
+
+        arguments.forEach(anon::addSimpleArgument);
+
+        return anon;
     }
 
     protected final WbsPlugin plugin;
@@ -94,11 +115,10 @@ public abstract class WbsSubcommand implements HoverEventSource<Component> {
 
     protected abstract int executeNoArgs(CommandContext<CommandSourceStack> context);
     protected int sendSimpleArgumentUsage(CommandContext<CommandSourceStack> context) {
-        plugin.sendMessage("Usage: &h/" + context.getInput() + " " +
-                simpleArguments.stream()
-                        .map(WbsSimpleArgument::getArgumentString)
-                        .collect(Collectors.joining(" ")),
-                context.getSource().getSender());
+        WbsSimpleArgument.ConfiguredArgumentMap map = new WbsSimpleArgument.ConfiguredArgumentMap(context, simpleArguments);
+
+        map.sendUsage(plugin, context);
+
         return Command.SINGLE_SUCCESS;
     }
     protected void addThens(LiteralArgumentBuilder<CommandSourceStack> builder) {
