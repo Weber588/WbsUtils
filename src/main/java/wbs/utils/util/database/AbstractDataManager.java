@@ -2,7 +2,6 @@ package wbs.utils.util.database;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import wbs.utils.WbsUtils;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.lang.ref.Reference;

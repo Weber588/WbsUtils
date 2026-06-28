@@ -1,18 +1,17 @@
 package wbs.utils.util.particles;
 
-import java.util.ArrayList;
-
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.WbsMath;
-import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.providers.NumProvider;
+
+import java.util.ArrayList;
 
 /**
  * A particle effect that spawns many small lines in a

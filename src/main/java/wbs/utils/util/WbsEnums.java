@@ -1,18 +1,16 @@
 package wbs.utils.util;
 
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.jetbrains.annotations.Nullable;
+import wbs.utils.util.string.WbsStrings;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-
-import org.jetbrains.annotations.Nullable;
-import wbs.utils.util.string.WbsStrings;
 
 /**
  * Enum-related utilities, including for configuration and rendering.

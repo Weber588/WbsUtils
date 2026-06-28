@@ -7,10 +7,8 @@ import org.jspecify.annotations.Nullable;
 import wbs.utils.util.particles.entity.EntityParticle;
 import wbs.utils.util.particles.entity.Keyframe;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 

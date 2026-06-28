@@ -1,15 +1,8 @@
 package wbs.utils.util;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.*;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
+
+import java.io.Serializable;
 
 /**
  * Simple wrapper for a {@link Sound} with a given pitch and volume.

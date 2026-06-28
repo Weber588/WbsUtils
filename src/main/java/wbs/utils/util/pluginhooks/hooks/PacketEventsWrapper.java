@@ -1,6 +1,5 @@
 package wbs.utils.util.pluginhooks.hooks;
 
-import com.google.common.collect.Iterables;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -14,7 +13,7 @@ import wbs.utils.util.pluginhooks.PluginHookWrapper;
 import java.util.Collection;
 import java.util.Optional;
 
-import static io.papermc.paper.advancement.AdvancementDisplay.*;
+import static io.papermc.paper.advancement.AdvancementDisplay.Frame;
 
 /**
  * Utilities for the PacketEvents API

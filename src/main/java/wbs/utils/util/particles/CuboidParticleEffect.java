@@ -4,12 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
-
 import wbs.utils.util.WbsMath;
-import wbs.utils.util.providers.NumProvider;
-import wbs.utils.util.providers.VectorProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.providers.NumProvider;
+import wbs.utils.util.providers.VectorProvider;
 
 /**
  * A particle effect that draws the outline of a cuboid region

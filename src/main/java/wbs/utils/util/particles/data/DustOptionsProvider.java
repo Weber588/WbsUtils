@@ -2,7 +2,6 @@ package wbs.utils.util.particles.data;
 
 import org.bukkit.Color;
 import org.bukkit.Particle;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -10,8 +9,8 @@ import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.plugin.WbsSettings;
-import wbs.utils.util.providers.Provider;
 import wbs.utils.util.providers.NumProvider;
+import wbs.utils.util.providers.Provider;
 import wbs.utils.util.providers.VectorProvider;
 
 import java.util.function.Function;

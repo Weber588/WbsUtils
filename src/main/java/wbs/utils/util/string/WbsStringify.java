@@ -1,5 +1,10 @@
 package wbs.utils.util.string;
 
+import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
+import wbs.utils.util.WbsEnums;
+import wbs.utils.util.WbsMath;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -7,12 +12,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Objects;
-
-import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
-
-import wbs.utils.util.WbsEnums;
-import wbs.utils.util.WbsMath;
 
 @SuppressWarnings("unused")
 public final class WbsStringify {

@@ -6,7 +6,6 @@ import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.providers.Provider;
-import wbs.utils.util.providers.generator.num.DoubleGenerator;
 
 import java.util.function.Supplier;
 

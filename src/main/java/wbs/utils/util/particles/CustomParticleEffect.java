@@ -1,11 +1,10 @@
 package wbs.utils.util.particles;
 
-import java.util.List;
-
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+
+import java.util.List;
 
 /**
  * An abstract particle effect to be overridden anonymously

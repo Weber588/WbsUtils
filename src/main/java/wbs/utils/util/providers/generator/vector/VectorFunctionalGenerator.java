@@ -3,9 +3,9 @@ package wbs.utils.util.providers.generator.vector;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 import wbs.utils.exceptions.InvalidConfigurationException;
-import wbs.utils.util.providers.VectorProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.providers.VectorProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;

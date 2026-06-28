@@ -1,15 +1,14 @@
 package wbs.utils.util.particles;
 
-import java.util.ArrayList;
-
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
-
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsSettings;
+
+import java.util.ArrayList;
 
 /**
  * A particle effect that draws a ring but specifically controls

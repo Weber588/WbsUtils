@@ -1,12 +1,11 @@
 package wbs.utils.util.particles;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.Location;
 import org.bukkit.Particle;
-
 import wbs.utils.util.WbsMath;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class to support multiple WbsParticleEffects with predefined particles

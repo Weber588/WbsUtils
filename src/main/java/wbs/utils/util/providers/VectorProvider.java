@@ -9,8 +9,8 @@ import wbs.utils.exceptions.MissingRequiredKeyException;
 import wbs.utils.util.WbsColours;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.configuration.WbsConfigReader;
-import wbs.utils.util.providers.generator.vector.VectorGenerator;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.providers.generator.vector.VectorGenerator;
 
 import java.util.Set;
 

@@ -15,8 +15,6 @@ import org.bukkit.inventory.ItemType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 @SuppressWarnings({"UnstableApiUsage", "unused"})

@@ -1,8 +1,8 @@
 package wbs.utils.util.providers.generator.num;
 
 import org.bukkit.configuration.ConfigurationSection;
-import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.providers.NumProvider;
 
 /**
  * A functional generator that accepts two NumProviders and

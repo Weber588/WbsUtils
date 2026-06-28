@@ -1,17 +1,17 @@
 package wbs.utils.util.particles;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.providers.VectorProvider;
-import wbs.utils.util.plugin.WbsSettings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A superclass for particle effects that can have speed set in specific

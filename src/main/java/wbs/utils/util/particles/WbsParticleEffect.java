@@ -1,22 +1,21 @@
 package wbs.utils.util.particles;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-
 import wbs.utils.WbsUtils;
 import wbs.utils.exceptions.InvalidConfigurationException;
-import wbs.utils.util.providers.Refreshable;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.WbsMath;
-import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
+import wbs.utils.util.providers.NumProvider;
+import wbs.utils.util.providers.Refreshable;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Represents a particle effect in a specific pattern

@@ -2,7 +2,6 @@ package wbs.utils.util.entities.state.tracker;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.entities.state.EntityState;
 import wbs.utils.util.entities.state.EntityStateManager;

@@ -1,7 +1,6 @@
 package wbs.utils.util.particles.data;
 
 import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;

@@ -1,6 +1,5 @@
 package wbs.utils.util.entities.state.tracker;
 
-import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;

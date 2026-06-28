@@ -5,7 +5,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import wbs.utils.WbsUtils;
 
 import java.util.ArrayList;
 import java.util.List;

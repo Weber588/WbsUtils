@@ -1,13 +1,11 @@
 package wbs.utils.util;
 
+import org.bukkit.Location;
+import org.bukkit.scheduler.BukkitRunnable;
+import wbs.utils.WbsUtils;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import org.bukkit.Location;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import wbs.utils.WbsUtils;
 
 /**
  * A group of {@link WbsSound}s.

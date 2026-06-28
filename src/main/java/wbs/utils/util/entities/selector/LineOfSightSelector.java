@@ -9,7 +9,9 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class LineOfSightSelector<T extends Entity> extends EntitySelector<T, LineOfSightSelector<T>> {

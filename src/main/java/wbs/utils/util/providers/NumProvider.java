@@ -5,11 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.exceptions.MissingRequiredKeyException;
-import wbs.utils.util.WbsEnums;
 import wbs.utils.util.configuration.WbsConfigReader;
+import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.providers.generator.GeneratorManager;
 import wbs.utils.util.providers.generator.num.DoubleGenerator;
-import wbs.utils.util.plugin.WbsSettings;
 
 import java.util.Objects;
 import java.util.Set;

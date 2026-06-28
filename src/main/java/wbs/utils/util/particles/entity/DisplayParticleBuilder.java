@@ -1,6 +1,5 @@
 package wbs.utils.util.particles.entity;
 
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.LinkedHashMultimap;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import wbs.utils.WbsUtils;
 
-import java.util.HashMap;
 import java.util.List;
 
 @NullMarked

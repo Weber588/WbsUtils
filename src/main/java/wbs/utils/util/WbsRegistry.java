@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import wbs.utils.exceptions.InvalidConfigurationException;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.function.Function;
