@@ -1,6 +1,7 @@
 package wbs.utils;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -13,15 +14,13 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.Vault;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.generator.structure.GeneratedStructure;
@@ -30,6 +29,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.*;
 import wbs.utils.util.commands.brigadier.WbsCommand;
 import wbs.utils.util.commands.brigadier.WbsSubcommand;
@@ -83,6 +83,7 @@ public class WbsUtils extends WbsPlugin {
 							configure();
 							sendMessage("Reloaded! See console for details.", context.getSource().getSender());
 						}),
+						getMinimessageCommand(),
 						WbsSubcommand.simpleSubcommand(this, "trial_key", context -> {
 							CommandSender sender = context.getSource().getSender();
 							if (!(sender instanceof Player player)) {
@@ -320,6 +321,27 @@ public class WbsUtils extends WbsPlugin {
 	private static @NotNull String colourStringHSV(Color color) {
 		double[] hsv = WbsColours.getHSV(color);
 		return hsv[0] + ", " + hsv[1] + ", " + hsv[2];
+	}
+
+
+	private @NotNull WbsSubcommand getMinimessageCommand() {
+		WbsSimpleArgument<@Nullable String> messageArg = new WbsSimpleArgument<>("message", StringArgumentType.greedyString(), null, String.class);
+		return WbsSubcommand.simpleArgumentSubcommand(this, "minimessage", List.of(messageArg), (context, map) -> {
+			String message = map.get(messageArg);
+			CommandSender sender = context.getSource().getSender();
+
+			if (message == null) {
+				map.sendUsage(this, context);
+				return Command.SINGLE_SUCCESS;
+			}
+
+			sendMessage("Original message:", sender);
+			sender.sendMessage(message);
+			sendMessage("Minimessage format:", sender);
+			sender.sendMessage(MiniMessage.miniMessage().deserialize(message));
+
+			return Command.SINGLE_SUCCESS;
+		});
 	}
 
 	private WbsSubcommand getLocateSubcommand() {

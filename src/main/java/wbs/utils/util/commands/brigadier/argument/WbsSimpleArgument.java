@@ -6,17 +6,18 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.commands.brigadier.KeyedSuggestionProvider;
 import wbs.utils.util.commands.brigadier.WbsSuggestionProvider;
+import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SuppressWarnings({"UnstableApiUsage", "unused"})
 public class WbsSimpleArgument<T> {
@@ -85,12 +86,7 @@ public class WbsSimpleArgument<T> {
                                                                      final List<WbsSimpleArgument<?>> all) {
         RequiredArgumentBuilder<CommandSourceStack, T> builder = Commands.argument(label, type)
                 .executes(context -> {
-                    ConfiguredArgumentMap map = new ConfiguredArgumentMap();
-
-                    for (WbsSimpleArgument<?> other : all) {
-                        map.add(other.getConfigured(context));
-                    }
-
+                    ConfiguredArgumentMap map = new ConfiguredArgumentMap(context, all);
                     return function.apply(context, map);
                 })
                 .suggests(suggestionProvider != null ? suggestionProvider : WbsSuggestionProvider.getStatic(suggestions, toString, tooltip));
@@ -195,7 +191,13 @@ public class WbsSimpleArgument<T> {
     }
 
     public static class ConfiguredArgumentMap {
-        private final Set<ConfiguredArgument<?>> set = new HashSet<>();
+        private final LinkedHashSet<ConfiguredArgument<?>> set = new LinkedHashSet<>();
+
+        public ConfiguredArgumentMap(CommandContext<?> context, List<WbsSimpleArgument<?>> all) {
+            for (WbsSimpleArgument<?> other : all) {
+                add(other.getConfigured(context));
+            }
+        }
 
         private void add(ConfiguredArgument<?> arg) {
             set.add(arg);
@@ -217,6 +219,14 @@ public class WbsSimpleArgument<T> {
             }
 
             return (T) configuredArgument.configuredValue;
+        }
+
+        public void sendUsage(WbsPlugin plugin, CommandContext<CommandSourceStack> context) {
+            plugin.sendMessage("Usage: &h/" + context.getInput() + " " +
+                            set.stream()
+                                    .map(arg -> arg.argument.getArgumentString())
+                                    .collect(Collectors.joining(" ")),
+                    context.getSource().getSender());
         }
     }
 }
