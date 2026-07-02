@@ -1,6 +1,7 @@
 package wbs.utils.util.pluginhooks.hooks;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.PacketEventsAPI;
 import com.github.retrooper.packetevents.protocol.advancements.*;
 import com.github.retrooper.packetevents.protocol.entity.EntityPositionData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
@@ -10,6 +11,8 @@ import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.resources.ResourceLocation;
+import com.github.retrooper.packetevents.settings.PacketEventsSettings;
+import com.github.retrooper.packetevents.util.TimeStampMode;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
@@ -25,9 +28,17 @@ import wbs.utils.util.pluginhooks.PluginHook;
 
 import java.util.*;
 
-public final class PacketEventsHook extends PluginHook implements PacketEventsWrapper {
+final class PacketEventsHook extends PluginHook implements PacketEventsWrapper {
     public PacketEventsHook() {
         super(PLUGIN_NAME);
+    }
+
+    @Override
+    public void fullStackTrace(boolean enabled) {
+        PacketEventsSettings settings = PacketEvents.getAPI().getSettings();
+
+        //noinspection UnstableApiUsage
+        settings.fullStackTrace(enabled);
     }
 
     static @Nullable User getUser(Player player) {

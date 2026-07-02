@@ -1,6 +1,5 @@
 package wbs.utils.util.pluginhooks.hooks;
 
-import com.google.common.collect.Iterables;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -29,6 +28,8 @@ public interface PacketEventsWrapper extends PluginHookWrapper {
     static boolean isActive() {
         return get().isPresent();
     }
+
+    void fullStackTrace(boolean enabled);
 
     void updateTickRate(int tickRate, Player ... players);
     default void updateTickRate(int tickRate, Collection<Player> players) {
