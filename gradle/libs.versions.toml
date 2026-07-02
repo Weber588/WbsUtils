@@ -3,6 +3,7 @@
 
 [versions]
 io-papermc-paper-paper-api = "26.2.build.+"
+net-kyori-adventure-text-serializer-ansi = "5.2.0"
 com-github-milkbowl-vaultapi = "1.7"
 com-github-retrooper-packetevents-spigot = "2.13.0"
 com-github-techfortress-griefprevention = "16.18.2"
@@ -18,6 +19,7 @@ org-bukkit13 = "1.13.1-R0.1-SNAPSHOT"
 
 [libraries]
 io-papermc-paper-paper-api = { module = "io.papermc.paper:paper-api", version.ref = "io-papermc-paper-paper-api" }
+net-kyori-adventure-text-serializer-ansi = { module = "net.kyori:adventure-text-serializer-ansi", version.ref = "net-kyori-adventure-text-serializer-ansi" }
 com-github-milkbowl-vaultapi = { module = "com.github.MilkBowl:VaultAPI", version.ref = "com-github-milkbowl-vaultapi"}
 com-github-retrooper-packetevents-spigot = { module = "com.github.retrooper:packetevents-spigot", version.ref = "com-github-retrooper-packetevents-spigot" }
 com-github-techfortress-griefprevention = { module = "com.github.TechFortress:GriefPrevention", version.ref = "com-github-techfortress-griefprevention" }

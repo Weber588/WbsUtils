@@ -71,6 +71,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle(libs.versions.io.papermc.paper.paper.api)
+    api(libs.net.kyori.adventure.text.serializer.ansi)
     compileOnly(libs.com.sk89q.worldedit.worldedit.bukkit) {
         exclude(group = libs.org.bukkit15.get().group, module = libs.org.bukkit15.get().name )
         exclude(group = libs.org.bukkit13.get().group, module = libs.org.bukkit13.get().name )
