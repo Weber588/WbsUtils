@@ -71,7 +71,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("26.1.2.build.+")
-    api(libs.com.sk89q.worldedit.worldedit.bukkit) {
+    compileOnly(libs.com.sk89q.worldedit.worldedit.bukkit) {
         exclude(group = libs.org.bukkit15.get().group, module = libs.org.bukkit15.get().name )
         exclude(group = libs.org.bukkit13.get().group, module = libs.org.bukkit13.get().name )
     }
