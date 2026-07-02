@@ -28,7 +28,7 @@ import wbs.utils.util.pluginhooks.PluginHook;
 
 import java.util.*;
 
-final class PacketEventsHook extends PluginHook implements PacketEventsWrapper {
+public final class PacketEventsHook extends PluginHook implements PacketEventsWrapper {
     public PacketEventsHook() {
         super(PLUGIN_NAME);
     }
