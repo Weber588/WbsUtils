@@ -29,6 +29,8 @@ public interface PacketEventsWrapper extends PluginHookWrapper {
         return get().isPresent();
     }
 
+    void fullStackTrace(boolean enabled);
+
     void updateTickRate(int tickRate, Player ... players);
     default void updateTickRate(int tickRate, Collection<Player> players) {
         updateTickRate(tickRate, players.toArray(Player[]::new));
