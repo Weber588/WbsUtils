@@ -9,6 +9,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.plugin.WbsPlugin;
@@ -100,16 +101,25 @@ public class WbsCommand extends WbsSubcommand {
     }
 
     protected int executeNoArgs(CommandContext<CommandSourceStack> context) {
-        List<Component> components = subcommandMap.values().stream().map(subcommand -> Component.text(subcommand.label)
-                .color(plugin.getTextHighlightColour())
-                .hoverEvent(subcommand)
-        ).collect(Collectors.toUnmodifiableList());
+        CommandSender sender = context.getSource().getSender();
+
+        List<Component> components = subcommandMap.values().stream()
+                .filter(subcommand -> subcommand.hasPermission(sender))
+                .map(subcommand -> Component.text(subcommand.label)
+                        .color(plugin.getTextHighlightColour())
+                        .hoverEvent(subcommand)
+                ).collect(Collectors.toUnmodifiableList());
+
+        if (components.isEmpty()) {
+            plugin.sendMessage("You don't have access to any subcommands.", sender);
+            return Command.SINGLE_SUCCESS;
+        }
 
         Component options = Component.join(JoinConfiguration.separator(Component.text(", ")), components);
 
         plugin.buildMessage("Usage: &h/" + context.getInput().split(" ")[0] + " <option>&r. Please choose from the following: ")
                 .append(options)
-                .send(context.getSource().getSender());
+                .send(sender);
 
         return Command.SINGLE_SUCCESS;
     }
