@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -484,4 +485,32 @@ public abstract class WbsPlugin extends JavaPlugin {
 	public void saveResourceFolder(String folderName, boolean replace) {
 		WbsFileUtil.saveResourceFolder(this, folderName, replace);
     }
+
+	public void debug(String channel, String message) {
+		WbsSettings settings = getSettings();
+
+		if (settings != null) {
+			settings.debug(channel, message);
+		} else {
+			getLogger().log(Level.INFO, message);
+		}
+	}
+
+	public void debug(Level level, String channel, String message) {
+		WbsSettings settings = getSettings();
+
+		if (settings != null) {
+			settings.debug(level, channel, message);
+		} else {
+			getLogger().log(level, message);
+		}
+	}
+
+	public void debug(String channel, Runnable runnable) {
+		WbsSettings settings = getSettings();
+
+		if (settings != null) {
+			settings.debug(channel, runnable);
+		}
+	}
 }

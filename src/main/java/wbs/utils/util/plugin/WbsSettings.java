@@ -30,6 +30,7 @@ public abstract class WbsSettings extends WbsAbstractSettings {
 
 		YamlConfiguration config = loadConfigSafely(genConfig(configName));
 		loadMessageFormat(config);
+		loadDebugChannels(config);
 
 		return config;
 	}

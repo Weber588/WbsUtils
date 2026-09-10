@@ -2,6 +2,7 @@ package wbs.utils.util.plugin;
 
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.apache.commons.lang3.Validate;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +15,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +31,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public abstract class WbsAbstractSettings {
     protected ArrayList<String> errors = new ArrayList<>();
+    protected final Set<String> enabledDebugChannels = new HashSet<>();
 
     public abstract Logger getLogger();
     public abstract ComponentLogger getComponentLogger();
@@ -53,6 +57,32 @@ public abstract class WbsAbstractSettings {
     public abstract void reload();
 
     protected abstract YamlConfiguration loadDefaultConfig(String configName);
+
+    /**
+     * Log an error both in console and in the errors list
+     * that may be used to display errors in a command
+     * @param error The error message
+     * @param section The section to attempt deriving a directory from
+     */
+    public void logError(String error, ConfigurationSection section) {
+        logError(error, section, null);
+    }
+    /**
+     * Log an error both in console and in the errors list
+     * that may be used to display errors in a command
+     * @param error The error message
+     * @param section The section to attempt deriving a directory from
+     */
+    public void logError(String error, ConfigurationSection section, @Nullable String key) {
+        String directory = section.getCurrentPath();
+        if (directory != null) {
+            directory = directory.replaceAll("\\.", "/");
+            if (key != null) {
+                directory += "/" + key;
+            }
+        }
+        logError(error, directory);
+    }
 
     /**
      * Log an error both in console and in the errors list
@@ -94,6 +124,28 @@ public abstract class WbsAbstractSettings {
         }
 
         return config;
+    }
+
+    protected void loadDebugChannels(YamlConfiguration configuration) {
+        enabledDebugChannels.clear();
+        enabledDebugChannels.addAll(configuration.getStringList("debug-channels"));
+        if (!enabledDebugChannels.isEmpty()) {
+            getLogger().info("The below debug channels are enabled:" + String.join("\t- \n", enabledDebugChannels));
+        }
+    }
+
+    public void debug(String channel, String message) {
+        debug(Level.INFO, channel, message);
+    }
+
+    public void debug(Level level, String channel, String message) {
+        debug(channel, () -> getLogger().log(level, "[%s] %s".formatted(channel, message)));
+    }
+
+    public void debug(String channel, Runnable runnable) {
+        if (enabledDebugChannels.contains(channel) || enabledDebugChannels.stream().anyMatch(channel::matches)) {
+            runnable.run();
+        }
     }
 
     /**
