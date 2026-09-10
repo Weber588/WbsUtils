@@ -9,6 +9,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEventSource;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.commands.brigadier.argument.WbsSimpleArgument;
@@ -68,6 +69,13 @@ public abstract class WbsSubcommand implements HoverEventSource<Component> {
     protected final String label;
     protected @Nullable String description;
     protected @Nullable String permission;
+    /**
+     * Should command senders be able to access this command by default, if no permission is set?
+     * If permission is set, this is ignored.
+     * If permission is null and defaultAccess = true, players will have access.
+     * If permission is null and defaultAccess = false, players need to be an op.
+     */
+    protected boolean defaultAccess = false;
     protected final @NotNull List<WbsSimpleArgument<?>> simpleArguments = new LinkedList<>();
 
     public WbsSubcommand(@NotNull WbsPlugin plugin, @NotNull String label) {
@@ -169,5 +177,15 @@ public abstract class WbsSubcommand implements HoverEventSource<Component> {
     public WbsSubcommand setDescription(@Nullable String description) {
         this.description = description;
         return this;
+    }
+
+    public boolean hasPermission(CommandSender sender) {
+        if (permission == null) {
+            return defaultAccess;
+        }
+
+        return sender.getEffectivePermissions().stream().anyMatch(
+                perm -> perm.getPermission().toLowerCase().startsWith(permission.toLowerCase())
+        );
     }
 }
