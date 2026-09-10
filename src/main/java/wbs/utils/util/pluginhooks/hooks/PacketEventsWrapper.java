@@ -5,7 +5,9 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.pluginhooks.PluginHookManager;
 import wbs.utils.util.pluginhooks.PluginHookWrapper;
@@ -69,5 +71,10 @@ public interface PacketEventsWrapper extends PluginHookWrapper {
     void sendToast(ItemStack icon, Component message, Frame displayType, Player ... players);
     default void sendToast(ItemStack icon, Component message, Frame displayType, Collection<Player> players) {
         sendToast(icon, message, displayType, players.toArray(Player[]::new));
+    }
+
+    void simulatePlayerInteract(EquipmentSlot hand, RayTraceResult rayTraceResult, double range, Player... players);
+    default void simulatePlayerInteract(EquipmentSlot hand, RayTraceResult rayTraceResult, double maxRange, Collection<Player> players) {
+        simulatePlayerInteract(hand, rayTraceResult, maxRange, players.toArray(Player[]::new));
     }
 }
