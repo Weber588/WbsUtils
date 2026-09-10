@@ -4,6 +4,13 @@ import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import wbs.utils.util.colour.ColourHSV;
+import wbs.utils.util.colour.WbsColour;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Utility class for dealing with colours, including chat colours and colour format conversions.
@@ -74,7 +81,7 @@ public final class WbsColours {
     }
 
     /**
-     * Adapted method from @java.awt.Color
+     * Adapted method from {@link java.awt.Color#getHSBColor(float, float, float)}
      * @param hue The hue in range 0-1
      * @param saturation The saturation in range 0-1
      * @param brightness The brightness in range 0-1
@@ -87,6 +94,7 @@ public final class WbsColours {
             return Color.fromRGB(scaledBrightness, scaledBrightness, scaledBrightness);
         }
 
+        // This is just to guarantee the value is definitely in the range [0,1)
         hue = hue - (float) Math.floor(hue);
         int i = (int) (6 * hue);
         double f = 6 * hue - i;
@@ -118,6 +126,10 @@ public final class WbsColours {
         double green = colour.getGreen() / 255.0f;
         double blue = colour.getBlue() / 255.0f;
 
+        return getHSV(red, green, blue);
+    }
+
+    public static double @NonNull [] getHSV(double red, double green, double blue) {
         double hue, saturation, value;
 
         double min, max, delta;
@@ -149,9 +161,9 @@ public final class WbsColours {
         hue *= 60;
 
         if (hue < 0) hue += 360;
-    //    saturation = saturation * 100;
-    //    value = (value / 256) * 100;
-        return new double[] { hue, saturation, value };
+        //    saturation = saturation * 100;
+        //    value = (value / 256) * 100;
+        return new double[]{hue, saturation, value};
     }
 
     public static Color colourLerp(Color start, Color end, double interval) {
@@ -184,5 +196,38 @@ public final class WbsColours {
 
         return fromHSB(lerpedH / 360.0f, lerpedS, lerpedV)
                 .setAlpha((int) WbsMath.lerp(start.getAlpha(), end.getAlpha(), interval));
+    }
+
+    public static Color mix(Color ... colours) {
+        return mixBukkit(List.of(colours));
+    }
+
+    public static WbsColour mix(ColourHSV ... colours) {
+        return mix(List.of(colours));
+    }
+
+    public static Color mixBukkit(List<Color> colours) {
+        List<ColourHSV> list = colours.stream()
+                .map(ColourHSV::new)
+                .toList();
+
+        return mix(list).toBukkitColor();
+    }
+
+    public static ColourHSV mix(List<ColourHSV> list) {
+        if (list.isEmpty()) {
+            throw new IllegalArgumentException("List cannot be empty.");
+        }
+
+        ColourHSV first = list.stream().filter(Objects::nonNull).findFirst().orElse(null);
+
+        if (first == null) {
+            throw new IllegalArgumentException("List must have at least 1 non-null element.");
+        }
+
+        list = new LinkedList<>(list);
+        list.remove(first);
+
+        return first.mix(list);
     }
 }
