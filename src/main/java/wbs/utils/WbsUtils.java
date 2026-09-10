@@ -39,6 +39,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.*;
+import wbs.utils.util.colour.ColourHSV;
 import wbs.utils.util.commands.brigadier.WbsCommand;
 import wbs.utils.util.commands.brigadier.WbsSubcommand;
 import wbs.utils.util.commands.brigadier.argument.WbsSimpleArgument;
@@ -73,6 +74,8 @@ public class WbsUtils extends WbsPlugin {
 
 	@Override
 	public void onLoad() {
+		instance = this;
+
 		EntityStateManager.registerNativeDeserializers();
 
 		isLoaded = true;
@@ -80,8 +83,6 @@ public class WbsUtils extends WbsPlugin {
 
 	@Override
 	public void onEnable() {
-		instance = this;
-
 		EntityStateManager.registerConfigurableClasses();
 
 		WbsParticleEffect.setPlugin(this);
@@ -186,9 +187,9 @@ public class WbsUtils extends WbsPlugin {
 							builder.doBlockCollisions(true);
 
 							double initialSpeed = 0.15;
-							WbsColour color1 = new WbsColour(0.067, 1, 0.5);
-							WbsColour color2 = new WbsColour(0.067, 0.9, 0.25);
-							WbsColour color3 = new WbsColour(0.067, 0.001, 0.2);
+							ColourHSV color1 = new ColourHSV(0.067, 1, 0.5);
+							ColourHSV color2 = new ColourHSV(0.067, 0.9, 0.25);
+							ColourHSV color3 = new ColourHSV(0.067, 0.001, 0.2);
 
 							InterpolatedFrameGenerator<@NotNull TextDisplay, Double> scaleFrames = builder.buildInterpolatedKeyframes(WbsMath::sineInterpolate, 1d)
 									.setSetter((display, scale) -> {
@@ -320,8 +321,8 @@ public class WbsUtils extends WbsPlugin {
 		configure();
 	}
 
-	private static Color varyColour(WbsColour color1) {
-		return color1.clone().shiftHue(Math.random() * 0.05).toBukkitColor();
+	private static Color varyColour(ColourHSV color) {
+		return color.withHue(color.hue() + Math.random() * 0.05).toBukkitColor();
 	}
 
 	private @NotNull WbsSubcommand getDebugPDCCommand() {
