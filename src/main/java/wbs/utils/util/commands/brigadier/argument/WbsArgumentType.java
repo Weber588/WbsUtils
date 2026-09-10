@@ -14,7 +14,7 @@ import wbs.utils.util.commands.brigadier.WbsSuggestionProvider;
 
 import java.util.concurrent.CompletableFuture;
 
-@SuppressWarnings({"UnstableApiUsage", "unused"})
+@SuppressWarnings({"unused"})
 public interface WbsArgumentType<T> extends CustomArgumentType<T, String>, WbsSuggestionProvider<T> {
     @Override
     default @NotNull T parse(@NotNull StringReader reader) throws CommandSyntaxException {

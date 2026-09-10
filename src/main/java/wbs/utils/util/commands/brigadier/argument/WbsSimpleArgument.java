@@ -8,6 +8,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.commands.brigadier.KeyedSuggestionProvider;
@@ -19,7 +20,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"UnstableApiUsage", "unused"})
+@SuppressWarnings({"unused"})
 public class WbsSimpleArgument<T> {
     public static RequiredArgumentBuilder<CommandSourceStack, ?> toBuilderChain(BiFunction<CommandContext<CommandSourceStack>, ConfiguredArgumentMap, Integer> function,
                                                                                 List<WbsSimpleArgument<?>> arguments) {
@@ -154,6 +155,12 @@ public class WbsSimpleArgument<T> {
     public static class KeyedSimpleArgument extends WbsSimpleArgument<NamespacedKey> {
         public KeyedSimpleArgument(String label, ArgumentType<NamespacedKey> type, NamespacedKey defaultValue) {
             super(label, type, defaultValue, NamespacedKey.class);
+        }
+        public KeyedSimpleArgument(String label, String defaultNamespace, NamespacedKey defaultValue) {
+            super(label, new WbsKeyArgumentType(defaultNamespace), defaultValue, NamespacedKey.class);
+        }
+        public KeyedSimpleArgument(String label, Plugin defaultNamespace, NamespacedKey defaultValue) {
+            super(label, new WbsKeyArgumentType(defaultNamespace.namespace()), defaultValue, NamespacedKey.class);
         }
 
         public <T extends Keyed> KeyedSimpleArgument setKeyedSuggestions(Collection<T> suggestions) {
