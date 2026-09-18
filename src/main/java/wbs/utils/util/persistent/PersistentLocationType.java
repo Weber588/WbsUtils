@@ -10,11 +10,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import wbs.utils.WbsUtils;
 
-import java.util.UUID;
-
-import static wbs.utils.util.persistent.WbsPersistentDataType.getOrDefault;
-
-public class PersistentLocationType implements PersistentDataType<PersistentDataContainer, Location> {
+public class PersistentLocationType implements WbsPersistentDataType<PersistentDataContainer, Location> {
     private static final NamespacedKey X_KEY = new NamespacedKey(WbsUtils.getInstance(), "x");
     private static final NamespacedKey Y_KEY = new NamespacedKey(WbsUtils.getInstance(), "y");
     private static final NamespacedKey Z_KEY = new NamespacedKey(WbsUtils.getInstance(), "z");
@@ -56,16 +52,16 @@ public class PersistentLocationType implements PersistentDataType<PersistentData
     @NotNull
     @Override
     public Location fromPrimitive(@NotNull PersistentDataContainer container, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
-        double x = getOrDefault(container, X_KEY, PersistentDataType.DOUBLE, 0d);
-        double y = getOrDefault(container, Y_KEY, PersistentDataType.DOUBLE, 0d);
-        double z = getOrDefault(container, Z_KEY, PersistentDataType.DOUBLE, 0d);
-        float pitch = getOrDefault(container, PITCH_KEY, PersistentDataType.FLOAT, 0f);
-        float yaw = getOrDefault(container, YAW_KEY, PersistentDataType.FLOAT, 0f);
+        double x = container.getOrDefault(X_KEY, PersistentDataType.DOUBLE, 0d);
+        double y = container.getOrDefault(Y_KEY, PersistentDataType.DOUBLE, 0d);
+        double z = container.getOrDefault(Z_KEY, PersistentDataType.DOUBLE, 0d);
+        float pitch = container.getOrDefault(PITCH_KEY, PersistentDataType.FLOAT, 0f);
+        float yaw = container.getOrDefault(YAW_KEY, PersistentDataType.FLOAT, 0f);
 
         World world = null;
         String worldUUID = container.get(WORLD_KEY, PersistentDataType.STRING);
         if (worldUUID != null) {
-            world = Bukkit.getWorld(UUID.fromString(worldUUID));
+            world = Bukkit.getWorld(java.util.UUID.fromString(worldUUID));
         }
 
         return new Location(world, x, y, z, yaw, pitch);

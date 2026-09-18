@@ -1,12 +1,11 @@
 package wbs.utils.util.persistent;
 
 import org.bukkit.persistence.PersistentDataAdapterContext;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-public class EnumPersistentDataType<T extends Enum<T>> implements PersistentDataType<String, T> {
+public class EnumPersistentDataType<T extends Enum<T>> implements WbsPersistentDataType<String, T> {
     private final Class<T> tClass;
 
     public EnumPersistentDataType(Class<T> tClass) {

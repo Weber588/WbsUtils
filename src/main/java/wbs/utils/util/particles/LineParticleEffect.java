@@ -5,13 +5,17 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.SplashPotion;
 import org.bukkit.util.Vector;
+import org.jspecify.annotations.Nullable;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.providers.VectorProvider;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A particle effect that spawns points on a line between two points
@@ -88,14 +92,8 @@ public class LineParticleEffect extends WbsParticleEffect {
 	}
 
 	@Override
-	public LineParticleEffect build() {
-		refreshProviders();
-		/* As start and finish location are given
-		 * at runtime, can't pre-generate points.
-		 * (Not really an issue though as it's an
-		 * easy calculation)
-		 */
-		return this;
+	protected List<Vector> generatePoints() {
+		return List.of();
 	}
 
 	/**
@@ -146,8 +144,15 @@ public class LineParticleEffect extends WbsParticleEffect {
 	 * @param player The player to see the particles
 	 * @return The same particle effect
 	 */
-	public LineParticleEffect play(Particle particle, Location start, Location finish, Player player) {
-		points.clear();
+	public LineParticleEffect play(Particle particle, Location start, Location finish, @Nullable Player player) {
+		World world = start.getWorld();
+
+		if (world == null)
+			throw new IllegalArgumentException("Start location had an invalid world");
+		if (finish.getWorld() != world)
+			throw new IllegalArgumentException("Start and Finish location must be constrained to the same world");
+
+		List<Vector> points = new ArrayList<>();
 
 		if (scaleAmount) {
 			int localAmount = (int) (amount.intVal() * start.distance(finish));
@@ -156,16 +161,18 @@ public class LineParticleEffect extends WbsParticleEffect {
 			points.addAll(WbsMath.getLine(amount.intVal(), finish.clone().subtract(start).toVector()));
 		}
 
-		ArrayList<Location> locations = WbsMath.offsetPoints(start, points);
-		locations = filterChances(locations);
+		points = filterChances(points);
 
-		if (preventDataUse(particle)) {
-			for (Location point : locations) {
-				player.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), null);
-			}
-		} else {
-			for (Location point : locations) {
-				player.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), particle.getDataType().cast(data));
+		ArrayList<Location> locations = WbsMath.offsetPoints(start, points);
+
+		for (int i = 0; i < locations.size(); i++) {
+			Vector point = points.get(i);
+			Location locPoint = locations.get(i);
+			Object data = getData(point, particle);
+			if (player == null) {
+				world.spawnParticle(particle, locPoint, 1, radius.val(), radius.val(), radius.val(), speed.val(), data, force);
+			} else {
+				player.spawnParticle(particle, locPoint, 1, radius.val(), radius.val(), radius.val(), speed.val(), data, force);
 			}
 		}
 		return this;
@@ -179,35 +186,7 @@ public class LineParticleEffect extends WbsParticleEffect {
 	 * @return The same particle effect
 	 */
 	public LineParticleEffect play(Particle particle, Location start, Location finish) {
-		World world = start.getWorld();
-
-		if (world == null)
-			throw new IllegalArgumentException("Start location had an invalid world");
-		if (finish.getWorld() != world)
-			throw new IllegalArgumentException("Start and Finish location must be constrained to the same world");
-
-		points.clear();
-
-		if (scaleAmount) {
-			int localAmount = (int) (amount.intVal() * start.distance(finish));
-			points.addAll(WbsMath.getLine(localAmount, finish.clone().subtract(start).toVector()));
-		} else {
-			points.addAll(WbsMath.getLine(amount.intVal(), finish.clone().subtract(start).toVector()));
-		}
-
-		ArrayList<Location> locations = WbsMath.offsetPoints(start, points);
-		locations = filterChances(locations);
-		
-		if (preventDataUse(particle)) {
-			for (Location point : locations) {
-				world.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), null, force);
-			}
-		} else {
-			for (Location point : locations) {
-				world.spawnParticle(particle, point, 1, radius.val(), radius.val(), radius.val(), speed.val(), particle.getDataType().cast(data), force);
-			}
-		}
-		return this;
+		return play(particle, start, finish, null);
 	}
 
 	/*===============================*/

@@ -6,12 +6,15 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.providers.NumProvider;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A particle effect that spawns many small lines in a
@@ -95,14 +98,8 @@ public class ElectricParticleEffect extends WbsParticleEffect {
 	}
 
 	@Override
-	public ElectricParticleEffect build() {
-		refreshProviders();
-		/* As the locations are random, can't 
-		 * pre-generate points.
-		 * (Not really an issue though as it's an
-		 * easy calculation)
-		 */
-		return this;
+	protected List<Vector> generatePoints() {
+		return List.of();
 	}
 
 	@Override
@@ -148,31 +145,20 @@ public class ElectricParticleEffect extends WbsParticleEffect {
 		newPoint = loc.clone().add(WbsMath.randomVector(radius.val()));
 		newEnd = newPoint.clone().add(WbsMath.randomVector(arcLength.val()));
 
-		points.clear();
-		points.addAll(WbsMath.getLine((int) (10 * arcLength.val()), newEnd.clone().subtract(newPoint).toVector()));
-		
-		ArrayList<Location> locations = WbsMath.offsetPoints(newPoint, points);
-		locations = filterChances(locations);
+        List<Vector> points = filterChances(
+				WbsMath.getLine((int) (10 * arcLength.val()), newEnd.clone().subtract(newPoint).toVector())
+		);
 
-		if (player == null) {
-			if (preventDataUse(particle)) {
-				for (Location point : locations) {
-					world.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), null, force);
-				}
+		ArrayList<Location> locations = WbsMath.offsetPoints(newPoint, points);
+
+		for (int i = 0; i < locations.size(); i++) {
+			Vector point = points.get(i);
+			Location locPoint = locations.get(i);
+
+			if (player == null) {
+				world.spawnParticle(particle, locPoint, 1, 0, 0, 0, speed.val(), getData(point, particle), force);
 			} else {
-				for (Location point : locations) {
-					world.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), particle.getDataType().cast(data), force);
-				}
-			}
-		} else {
-			if (preventDataUse(particle)) {
-				for (Location point : locations) {
-					player.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), null);
-				}
-			} else {
-				for (Location point : locations) {
-					player.spawnParticle(particle, point, 1, 0, 0, 0, speed.val(), particle.getDataType().cast(data));
-				}
+				player.spawnParticle(particle, locPoint, 1, 0, 0, 0, speed.val(), getData(point, particle), force);
 			}
 		}
 	}

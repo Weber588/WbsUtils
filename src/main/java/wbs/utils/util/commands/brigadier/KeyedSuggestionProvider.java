@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-@SuppressWarnings({"UnstableApiUsage", "unused"})
+@SuppressWarnings({"unused"})
 public interface KeyedSuggestionProvider<T extends Keyed> extends WbsSuggestionProvider<T> {
     static <T extends Keyed> KeyedSuggestionProvider<T> getStaticKeyed(Iterable<T> staticKeyed) {
         return new StaticKeysProvider<>(staticKeyed);
@@ -25,6 +25,8 @@ public interface KeyedSuggestionProvider<T extends Keyed> extends WbsSuggestionP
 
         toMatch.add(value.key().asString());
         toMatch.add(value.key().value());
+        toMatch.add("\"" + value.key().asString() + "\"");
+        toMatch.add("\"" + value.key().value() + "\"");
 
         String[] sections = value.key().key().value().split("/");
 

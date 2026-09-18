@@ -10,6 +10,9 @@ import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.providers.VectorProvider;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * A particle effect that draws the outline of a cuboid region
  */
@@ -88,11 +91,9 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 		rotation.refresh();
 		about.refresh();
 	}
-
 	@Override
-	public CuboidParticleEffect build() {
-		points.clear();
-		refreshProviders();
+	protected List<Vector> generatePoints() {
+		LinkedList<Vector> points = new LinkedList<>();
 		/*
 		 *  Seed vertices: A+X+Y+Z, B+X-Y-Z, C-X+Y-Z, D-X-Y+Z
 		 *  These vertices do not connect to each other, so 4 vertices with 3 edges
@@ -145,7 +146,7 @@ public class CuboidParticleEffect extends VelocityParticleEffect {
 			}
 		}
 		
-		return this;
+		return points;
 	}
 
 	/*

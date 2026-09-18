@@ -1,8 +1,12 @@
 package wbs.utils.util.particles;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.util.Vector;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsSettings;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A particle effect that appears in a disc
@@ -36,11 +40,10 @@ public class DiscParticleEffect extends CircleParticleEffect {
 		
 		return cloned;
 	}
-	
+
 	@Override
-	public DiscParticleEffect build() {
-		points.clear();
-		refreshProviders();
+	protected List<Vector> generatePoints() {
+		LinkedList<Vector> points = new LinkedList<>();
 
 		if (about.val().equals(upVector)) {
 			if (random) {
@@ -52,7 +55,7 @@ public class DiscParticleEffect extends CircleParticleEffect {
 			points.addAll(WbsMath.get3Disc(amount.intVal(), radius.val(), about.val(), rotation.val()));
 		}
 		
-		return this;
+		return points;
 	}
 
 	/*===============================*/

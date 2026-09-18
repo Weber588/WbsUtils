@@ -28,18 +28,14 @@ public class SphereParticleEffect extends CircleParticleEffect {
     }
 
     @Override
-    public SphereParticleEffect build() {
-        points.clear();
-        refreshProviders();
-
-        List<Vector> tempPoints = new LinkedList<>(
+    protected List<Vector> generatePoints() {
+        List<Vector> points = new LinkedList<>(
                 WbsMath.getFibonacciSphere(amount.intVal(), radius.val())
         );
 
-        tempPoints = WbsMath.rotateVectors(tempPoints, about.val(), rotation.val());
+        points = WbsMath.rotateVectors(points, about.val(), rotation.val());
 
-        points.addAll(tempPoints);
-        return this;
+        return points;
     }
 
     @Override

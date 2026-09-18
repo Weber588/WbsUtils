@@ -1,11 +1,14 @@
 package wbs.utils.util.particles;
 
+import com.google.common.base.Preconditions;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.providers.VectorProvider;
@@ -84,67 +87,48 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 	}
 
 	@Override
-	public VelocityParticleEffect play(Particle particle, Location loc, Player player) {
-		ArrayList<Location> locations = getLocations(loc);
+	public VelocityParticleEffect play(Particle particle, Location loc, @Nullable Player player) {
+		World world = Preconditions.checkNotNull(loc.getWorld(), "Location must be in a world.");
+
+		ArrayList<Vector> points = getPoints();
+		ArrayList<Location> locations = WbsMath.offsetPoints(loc, points);
 
 		List<Vector> localDirections = new ArrayList<>();
 		if (relative) {
-			locations.forEach(
-					offsetLoc -> localDirections.add(
-							offsetLoc.clone()
-									.subtract(loc)
-									.toVector()
-					)
-			);
-		} else {
+            for (Location offsetLoc : locations) {
+				Vector direction = offsetLoc.clone()
+						.subtract(loc)
+						.toVector();
+
+	            localDirections.add(direction);
+            }
+        } else {
 			for (int i = 0; i < locations.size(); i++) {
 				localDirections.add(direction.val());
 			}
 		}
 
 		for (int i = 0; i < points.size(); i++) {
-			Location point = locations.get(i);
+			Location locPoint = locations.get(i);
 			Vector localDirection = localDirections.get(i);
-			if (preventDataUse(particle)) {
-				player.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), null);
+			Vector point = points.get(i);
+
+			Object data = getData(point, particle);
+			if (player == null) {
+				playParticle(world, particle, locPoint, localDirection, data);
 			} else {
-				player.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(data));
+				playParticle(particle, player, locPoint, localDirection, data);
 			}
-		}
+        }
 		return this;
 	}
 
-	@Override
-	public VelocityParticleEffect play(Particle particle, Location loc) {
-		World world = loc.getWorld();
-		if (world == null) return this;
-		ArrayList<Location> locations = getLocations(loc);
+	private void playParticle(Particle particle, Player player, Location locPoint, Vector localDirection, Object data) {
+        player.spawnParticle(particle, locPoint, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), data, force);
+    }
 
-		List<Vector> localDirections = new ArrayList<>();
-		if (relative) {
-			locations.forEach(
-					offsetLoc -> localDirections.add(
-							offsetLoc.clone()
-							.subtract(loc)
-							.toVector()
-					)
-			);
-		} else {
-			for (int i = 0; i < locations.size(); i++) {
-				localDirections.add(direction.val());
-			}
-		}
-
-		for (int i = 0; i < locations.size(); i++) {
-			Location point = locations.get(i);
-			Vector localDirection = localDirections.get(i);
-			if (preventDataUse(particle)) {
-				world.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), null, force);
-			} else {
-				world.spawnParticle(particle, point, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), particle.getDataType().cast(data), force);
-			}
-		}
-		return this;
+	private void playParticle(World world, Particle particle, Location locPoint, Vector localDirection, Object data) {
+		world.spawnParticle(particle, locPoint, 0, localDirection.getX() + rand(variation.val()), localDirection.getY() + rand(variation.val()), localDirection.getZ() + rand(variation.val()), speed.val(), data, force);
 	}
 
 	/*===============================*/

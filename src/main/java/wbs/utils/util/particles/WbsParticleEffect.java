@@ -1,26 +1,37 @@
 package wbs.utils.util.particles;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import wbs.utils.WbsUtils;
 import wbs.utils.exceptions.InvalidConfigurationException;
 import wbs.utils.util.WbsEnums;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.configuration.WbsConfigReader;
+import wbs.utils.util.math.WbsPrimitives;
 import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.providers.NumProvider;
 import wbs.utils.util.providers.Refreshable;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
  * Represents a particle effect in a specific pattern
  */
+@SuppressWarnings("UnusedReturnValue")
 public abstract class WbsParticleEffect {
+	protected static final Vector ZERO_VEC = new Vector();
 	protected static Vector upVector = new Vector(0, 1, 0);
 
 	public enum WbsParticleType { CUBOID, DISC, ELECTRIC, LINE, NORMAL, RING, SPHERE, SPIRAL }
@@ -42,27 +53,17 @@ public abstract class WbsParticleEffect {
 			throw new InvalidConfigurationException();
 		}
 
-		switch (type) {
-			case CUBOID:
-				return new CuboidParticleEffect(section, settings, directory);
-			case DISC:
-				return new DiscParticleEffect(section, settings, directory);
-			case ELECTRIC:
-				return new ElectricParticleEffect(section, settings, directory);
-			case LINE:
-				return new LineParticleEffect(section, settings, directory);
-			case NORMAL:
-				return new NormalParticleEffect(section, settings, directory);
-			case RING:
-				return new RingParticleEffect(section, settings, directory);
-			case SPHERE:
-				return new SphereParticleEffect(section, settings, directory);
-			case SPIRAL:
-				return new SpiralParticleEffect(section, settings, directory);
-		}
-
-		return null;
-	}
+        return switch (type) {
+            case CUBOID -> new CuboidParticleEffect(section, settings, directory);
+            case DISC -> new DiscParticleEffect(section, settings, directory);
+            case ELECTRIC -> new ElectricParticleEffect(section, settings, directory);
+            case LINE -> new LineParticleEffect(section, settings, directory);
+            case NORMAL -> new NormalParticleEffect(section, settings, directory);
+            case RING -> new RingParticleEffect(section, settings, directory);
+            case SPHERE -> new SphereParticleEffect(section, settings, directory);
+            case SPIRAL -> new SpiralParticleEffect(section, settings, directory);
+        };
+    }
 
 	protected static WbsUtils pl;
 	public static void setPlugin(WbsUtils plugin) {
@@ -71,7 +72,8 @@ public abstract class WbsParticleEffect {
 	
 	protected double chance = 100;
 	protected NumProvider amount;
-	protected Object data = null;
+	private Object data = null;
+	protected BiFunction<Vector, Particle, Object> dynamicDataProvider = null;
 	protected boolean force = true;
 	
 	public WbsParticleEffect() {
@@ -104,15 +106,23 @@ public abstract class WbsParticleEffect {
 	/*          BUILDER          */
 	/*===========================*/
 
-	protected final ArrayList<Vector> points = new ArrayList<>();
-	
+	private final ArrayList<Vector> points = new ArrayList<>();
+	private final Map<Vector, Map<Particle, Object>> pointData = new HashMap<>();
+
 	/**
 	 * Generate the particle set based on current settings.
 	 * Call this before the first time it is run, or call
 	 * buildAndRun each time to run based on current settings.
 	 * @return The same object.
 	 */
-	public abstract WbsParticleEffect build();
+	public final WbsParticleEffect build() {
+		points.clear();
+		refreshProviders();
+		points.addAll(generatePoints());
+		return this;
+	}
+
+    protected abstract List<Vector> generatePoints();
 
 	/**
 	 * Refresh all providers for this object.
@@ -134,8 +144,18 @@ public abstract class WbsParticleEffect {
 	 * @return The same object.
 	 * @see #play(Particle, Location)
 	 */
-	public final WbsParticleEffect buildAndPlay(Particle particle, Location loc) {
+    public final WbsParticleEffect buildAndPlay(Particle particle, Location loc) {
 		build();
+
+		pointData.clear();
+		if (dynamicDataProvider != null) {
+			for (Vector point : points) {
+				Map<Particle, Object> particleDatas = pointData.getOrDefault(point, new HashMap<>());
+				particleDatas.put(particle, getData(point, particle));
+				pointData.put(point, particleDatas);
+			}
+		}
+
 		return play(particle, loc);
 	}
 
@@ -152,7 +172,9 @@ public abstract class WbsParticleEffect {
 	 * @param loc The location at which to run the effect.
 	 * @return The same object.
 	 */
-	public abstract WbsParticleEffect play(Particle particle, Location loc);
+	public WbsParticleEffect play(Particle particle, Location loc) {
+		return play(particle, loc, null);
+	}
 
 	/**
 	 * Run the effect pattern at the given location with the given particle.
@@ -164,33 +186,34 @@ public abstract class WbsParticleEffect {
 	 * @param player The only player who will see it
 	 * @return The same object.
 	 */
-	public abstract WbsParticleEffect play(Particle particle, Location loc, Player player);
+	public abstract WbsParticleEffect play(Particle particle, Location loc, @Nullable Player player);
 
 	/*===========================*/
 	/*       UTILITY METHODS      */
 	/*===========================*/
-	
-	protected ArrayList<Location> filterChances(ArrayList<Location> points) {
-		if (chance < 100) {
-			LinkedList<Location> removePoints = new LinkedList<>();
-			for (Location point : points) {
-				if (!WbsMath.chance(chance)) {
-					removePoints.add(point);
-				}
-			}
-			
-			points.removeAll(removePoints);
-		}
-		
-		return points;
+
+	@Contract("_ -> new")
+	protected ArrayList<Vector> filterChances(List<Vector> points) {
+        if (!(chance < 100)) {
+            return new ArrayList<>(points);
+        }
+
+		ArrayList<Vector> filtered = new ArrayList<>();
+
+        for (Vector point : points) {
+            if (WbsMath.chance(chance)) {
+                filtered.add(point);
+            }
+        }
+
+        return filtered;
 	}
 	
-	protected ArrayList<Location> getLocations(Location loc) {
+	protected ArrayList<Vector> getPoints() {
 		if (points.isEmpty()) {
 			build();
 		}
-		ArrayList<Location> locations = WbsMath.offsetPoints(loc, points);
-		return filterChances(locations);
+		return filterChances(points);
 	}
 
 	/*===========================*/
@@ -296,21 +319,74 @@ public abstract class WbsParticleEffect {
 		return data;
 	}
 
-	protected boolean preventDataUse(Particle particle) {
-		if (data == null) {
-			return true;
+	/**
+	 * @return The particle specific options - different for redstone, falling dust etc
+	 */
+	public Object getData(Particle particle) {
+		return getData(ZERO_VEC, particle);
+	}
+
+	/**
+	 * @return The particle specific options - different for redstone, falling dust etc
+	 */
+	public Object getData(@NotNull Vector point, @NotNull Particle particle) {
+		Map<Particle, Object> particleData = pointData.get(point);
+		if (particleData == null) {
+			particleData = new HashMap<>();
+		}
+		Object foundData = particleData.get(particle);
+		if (foundData != null) {
+			return foundData;
 		}
 
-		if (!particle.getDataType().isAssignableFrom(data.getClass())) {
-			WbsUtils.getInstance().getLogger().warning(
-					"A plugin attempted to use data type " + data.getClass()
-							+ " for particle type " + particle
-							+ " (requiring " + particle.getDataType() + ").");
-			Thread.dumpStack();
-			return true;
+		foundData = getData();
+		if (dynamicDataProvider != null) {
+			foundData = dynamicDataProvider.apply(point.clone(), particle);
 		}
 
-		return false;
+		Object cast = castParticleData(foundData, particle);
+
+		particleData.put(particle, cast);
+		pointData.put(point, particleData);
+
+		return cast;
+	}
+
+	private static @Nullable Object castParticleData(Object foundData, Particle particle) {
+        if (foundData == null) {
+			return null;
+        }
+
+		Class<?> particleDataType = particle.getDataType();
+		if (!particleDataType.isAssignableFrom(foundData.getClass())) {
+            if (Number.class.isAssignableFrom(particleDataType) && foundData instanceof Number numData) {
+				//noinspection unchecked
+                return WbsPrimitives.convertNumber(numData, (Class<? extends Number>) particleDataType);
+            } else {
+                WbsUtils.getInstance().getLogger().warning(
+                        "A plugin attempted to use data type " + foundData.getClass()
+                                + " for particle type " + particle
+                                + " (requiring " + particle.getDataType() + ").");
+                Thread.dumpStack();
+            }
+        }
+
+        return particleDataType.cast(foundData);
+	}
+
+	/**
+	 * @return The dynamic data provider that accepts location and outputs the data for that point.
+	 */
+	public BiFunction<Vector, Particle, Object> getDynamicDataProvider() {
+		return dynamicDataProvider;
+	}
+
+	/**
+	 * Instead of setting data directly, set a data provider that accepts the location to spawn and provides
+	 * the data for that point wherever possible. Location will be the spawn location when spread is used.
+	 */
+	public void setDynamicDataProvider(BiFunction<Vector, Particle, Object> dynamicDataProvider) {
+		this.dynamicDataProvider = dynamicDataProvider;
 	}
 
 	/**

@@ -7,12 +7,11 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class PersistentItemType implements PersistentDataType<String, ItemStack> {
+public class PersistentItemType implements WbsPersistentDataType<String, ItemStack> {
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(Byte.class, TypeAdapters.BYTE)
             .create();

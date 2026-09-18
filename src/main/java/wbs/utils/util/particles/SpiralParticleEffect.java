@@ -4,11 +4,15 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jspecify.annotations.Nullable;
 import wbs.utils.util.WbsMath;
 import wbs.utils.util.plugin.WbsSettings;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A particle effect that draws a ring but specifically controls
@@ -45,10 +49,10 @@ public class SpiralParticleEffect extends CircleParticleEffect {
 		return cloned;
 	}
 
+
 	@Override
-	public SpiralParticleEffect build() {
-		points.clear();
-		refreshProviders();
+	protected List<Vector> generatePoints() {
+		LinkedList<Vector> points = new LinkedList<>();
 
 		if (about.val().equals(upVector)) {
 			points.addAll(WbsMath.get2Ring(amount.intVal(), radius.val(), rotation.val()));
@@ -56,52 +60,54 @@ public class SpiralParticleEffect extends CircleParticleEffect {
 			points.addAll(WbsMath.get3Ring(amount.intVal(), radius.val(), about.val(), rotation.val()));
 		}
 		
-		return this;
+		return points;
 	}
 
 	/*
 	 * Overriding because velocity is specifically controlled here.
 	 */
 	@Override
-	public SpiralParticleEffect play(Particle particle, Location loc) {
+	public SpiralParticleEffect play(Particle particle, Location loc, @Nullable Player player) {
 		World world = loc.getWorld();
 
 		if (world == null)
 			throw new IllegalArgumentException("Location had an invalid world.");
 
 		direction.val().normalize();
-		
-		ArrayList<Location> locations = getLocations(loc);
+
+		ArrayList<Vector> points = getPoints();
+		ArrayList<Location> locations = WbsMath.offsetPoints(loc, points);
 
 		int i = 0;
 		Location velPoint;
-		for (Location point : locations) {
-			if (!WbsMath.chance(chance)) {
-				continue;
-			}
-			i++;
-			if (clockwise) {
-				velPoint = locations.get((i + (points.size() / 4)) % points.size());
-			} else {
-				int pointerIndex = (i - (points.size() / 4)) % points.size();
-				while (pointerIndex < 0) {
-					pointerIndex += locations.size();
-				}
-				
-				velPoint = locations.get(pointerIndex);
-			}
-			Vector vec = velPoint.clone().subtract(loc.toVector()).toVector();
-			vec = scaleVector(vec, variation.val());
-			Vector vecSave = vec;
-			for (int k = 0; k < amount.intVal(); k++) {
-				vec = vecSave.clone();
-				if (preventDataUse(particle)) {
-					world.spawnParticle(particle, point, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed.val(), null, force);
+        for (int j = 0; j < points.size(); j++) {
+            i++;
+            if (clockwise) {
+                velPoint = locations.get((i + (points.size() / 4)) % points.size());
+            } else {
+                int pointerIndex = (i - (points.size() / 4)) % points.size();
+                while (pointerIndex < 0) {
+                    pointerIndex += locations.size();
+                }
+
+                velPoint = locations.get(pointerIndex);
+            }
+            Vector vec = velPoint.clone().subtract(loc.toVector()).toVector();
+            vec = scaleVector(vec, variation.val());
+            Vector vecSave = vec;
+
+			Vector point = points.get(j);
+			Location locPoint = locations.get(j);
+			Object data = getData(point, particle);
+            for (int k = 0; k < amount.intVal(); k++) {
+                vec = vecSave.clone();
+				if (player == null) {
+					world.spawnParticle(particle, locPoint, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed.val(), data, force);
 				} else {
-					world.spawnParticle(particle, point, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed.val(), particle.getDataType().cast(data), force);
+					player.spawnParticle(particle, locPoint, 0, vec.getX() + direction.getX(), vec.getY() + direction.getY(), vec.getZ() + direction.getZ(), speed.val(), data, force);
 				}
-			}
-		}
+            }
+        }
 		
 		return this;
 	}

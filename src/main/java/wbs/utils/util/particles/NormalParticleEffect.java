@@ -1,14 +1,19 @@
 package wbs.utils.util.particles;
 
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jspecify.annotations.Nullable;
 import wbs.utils.util.configuration.WbsConfigReader;
 import wbs.utils.util.plugin.WbsSettings;
 import wbs.utils.util.providers.NumProvider;
+
+import java.util.List;
 
 /**
  * A particle effect that mimics the default behaviour of particle spawning,
@@ -73,36 +78,22 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	}
 
 	@Override
-	public NormalParticleEffect build() {
-		refreshProviders();
-		// Nothing to pre-generate
-		return this;
+	protected List<Vector> generatePoints() {
+		return List.of();
 	}
 
 	@Override
-	public NormalParticleEffect play(Particle particle, Location loc, Player player) {
+	public NormalParticleEffect play(Particle particle, Location loc, @Nullable Player player) {
+		World world = Preconditions.checkNotNull(loc.getWorld(), "Location must be in a world.");
 
-		if (preventDataUse(particle)) {
-			player.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), null);
+		Object data = getData(particle);
+		if (player == null) {
+			world.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), data, force);
 		} else {
-			player.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), particle.getDataType().cast(data));
+			player.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), data, force);
 		}
 
-		return this;
-	}
-
-	@Override
-	public NormalParticleEffect play(Particle particle, Location loc) {
-		World world = loc.getWorld();
-		if (world != null) {
-			if (preventDataUse(particle)) {
-				world.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), null, force);
-			} else {
-				world.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), particle.getDataType().cast(data), force);
-			}
-		}
-		
-		return this;
+        return this;
 	}
 
 	/*===============================*/

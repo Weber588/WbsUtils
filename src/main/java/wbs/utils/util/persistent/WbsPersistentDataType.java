@@ -6,10 +6,10 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 import org.apache.logging.log4j.util.Strings;
 import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.ListPersistentDataType;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,39 +19,24 @@ import java.io.IOException;
 import java.util.*;
 
 @SuppressWarnings("unused")
-public final class WbsPersistentDataType {
-    public static final PersistentLocationType LOCATION = new PersistentLocationType();
-    public static final PersistentItemType ITEM = new PersistentItemType();
-    public static final PersistentItemByteType ITEM_AS_BYTES = new PersistentItemByteType();
-    public static final PersistentKeyType NAMESPACED_KEY = new PersistentKeyType();
-    public static final PersistentUUIDType UUID = new PersistentUUIDType();
+public interface WbsPersistentDataType<P, T> extends PersistentDataType<P, T> {
+    PersistentLocationType LOCATION = new PersistentLocationType();
+    PersistentItemType ITEM = new PersistentItemType();
+    PersistentItemByteType ITEM_AS_BYTES = new PersistentItemByteType();
+    PersistentKeyType NAMESPACED_KEY = new PersistentKeyType();
+    PersistentUUIDType UUID = new PersistentUUIDType();
 
-    @Nullable
-    @Contract("_, _, _, !null -> !null")
-    public static <T> T getOrDefault(@NotNull PersistentDataContainerView container, NamespacedKey key, PersistentDataType<?, T> type, T defaultValue) {
-        if (container.has(key, type)) {
-            T value = container.get(key, type);
-            if (value == null) {
-                return defaultValue;
-            } else {
-                return value;
-            }
-        } else {
-            return defaultValue;
-        }
-    }
-
-    public static <T> void setIfNotDefault(@NotNull PersistentDataContainer container,
-                                           @NotNull NamespacedKey key,
-                                           @NotNull PersistentDataType<?, T> type,
-                                           @Nullable T value,
-                                           @Nullable T defaultValue) {
+    static <T> void setIfNotDefault(@NotNull PersistentDataContainer container,
+                                    @NotNull NamespacedKey key,
+                                    @NotNull PersistentDataType<?, T> type,
+                                    @Nullable T value,
+                                    @Nullable T defaultValue) {
         if (value != defaultValue && value != null) {
             container.set(key, type, value);
         }
     }
 
-    public static String toString(PersistentDataContainerView container) {
+    static String toString(PersistentDataContainerView container) {
         try (DataInputStream dataInput = new DataInputStream(new ByteArrayInputStream(container.serializeToBytes()))) {
             CompoundTag compound = NbtIo.read(dataInput);
             return compound.toString();
@@ -61,7 +46,7 @@ public final class WbsPersistentDataType {
     }
 
     @Nullable
-    public static String toString(PersistentDataContainerView container, NamespacedKey key) {
+    static String toString(PersistentDataContainerView container, NamespacedKey key) {
         try (DataInputStream dataInput = new DataInputStream(new ByteArrayInputStream(container.serializeToBytes()))) {
             CompoundTag compound = NbtIo.read(dataInput);
             Tag tag = compound.get(key.asString());
@@ -73,7 +58,7 @@ public final class WbsPersistentDataType {
     }
 
     @Nullable
-    public static String toString(PersistentDataContainerView container, String namespace) {
+    static String toString(PersistentDataContainerView container, String namespace) {
         try (DataInputStream dataInput = new DataInputStream(new ByteArrayInputStream(container.serializeToBytes()))) {
             CompoundTag compound = NbtIo.read(dataInput);
 
@@ -90,9 +75,11 @@ public final class WbsPersistentDataType {
         }
     }
 
-    private WbsPersistentDataType() {}
+    default ListPersistentDataType<P, T> asList() {
+        return PersistentDataType.LIST.listTypeFrom(this);
+    }
 
-    public static class PersistentKeyType implements PersistentDataType<String, NamespacedKey> {
+    class PersistentKeyType implements WbsPersistentDataType<String, NamespacedKey> {
         @Override
         public @NotNull Class<String> getPrimitiveType() {
             return String.class;
@@ -110,11 +97,11 @@ public final class WbsPersistentDataType {
 
         @Override
         public @NotNull NamespacedKey fromPrimitive(@NotNull String asString, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
-            return Objects.requireNonNull(NamespacedKey.fromString(asString));
+            return Objects.requireNonNull(NamespacedKey.fromString(asString), "Invalid NamespacedKey \"%s\"".formatted(asString));
         }
     }
 
-    public static class PersistentUUIDType implements PersistentDataType<String, UUID> {
+    class PersistentUUIDType implements WbsPersistentDataType<String, UUID> {
         @Override
         public @NotNull Class<String> getPrimitiveType() {
             return String.class;

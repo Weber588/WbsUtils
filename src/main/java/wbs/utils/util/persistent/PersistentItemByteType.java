@@ -2,10 +2,9 @@ package wbs.utils.util.persistent;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-public class PersistentItemByteType implements PersistentDataType<byte[], ItemStack> {
+public class PersistentItemByteType implements WbsPersistentDataType<byte[], ItemStack> {
     @Override
     public @NotNull Class<byte[]> getPrimitiveType() {
         return byte[].class;

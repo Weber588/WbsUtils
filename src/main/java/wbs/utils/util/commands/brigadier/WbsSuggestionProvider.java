@@ -1,6 +1,7 @@
 package wbs.utils.util.commands.brigadier;
 
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -15,7 +16,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-@SuppressWarnings({"UnstableApiUsage", "unused"})
+@SuppressWarnings({"unused"})
 public interface WbsSuggestionProvider<T> extends SuggestionProvider<CommandSourceStack> {
     static <T> StaticKeysProvider<T> getStatic(@NotNull Iterable<T> values, @NotNull Function<T, String> toString, @Nullable String tooltip) {
         return new StaticKeysProvider<>(values, toString, tooltip);
@@ -27,17 +28,21 @@ public interface WbsSuggestionProvider<T> extends SuggestionProvider<CommandSour
         return getStatic(values, Objects::toString);
     }
 
-    static boolean shouldSuggest(SuggestionsBuilder builder, String suggestion) {
-        return suggestion.toLowerCase().startsWith(builder.getRemainingLowerCase());
+    default boolean shouldSuggest(SuggestionsBuilder builder, String suggestion) {
+        String lowerSuggestion = suggestion.toLowerCase();
+        String input = builder.getRemainingLowerCase();
+        return lowerSuggestion.startsWith(input)
+                || lowerSuggestion.replace("\"", "")
+                .startsWith(input.replace("\"", ""));
     }
-    static boolean shouldSuggest(SuggestionsBuilder builder, String ... matches) {
-        return Arrays.stream(matches).anyMatch(match -> shouldSuggest(builder, match));
+    static boolean shouldSuggest(WbsSuggestionProvider<?> provider, SuggestionsBuilder builder, String ... matches) {
+        return Arrays.stream(matches).anyMatch(match -> provider.shouldSuggest(builder, match));
     }
-    static boolean shouldSuggest(SuggestionsBuilder builder, Collection<String> matches) {
-        return matches.stream().anyMatch(match -> shouldSuggest(builder, match));
+    static boolean shouldSuggest(WbsSuggestionProvider<?> provider, SuggestionsBuilder builder, Collection<String> matches) {
+        return matches.stream().anyMatch(match -> provider.shouldSuggest(builder, match));
     }
 
-    Iterable<T> getSuggestions(CommandContext<CommandSourceStack> context);
+    Iterable<T> getSuggestions(CommandContext<CommandSourceStack> context) throws CommandSyntaxException;
     String toString(T value);
     default Collection<String> getSuggestionMatches(T value) {
         return Collections.singleton(toString(value));
@@ -47,10 +52,10 @@ public interface WbsSuggestionProvider<T> extends SuggestionProvider<CommandSour
     }
 
     @Override
-    default CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+    default CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) throws CommandSyntaxException {
         for (T value : getSuggestions(context)) {
             String stringValue = toString(value);
-            if (shouldSuggest(builder, getSuggestionMatches(value))) {
+            if (shouldSuggest(this, builder, getSuggestionMatches(value))) {
                 if (getDefaultTooltip() != null) {
                     builder.suggest(stringValue, this::getDefaultTooltip);
                 } else {
