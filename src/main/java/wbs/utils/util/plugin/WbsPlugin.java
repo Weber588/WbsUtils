@@ -2,6 +2,10 @@ package wbs.utils.util.plugin;
 
 import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import com.google.common.base.Strings;
+import com.mojang.brigadier.Message;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
@@ -512,5 +516,15 @@ public abstract class WbsPlugin extends JavaPlugin {
 		if (settings != null) {
 			settings.debug(channel, runnable);
 		}
+	}
+
+	public CommandSyntaxException asException(String message) {
+		return asException(Component.text(message));
+	}
+	public CommandSyntaxException asException(Component message) {
+		Message serialized = MessageComponentSerializer.message().serialize(
+				buildMessage(message).toComponent()
+		);
+		return new SimpleCommandExceptionType(serialized).create();
 	}
 }

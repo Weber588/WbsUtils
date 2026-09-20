@@ -95,6 +95,7 @@ public class WbsUtils extends WbsPlugin {
 						}),
 						getMiniMessageCommand(),
 						getDebugPDCCommand(),
+						getTranslateCommand(),
 						WbsSubcommand.simpleSubcommand(this, "trial_key", context -> {
 							CommandSender sender = context.getSource().getSender();
 							if (!(sender instanceof Player player)) {
@@ -319,6 +320,25 @@ public class WbsUtils extends WbsPlugin {
 		setDisplays("&8[&7WbsUtils&8]", NamedTextColor.GRAY, NamedTextColor.AQUA, NamedTextColor.RED);
 
 		configure();
+	}
+
+    private WbsSubcommand getTranslateCommand() {
+		WbsSimpleArgument<@Nullable String> translationKeyArg = new WbsSimpleArgument<>("translation_key", StringArgumentType.greedyString(), null, String.class);
+		return WbsSubcommand.simpleArgumentSubcommand(this, "translate", List.of(translationKeyArg), (context, map) -> {
+			String translationKey = map.get(translationKeyArg);
+			CommandSender sender = context.getSource().getSender();
+
+			if (translationKey == null) {
+				map.sendUsage(this, context);
+				return Command.SINGLE_SUCCESS;
+			}
+
+			sendMessage("Translation Key: " + translationKey, sender);
+			sendMessage("Translated:", sender);
+			sender.sendMessage(Component.translatable(translationKey));
+
+			return Command.SINGLE_SUCCESS;
+		});
 	}
 
 	private static Color varyColour(ColourHSV color) {

@@ -14,10 +14,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NullMarked;
-import wbs.utils.WbsUtils;
 import wbs.utils.exceptions.ThrowingFunction;
 import wbs.utils.util.WbsRegistry;
 import wbs.utils.util.commands.brigadier.KeyedSuggestionProvider;
+import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -25,23 +25,25 @@ import java.util.function.Function;
 
 @NullMarked
 public class WbsKeyedArgumentType<T extends Keyed> implements CustomArgumentType<T, NamespacedKey>, KeyedSuggestionProvider<T> {
+    private final WbsPlugin plugin;
     private final String typeName;
     private @Nullable String defaultNamespace = null;
     private final Function<NamespacedKey, @Nullable T> retriever;
     private @Nullable ThrowingFunction<CommandContext<CommandSourceStack>, Iterable<T>, CommandSyntaxException> suggestionProvider;
 
-    public WbsKeyedArgumentType(String typeName, Function<NamespacedKey, @Nullable T> retriever) {
+    public WbsKeyedArgumentType(WbsPlugin plugin, String typeName, Function<NamespacedKey, @Nullable T> retriever) {
+        this.plugin = plugin;
         this.typeName = typeName;
         this.retriever = retriever;
     }
 
-    public <R extends WbsRegistry<T>> WbsKeyedArgumentType(String typeName, R registry) {
-        this(typeName, (Function<NamespacedKey, T>) registry);
+    public WbsKeyedArgumentType(WbsPlugin plugin, String typeName, WbsRegistry<T> registry) {
+        this(plugin, typeName, (Function<NamespacedKey, T>) registry);
         suggestionProvider = (_ -> registry.values());
     }
 
-    public <R extends Registry<T>> WbsKeyedArgumentType(String typeName, R registry) {
-        this(typeName, (Function<NamespacedKey, @Nullable T>) registry::get);
+    public WbsKeyedArgumentType(WbsPlugin plugin, String typeName, Registry<T> registry) {
+        this(plugin, typeName, registry::get);
         suggestionProvider = (_ -> registry.stream().toList());
     }
 
@@ -50,16 +52,17 @@ public class WbsKeyedArgumentType<T extends Keyed> implements CustomArgumentType
         String asString = reader.getRemaining().split("\\s")[0];
         reader.setCursor(reader.getCursor() + asString.length());
 
-        NamespacedKey key = WbsKeyArgumentType.parseKey(asString, defaultNamespace);
+        NamespacedKey key = WbsKeyArgumentType.parseKey(plugin, asString, defaultNamespace);
 
         T found = this.retriever.apply(key);
 
         if (found == null) {
-            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException()
-                    .create("Invalid key \"" + key.asString() + "\" for type " + typeName);
+            throw plugin.asException("Invalid key \"%s\" for type %s".formatted(asString, typeName));
         }
+
         return found;
     }
+
 
     @Override
     public ArgumentType<NamespacedKey> getNativeType() {

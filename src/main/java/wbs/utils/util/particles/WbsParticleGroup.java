@@ -1,7 +1,10 @@
 package wbs.utils.util.particles;
 
+import org.apache.commons.io.function.IOTriConsumer;
+import org.apache.commons.lang3.function.TriConsumer;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.jetbrains.annotations.NotNull;
 import wbs.utils.util.WbsMath;
 
 import java.util.HashMap;
@@ -15,6 +18,24 @@ public class WbsParticleGroup {
 
 	private final Map<WbsParticleEffect, Particle> effects = new HashMap<>();
 	private final Map<WbsParticleEffect, Double> chances = new HashMap<>();
+	@NotNull
+	private PlayLine linePlay = ((effect, location, finishLocation, particle) -> {
+		effect.play(particle, location, finishLocation);
+	});
+	@NotNull
+	private Play play = ((effect, location, particle) -> {
+		effect.play(particle, location);
+	});
+
+	public WbsParticleGroup linePlay(@NotNull PlayLine linePlay) {
+		this.linePlay = linePlay;
+		return this;
+	}
+
+	public WbsParticleGroup play(@NotNull Play play) {
+		this.play = play;
+		return this;
+	}
 
 	/**
 	 * Add an effect to play with a given chance
@@ -58,14 +79,19 @@ public class WbsParticleGroup {
 			double chance = chances.get(effect);
 
 			if (WbsMath.chance(chance)) {
-
-				if (effect instanceof LineParticleEffect) {
-					((LineParticleEffect) effect).play(effects.get(effect), location, finishLocation);
+				Particle particle = effects.get(effect);
+				if (effect instanceof LineParticleEffect lineEffect) {
+					linePlay.playLine(lineEffect, location, finishLocation, particle);
 				} else {
-					effect.buildAndPlay(effects.get(effect), location);
+					effect.build();
+					play.play(effect, location, particle);
 				}
 			}
 		}
+	}
+
+	private void play(Location location, WbsParticleEffect effect) {
+		effect.play(effects.get(effect), location);
 	}
 
 	/**
@@ -87,11 +113,11 @@ public class WbsParticleGroup {
 			double chance = chances.get(effect);
 			
 			if (WbsMath.chance(chance)) {
-				
-				if (effect instanceof LineParticleEffect) {
-					((LineParticleEffect) effect).play(effects.get(effect), location, finishLocation);
+				Particle particle = effects.get(effect);
+				if (effect instanceof LineParticleEffect lineEffect) {
+					linePlay.playLine(lineEffect, location, finishLocation, particle);
 				} else {
-					effect.play(effects.get(effect), location);
+					play.play(effect, location, particle);
 				}
 			}
 		}
@@ -118,10 +144,11 @@ public class WbsParticleGroup {
 		WbsParticleEffect[] possibleEffects = (WbsParticleEffect[]) effects.keySet().toArray();
 		WbsParticleEffect effect = possibleEffects[index];
 
-		if (effect instanceof LineParticleEffect) {
-			((LineParticleEffect) effect).play(effects.get(effect), location, finishLocation);
+		Particle particle = effects.get(effect);
+		if (effect instanceof LineParticleEffect lineEffect) {
+			linePlay.playLine(lineEffect, location, finishLocation, particle);
 		} else {
-			effect.play(effects.get(effect), location);
+			play.play(effect, location, particle);
 		}
 		
 		return effect;
@@ -136,5 +163,15 @@ public class WbsParticleGroup {
 		}
 		
 		return cloned;
+	}
+
+	@FunctionalInterface
+	public interface PlayLine {
+		void playLine(LineParticleEffect effect, Location location, Location finishLocation, Particle particle);
+	}
+
+	@FunctionalInterface
+	public interface Play {
+		void play(WbsParticleEffect effect, Location location, Particle particle);
 	}
 }

@@ -3,14 +3,19 @@ package wbs.utils.util.commands.brigadier.argument;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.MessageComponentSerializer;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import wbs.utils.WbsUtils;
 import wbs.utils.util.commands.brigadier.KeyedSuggestionProvider;
 import wbs.utils.util.commands.brigadier.WbsSuggestionProvider;
 import wbs.utils.util.plugin.WbsPlugin;
@@ -31,7 +36,7 @@ public class WbsSimpleArgument<T> {
 
     private final String label;
     private final ArgumentType<T> type;
-    private final @Nullable T defaultValue;
+    private @Nullable T defaultValue;
     private final Class<T> clazz;
     protected final List<T> suggestions = new LinkedList<>();
     private Function<T, String> toString = Objects::toString;
@@ -48,6 +53,12 @@ public class WbsSimpleArgument<T> {
         if (defaultValue != null) {
             this.suggestions.add(defaultValue);
         }
+    }
+
+    public WbsSimpleArgument(String label, ArgumentType<T> type, Class<T> clazz) {
+        this.label = label;
+        this.type = type;
+        this.clazz = clazz;
     }
 
     @SafeVarargs
@@ -101,7 +112,7 @@ public class WbsSimpleArgument<T> {
         return builder;
     }
 
-    public T getValue(CommandContext<?> context) {
+    public T getValue(CommandContext<CommandSourceStack> context) {
         try {
             return context.getArgument(label, clazz);
         } catch (IllegalArgumentException ex) {
@@ -109,7 +120,7 @@ public class WbsSimpleArgument<T> {
         }
     }
 
-    private ConfiguredArgument<T> getConfigured(CommandContext<?> context) {
+    private ConfiguredArgument<T> getConfigured(CommandContext<CommandSourceStack> context) {
         return new ConfiguredArgument<>(this, getValue(context));
     }
 
@@ -123,6 +134,11 @@ public class WbsSimpleArgument<T> {
 
     public T defaultValue() {
         return defaultValue;
+    }
+
+    public WbsSimpleArgument<T> defaultValue(@Nullable T defaultValue) {
+        this.defaultValue = defaultValue;
+        return this;
     }
 
     public Class<T> clazz() {
@@ -139,8 +155,12 @@ public class WbsSimpleArgument<T> {
         return this;
     }
 
-    public void isRequired(boolean isRequired) {
+    public WbsSimpleArgument<T> isRequired(boolean isRequired) {
         this.isRequired = isRequired;
+        return this;
+    }
+    public boolean isRequired() {
+        return isRequired;
     }
 
     @NotNull
@@ -156,11 +176,11 @@ public class WbsSimpleArgument<T> {
         public KeyedSimpleArgument(String label, ArgumentType<NamespacedKey> type, NamespacedKey defaultValue) {
             super(label, type, defaultValue, NamespacedKey.class);
         }
-        public KeyedSimpleArgument(String label, String defaultNamespace, NamespacedKey defaultValue) {
-            super(label, new WbsKeyArgumentType(defaultNamespace), defaultValue, NamespacedKey.class);
+        public KeyedSimpleArgument(String label, WbsPlugin plugin, String defaultNamespace, NamespacedKey defaultValue) {
+            this(label, new WbsKeyArgumentType(plugin).defaultNamespace(defaultNamespace), defaultValue);
         }
-        public KeyedSimpleArgument(String label, Plugin defaultNamespace, NamespacedKey defaultValue) {
-            super(label, new WbsKeyArgumentType(defaultNamespace.namespace()), defaultValue, NamespacedKey.class);
+        public KeyedSimpleArgument(String label, WbsPlugin plugin, NamespacedKey defaultValue) {
+            this(label, new WbsKeyArgumentType(plugin), defaultValue);
         }
 
         public <T extends Keyed> KeyedSimpleArgument setKeyedSuggestions(Collection<T> suggestions) {
@@ -192,6 +212,47 @@ public class WbsSimpleArgument<T> {
         public <T extends Keyed> T getKeyedValue(CommandContext<CommandSourceStack> context, Function<NamespacedKey, T> getter) {
             return getter.apply(getValue(context));
         }
+
+        public KeyedSimpleArgument isRequired(boolean isRequired) {
+            return (KeyedSimpleArgument) super.isRequired(isRequired);
+        }
+
+        @Nullable
+        public <T extends Keyed> T handleRequiredKeyedValue(CommandContext<CommandSourceStack> context, String typeName, Function<NamespacedKey, T> getter, Collection<T> allowed, WbsPlugin plugin) {
+            return handleKeyedValue(context, typeName, getter, allowed, plugin, true);
+        }
+
+        @Nullable
+        public <T extends Keyed> T handleOptionalKeyedValue(CommandContext<CommandSourceStack> context, String typeName, Function<NamespacedKey, T> getter, Collection<T> allowed, WbsPlugin plugin) {
+            return handleKeyedValue(context, typeName, getter, allowed, plugin, false);
+        }
+        @Nullable
+        public <T extends Keyed> T handleKeyedValue(CommandContext<CommandSourceStack> context, String typeName, Function<NamespacedKey, T> getter, Collection<T> allowed, WbsPlugin plugin, boolean required) {
+            NamespacedKey asKey = getValue(context);
+
+            if (asKey == null) {
+                plugin.sendMessage("Choose a " + typeName + ": "
+                                + allowed.stream()
+                                .map(Keyed::key)
+                                .map(Key::asString)
+                                .collect(Collectors.joining(", ")),
+                        context.getSource().getSender());
+                return null;
+            }
+
+            T aspect = getter.apply(asKey);
+
+            if (aspect == null) {
+                plugin.sendMessage("Invalid " + typeName + ": " + asKey.asString() + ". Choose a " + typeName + ": "
+                        + allowed.stream()
+                        .map(Keyed::key)
+                        .map(Key::asString)
+                        .collect(Collectors.joining(", ")), context.getSource().getSender());
+                return null;
+            }
+
+            return aspect;
+        }
     }
 
     private record ConfiguredArgument<T>(WbsSimpleArgument<T> argument, T configuredValue) {
@@ -200,7 +261,7 @@ public class WbsSimpleArgument<T> {
     public static class ConfiguredArgumentMap {
         private final LinkedHashSet<ConfiguredArgument<?>> set = new LinkedHashSet<>();
 
-        public ConfiguredArgumentMap(CommandContext<?> context, List<WbsSimpleArgument<?>> all) {
+        public ConfiguredArgumentMap(CommandContext<CommandSourceStack> context, List<WbsSimpleArgument<?>> all) {
             for (WbsSimpleArgument<?> other : all) {
                 add(other.getConfigured(context));
             }
@@ -229,7 +290,7 @@ public class WbsSimpleArgument<T> {
         }
 
         public void sendUsage(WbsPlugin plugin, CommandContext<CommandSourceStack> context) {
-            plugin.sendMessage("Usage: &h/" + context.getInput() + " " +
+            plugin.sendMessage("Usage: &h" + "/" + context.getInput() + " " +
                             set.stream()
                                     .map(arg -> arg.argument.getArgumentString())
                                     .collect(Collectors.joining(" ")),
