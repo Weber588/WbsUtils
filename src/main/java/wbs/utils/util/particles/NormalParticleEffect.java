@@ -1,7 +1,6 @@
 package wbs.utils.util.particles;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.Validate;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -19,7 +18,7 @@ import java.util.List;
  * A particle effect that mimics the default behaviour of particle spawning,
  * and works the same as the vanilla /particle command.
  */
-public class NormalParticleEffect extends WbsParticleEffect {
+public class NormalParticleEffect extends WbsParticleEffect implements SpeedParticleEffect {
 
 	public NormalParticleEffect() {
 		speed = new NumProvider(0);
@@ -87,10 +86,13 @@ public class NormalParticleEffect extends WbsParticleEffect {
 		World world = Preconditions.checkNotNull(loc.getWorld(), "Location must be in a world.");
 
 		Object data = getData(particle);
-		if (player == null) {
-			world.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), data, force);
-		} else {
-			player.spawnParticle(particle, loc, amount.intVal(), x.val(), y.val(), z.val(), speed.val(), data, force);
+		int amount = simulateAmountChance();
+		if (amount > 0) { // We're not doing count=0 velocity direction stuff -- use VelocityParticleEffect for that.
+			if (player == null) {
+				world.spawnParticle(particle, loc, amount, x.val(), y.val(), z.val(), speed.val(), data, force);
+			} else {
+				player.spawnParticle(particle, loc, amount, x.val(), y.val(), z.val(), speed.val(), data, force);
+			}
 		}
 
         return this;
@@ -103,7 +105,8 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	/**
 	 * @return The speed spawned particles will go in a random direction
 	 */
-	public double getSpeed() {
+	@Override
+    public double getSpeed() {
 		return speed.val();
 	}
 
@@ -111,7 +114,8 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	 * Gets the speed provider directly
 	 * @return The speed provider
 	 */
-	public NumProvider getSpeedProvider() {
+	@Override
+    public NumProvider getSpeedProvider() {
 		return speed;
 	}
 
@@ -119,7 +123,8 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	 * @param speed The speed spawned particles will go in a random direction
 	 * @return The same particle effect
 	 */
-	public NormalParticleEffect setSpeed(double speed) {
+	@Override
+    public NormalParticleEffect setSpeed(double speed) {
 		this.speed = new NumProvider(speed);
 		return this;
 	}
@@ -129,7 +134,8 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	 * @param speed The speed spawned particles will go in a random direction
 	 * @return The same particle effect
 	 */
-	public NormalParticleEffect setSpeed(NumProvider speed) {
+	@Override
+    public NormalParticleEffect setSpeed(NumProvider speed) {
 		this.speed = new NumProvider(speed);
 		return this;
 	}
@@ -277,7 +283,8 @@ public class NormalParticleEffect extends WbsParticleEffect {
 	/*        Serialization        */
 	/*=============================*/
 
-	public void writeToConfig(ConfigurationSection section, String path) {
+	@Override
+    public void writeToConfig(ConfigurationSection section, String path) {
 		super.writeToConfig(section, path);
 
 		x.writeToConfig(section, path + ".xSize");

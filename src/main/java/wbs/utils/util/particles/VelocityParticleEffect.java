@@ -20,7 +20,7 @@ import java.util.List;
  * A superclass for particle effects that can have speed set in specific
  * directions
  */
-public abstract class VelocityParticleEffect extends WbsParticleEffect {
+public abstract class VelocityParticleEffect extends WbsParticleEffect implements SpeedParticleEffect {
 
 	public VelocityParticleEffect() {
 		super();
@@ -135,16 +135,20 @@ public abstract class VelocityParticleEffect extends WbsParticleEffect {
 	/*        GETTERS/SETTERS        */
 	/*===============================*/
 
+	@Override
 	public double getSpeed() {
 		return speed.val();
 	}
+	@Override
 	public NumProvider getSpeedProvider() {
 		return speed;
 	}
+	@Override
 	public VelocityParticleEffect setSpeed(double speed) {
 		this.speed = new NumProvider(speed);
 		return this;
 	}
+	@Override
 	public VelocityParticleEffect setSpeed(NumProvider speed) {
 		this.speed = new NumProvider(speed);
 		return this;

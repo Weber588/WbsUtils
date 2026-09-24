@@ -1,7 +1,5 @@
 package wbs.utils.util.particles;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
@@ -118,6 +116,7 @@ public abstract class WbsParticleEffect {
 	public final WbsParticleEffect build() {
 		points.clear();
 		refreshProviders();
+		pointData.clear();
 		points.addAll(generatePoints());
 		return this;
 	}
@@ -147,7 +146,6 @@ public abstract class WbsParticleEffect {
     public final WbsParticleEffect buildAndPlay(Particle particle, Location loc) {
 		build();
 
-		pointData.clear();
 		if (dynamicDataProvider != null) {
 			for (Vector point : points) {
 				Map<Particle, Object> particleDatas = pointData.getOrDefault(point, new HashMap<>());
@@ -207,6 +205,16 @@ public abstract class WbsParticleEffect {
         }
 
         return filtered;
+	}
+
+	protected int simulateAmountChance() {
+		int finalAmount = 0;
+		for (int i = 0; i < amount.intVal(); i++) {
+			if (WbsMath.chance(chance)) {
+				finalAmount++;
+			}
+		}
+		return finalAmount;
 	}
 	
 	protected ArrayList<Vector> getPoints() {
@@ -385,8 +393,9 @@ public abstract class WbsParticleEffect {
 	 * Instead of setting data directly, set a data provider that accepts the location to spawn and provides
 	 * the data for that point wherever possible. Location will be the spawn location when spread is used.
 	 */
-	public void setDynamicDataProvider(BiFunction<Vector, Particle, Object> dynamicDataProvider) {
+	public WbsParticleEffect setDynamicDataProvider(BiFunction<Vector, Particle, Object> dynamicDataProvider) {
 		this.dynamicDataProvider = dynamicDataProvider;
+		return this;
 	}
 
 	/**
