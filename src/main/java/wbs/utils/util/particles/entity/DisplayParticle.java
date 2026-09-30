@@ -125,7 +125,11 @@ public class DisplayParticle<T extends Display> extends EntityParticle<T> {
     }
 
     public DisplayParticle<T> setScale(Vector3f scale) {
-        this.scale = new Vector3f(scale).mul(SCALE_TO_SQUARE);
+        if (entity instanceof TextDisplay) {
+            this.scale = new Vector3f(scale).mul(SCALE_TO_SQUARE);
+        } else {
+            this.scale = scale;
+        }
         return this;
     }
 

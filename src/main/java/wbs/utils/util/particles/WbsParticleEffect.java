@@ -444,4 +444,16 @@ public abstract class WbsParticleEffect {
 		section.set(path + ".chance", chance);
 	}
 
+	@Override
+	public String toString() {
+		return "WbsParticleEffect{" +
+				"chance=" + chance +
+				", amount=" + amount +
+				", data=" + data +
+				", dynamicDataProvider=" + dynamicDataProvider +
+				", force=" + force +
+				", points=" + points +
+				", pointData=" + pointData +
+				'}';
+	}
 }

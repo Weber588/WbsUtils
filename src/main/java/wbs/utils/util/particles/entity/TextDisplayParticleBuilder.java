@@ -55,12 +55,12 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
     private static Float interpolateRotation(Float start, Float end, double progress) {
         return (float) WbsMath.moduloLerp(start, end, progress, Math.TAU);
     }
-
-    @Override
-    public DisplayParticleBuilder<TextDisplay> setScale(Vector3f scale) {
-        // Treat square as default
-        return super.setScale(new Vector3f(scale).mul(SCALE_TO_SQUARE));
-    }
+//
+//    @Override
+//    public DisplayParticleBuilder<TextDisplay> setScale(Vector3f scale) {
+//        // Treat square as default
+//        return super.setScale(new Vector3f(scale).mul(SCALE_TO_SQUARE));
+//    }
 
     @Override
     protected void configure(TextDisplay display) {

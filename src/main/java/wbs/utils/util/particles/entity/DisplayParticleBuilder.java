@@ -26,7 +26,7 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
     // Transformation components
     protected Vector3f translation = new Vector3f();
     protected Quaternionf rightRotation = new Quaternionf();
-    protected Vector3f scale = new Vector3f();
+    protected Vector3f scale = new Vector3f(1, 1, 1);
     protected Quaternionf leftRotation = new Quaternionf();
 
     @Nullable
@@ -40,6 +40,10 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
     @Override
     protected @NotNull EntityParticle<T> buildInternal(T entity, List<Player> viewers) {
         return new DisplayParticle<>(entity, usePackets, maxAge, viewers, LinkedHashMultimap.create(this.keyframes), LinkedHashMultimap.create(this.dynamicKeyframes))
+                .setTranslation(translation)
+                .setLeftRotation(leftRotation)
+                .setScale(scale)
+                .setRightRotation(rightRotation)
                 .setAngularVelocity(angularVelocity != null ? angularVelocity.clone() : null)
                 .setAngularDrag(angularDrag)
                 .setTickForce(tickForce != null ? tickForce.clone() : null)
@@ -92,6 +96,10 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
     public DisplayParticleBuilder<T> setScale(Vector3f scale) {
         this.scale = scale;
         return this;
+    }
+
+    public Vector3f scale() {
+        return scale;
     }
 
     public DisplayParticleBuilder<T> setLeftRotation(Quaternionf leftRotation) {

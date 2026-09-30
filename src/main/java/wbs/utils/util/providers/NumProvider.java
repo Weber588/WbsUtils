@@ -158,4 +158,9 @@ public class NumProvider implements Provider {
             generator.writeToConfig(section, path);
         }
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(val());
+    }
 }

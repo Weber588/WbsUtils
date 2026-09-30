@@ -204,6 +204,10 @@ public class WbsParticleGroup {
 				cloned.addEffect(effect, effects.get(effect));
 			}
 		}
+
+		cloned.perEffectChance = perEffectChance;
+		cloned.play = play;
+		cloned.linePlay = linePlay;
 		
 		return cloned;
 	}
@@ -220,5 +224,16 @@ public class WbsParticleGroup {
 	@FunctionalInterface
 	public interface Play {
 		void play(WbsParticleEffect effect, Location location, Particle particle);
+	}
+
+	@Override
+	public String toString() {
+		return "WbsParticleGroup{" +
+				"effects=" + effects +
+				", chances=" + chances +
+				", perEffectChance=" + perEffectChance +
+				", linePlay=" + linePlay +
+				", play=" + play +
+				'}';
 	}
 }

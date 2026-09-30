@@ -49,7 +49,7 @@ public class EntityParticle<T extends Entity> {
                           Multimap<String, Keyframe<T>> keyframes,
                           Multimap<String, Keyframe<T>> dynamicKeyframes) {
         this.entity = entity;
-        this.usePackets = usePackets;
+        this.usePackets = usePackets && PacketEventsWrapper.isActive();
         this.maxAge = maxAge;
         this.viewers = viewers;
         this.keyframes = keyframes;
@@ -198,14 +198,16 @@ public class EntityParticle<T extends Entity> {
         } else {
             entity.getWorld().addEntity(entity);
 
-            Collection<Player> worldViewers = entity.getChunk().getPlayersSeeingChunk();
+            if (!viewers.isEmpty()) {
+                Collection<Player> worldViewers = entity.getChunk().getPlayersSeeingChunk();
 
-            // Hide from everyone else
-            worldViewers.forEach(worldViewer -> {
-                if (!viewers.contains(worldViewer)) {
-                    worldViewer.hideEntity(WbsUtils.getInstance(), entity);
-                }
-            });
+                // Hide from everyone else
+                worldViewers.forEach(worldViewer -> {
+                    if (!viewers.contains(worldViewer)) {
+                        worldViewer.hideEntity(WbsUtils.getInstance(), entity);
+                    }
+                });
+            }
         }
     }
 

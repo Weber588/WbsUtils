@@ -87,12 +87,14 @@ public class NormalParticleEffect extends WbsParticleEffect implements SpeedPart
 
 		Object data = getData(particle);
 		int amount = simulateAmountChance();
-		if (amount > 0) { // We're not doing count=0 velocity direction stuff -- use VelocityParticleEffect for that.
-			if (player == null) {
-				world.spawnParticle(particle, loc, amount, x.val(), y.val(), z.val(), speed.val(), data, force);
-			} else {
-				player.spawnParticle(particle, loc, amount, x.val(), y.val(), z.val(), speed.val(), data, force);
-			}
+		if (amount <= 0) { // We're not doing count=0 velocity direction stuff -- use VelocityParticleEffect for that.
+			amount = 1;
+		}
+
+		if (player == null) {
+			world.spawnParticle(particle, loc, amount, x.val(), y.val(), z.val(), speed.val(), data, force);
+		} else {
+			player.spawnParticle(particle, loc, amount, x.val(), y.val(), z.val(), speed.val(), data, force);
 		}
 
         return this;
@@ -292,5 +294,16 @@ public class NormalParticleEffect extends WbsParticleEffect implements SpeedPart
 		z.writeToConfig(section, path + ".zSize");
 
 		speed.writeToConfig(section, path + ".speed");
+	}
+
+	@Override
+	public String toString() {
+		return "NormalParticleEffect{" +
+				"speed=" + speed +
+				", x=" + x +
+				", y=" + y +
+				", z=" + z +
+				super.toString() +
+				'}';
 	}
 }

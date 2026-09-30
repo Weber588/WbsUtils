@@ -63,4 +63,11 @@ public abstract class DoubleGenerator implements Provider {
     }
 
     public abstract DoubleGenerator clone();
+
+    @Override
+    public String toString() {
+        return "DoubleGenerator{" +
+                "value=" + value +
+                '}';
+    }
 }

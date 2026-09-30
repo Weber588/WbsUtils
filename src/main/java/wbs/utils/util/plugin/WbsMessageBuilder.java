@@ -43,6 +43,19 @@ public class WbsMessageBuilder {
         components.add(text);
         return this;
     }
+    public WbsMessageBuilder append(WbsMessageBuilder other) {
+        return append(other, false);
+    }
+    public WbsMessageBuilder append(WbsMessageBuilder other, boolean individually) {
+        if (individually) {
+            for (Component component : other.components) {
+                this.append(component);
+            }
+        } else {
+            this.append(other.toComponent());
+        }
+        return this;
+    }
 
     public WbsMessageBuilder prepend(String string) {
         return prepend(plugin.getFormattedMessage(string));
@@ -53,6 +66,20 @@ public class WbsMessageBuilder {
     public WbsMessageBuilder prepend(Component text) {
         mostRecent = text;
         components.addFirst(text);
+        return this;
+    }
+    public WbsMessageBuilder prepend(WbsMessageBuilder other) {
+        return prepend(other, false);
+    }
+    public WbsMessageBuilder prepend(WbsMessageBuilder other, boolean individually) {
+        if (individually) {
+            // Reversed so it prepends all in the same order, not reversing it like a stack
+            for (Component component : other.components.reversed()) {
+                this.prepend(component);
+            }
+        } else {
+            this.prepend(other.toComponent());
+        }
         return this;
     }
 
