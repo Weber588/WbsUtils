@@ -8,7 +8,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import wbs.utils.WbsUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,11 +31,9 @@ public interface WbsSuggestionProvider<T> extends SuggestionProvider<CommandSour
     default boolean shouldSuggest(SuggestionsBuilder builder, String suggestion) {
         String lowerSuggestion = suggestion.toLowerCase();
         String input = builder.getRemainingLowerCase();
-        boolean suggest = lowerSuggestion.startsWith(input)
+        return lowerSuggestion.startsWith(input)
                 || lowerSuggestion.replace("\"", "")
                 .startsWith(input.replace("\"", ""));
-        WbsUtils.getInstance().getLogger().info(input + "? " + lowerSuggestion + ": " + suggest + "(%s)".formatted(this.getClass().getCanonicalName()));
-        return suggest;
     }
     static boolean shouldSuggest(WbsSuggestionProvider<?> provider, SuggestionsBuilder builder, String ... matches) {
         return Arrays.stream(matches).anyMatch(match -> provider.shouldSuggest(builder, match));
