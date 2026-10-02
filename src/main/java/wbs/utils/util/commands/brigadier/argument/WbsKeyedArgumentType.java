@@ -4,11 +4,8 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
-import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -20,11 +17,10 @@ import wbs.utils.util.commands.brigadier.KeyedSuggestionProvider;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 @NullMarked
-public class WbsKeyedArgumentType<T extends Keyed> implements CustomArgumentType<T, NamespacedKey>, KeyedSuggestionProvider<T> {
+public class WbsKeyedArgumentType<T extends Keyed> implements ArgumentTypeSuggestionProvider<T, NamespacedKey>, KeyedSuggestionProvider<T> {
     private final WbsPlugin plugin;
     private final String typeName;
     private @Nullable String defaultNamespace = null;
@@ -63,7 +59,6 @@ public class WbsKeyedArgumentType<T extends Keyed> implements CustomArgumentType
         return found;
     }
 
-
     @Override
     public ArgumentType<NamespacedKey> getNativeType() {
         return ArgumentTypes.namespacedKey();
@@ -82,18 +77,6 @@ public class WbsKeyedArgumentType<T extends Keyed> implements CustomArgumentType
     @Override
     public String toString(T value) {
         return value.getKey().asString();
-    }
-
-    @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        try {
-            //noinspection unchecked
-            return KeyedSuggestionProvider.super.getSuggestions((CommandContext<CommandSourceStack>) context, builder);
-        } catch (ClassCastException ex) {
-            return CustomArgumentType.super.listSuggestions(context, builder);
-        } catch (CommandSyntaxException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public @Nullable String defaultNamespace() {

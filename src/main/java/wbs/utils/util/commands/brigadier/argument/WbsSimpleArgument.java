@@ -3,24 +3,23 @@ package wbs.utils.util.commands.brigadier.argument;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import wbs.utils.WbsUtils;
 import wbs.utils.util.commands.brigadier.KeyedSuggestionProvider;
 import wbs.utils.util.commands.brigadier.WbsSuggestionProvider;
 import wbs.utils.util.plugin.WbsPlugin;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -101,7 +100,7 @@ public class WbsSimpleArgument<T> {
                     ConfiguredArgumentMap map = new ConfiguredArgumentMap(context, all);
                     return function.apply(context, map);
                 })
-                .suggests(suggestionProvider != null ? suggestionProvider : WbsSuggestionProvider.getStatic(suggestions, toString, tooltip));
+                .suggests(this::getProvidedSuggestions);
 
         if (!next.isEmpty()) {
             WbsSimpleArgument<?> first = next.removeFirst();
@@ -110,6 +109,23 @@ public class WbsSimpleArgument<T> {
         }
 
         return builder;
+    }
+
+    public CompletableFuture<Suggestions> getProvidedSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder suggestionsBuilder) throws CommandSyntaxException {
+        if (suggestionProvider != null) {
+            return suggestionProvider.getSuggestions(context, suggestionsBuilder);
+        }
+
+        return getSuggestions(context, suggestionsBuilder);
+    }
+
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder suggestionsBuilder) throws CommandSyntaxException {
+        if (type instanceof SuggestionProvider<?>) {
+            //noinspection unchecked
+            return ((SuggestionProvider<CommandSourceStack>) type).getSuggestions(context, suggestionsBuilder);
+        }
+
+        return WbsSuggestionProvider.getStatic(suggestions, toString, tooltip).getSuggestions(context, suggestionsBuilder);
     }
 
     public T getValue(CommandContext<CommandSourceStack> context) {

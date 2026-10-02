@@ -21,7 +21,13 @@ public class WbsRegistrySimpleArgument<T extends Keyed> extends WbsSimpleArgumen
     private @Nullable Component requiredMessage;
 
     public WbsRegistrySimpleArgument(String label, WbsPlugin plugin, String typeName, Class<T> tClass, Function<NamespacedKey, T> getter, Collection<T> allowed) {
-        super(label, new WbsKeyedArgumentType<>(plugin, typeName, getter).defaultNamespace(plugin.namespace()), tClass);
+        super(
+                label,
+                new WbsKeyedArgumentType<>(plugin, typeName, getter)
+                        .defaultNamespace(plugin.namespace())
+                        .setSuggestionProvider(_ -> allowed),
+                tClass
+        );
         this.plugin = plugin;
         this.getter = getter;
 
