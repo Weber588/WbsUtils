@@ -193,8 +193,10 @@ public class WbsUtils extends WbsPlugin {
 							ColourHSV color3 = new ColourHSV(0.067, 0.001, 0.2);
 
 							InterpolatedFrameGenerator<@NotNull TextDisplay, Double> scaleFrames = builder.buildInterpolatedKeyframes(WbsMath::sineInterpolate, 1d)
-									.setSetter((display, scale) -> {
-										((DisplayParticle<@NotNull TextDisplay>) display).setScale(scale.floatValue());
+									.setSetter((particle, scale) -> {
+										((DisplayParticle<@NotNull TextDisplay>) particle).editTransformation(
+												t -> t.scale(scale.floatValue())
+										);
 									})
 									.setFrames(
 											ValueKeyframe.of(0d, 1d),

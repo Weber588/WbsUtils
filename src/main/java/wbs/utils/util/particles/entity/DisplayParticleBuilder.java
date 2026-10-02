@@ -5,8 +5,8 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 import wbs.utils.WbsUtils;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @NullMarked
 public class DisplayParticleBuilder<T extends Display> extends EntityParticleBuilder<T> {
@@ -24,27 +25,24 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
     protected int interpolationDuration = 0;
 
     // Transformation components
-    protected Vector3f translation = new Vector3f();
-    protected Quaternionf rightRotation = new Quaternionf();
-    protected Vector3f scale = new Vector3f(1, 1, 1);
-    protected Quaternionf leftRotation = new Quaternionf();
+    protected Matrix4f transformation = new Matrix4f();
 
     @Nullable
     protected Vector angularVelocity = null; // Magnitude is speed, direction is axis of rotation
     protected double angularDrag = 0;
+    @Nullable
+    protected Vector rotationPivot = null;
 
     public DisplayParticleBuilder(Class<T> entityClass) {
         super(entityClass);
     }
 
     @Override
-    protected @NotNull EntityParticle<T> buildInternal(T entity, List<Player> viewers) {
+    protected EntityParticle<T> buildInternal(T entity, List<Player> viewers) {
         return new DisplayParticle<>(entity, usePackets, maxAge, viewers, LinkedHashMultimap.create(this.keyframes), LinkedHashMultimap.create(this.dynamicKeyframes))
-                .setTranslation(translation)
-                .setLeftRotation(leftRotation)
-                .setScale(scale)
-                .setRightRotation(rightRotation)
-                .setAngularVelocity(angularVelocity != null ? angularVelocity.clone() : null)
+                .transformation(transformation)
+                .rotationPivot(rotationPivot)
+                .setAngularVelocity(angularVelocity)
                 .setAngularDrag(angularDrag)
                 .setTickForce(tickForce != null ? tickForce.clone() : null)
                 .setDrag(drag)
@@ -56,12 +54,7 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
         display.setInterpolationDuration(interpolationDuration);
         display.setTeleportDuration(teleportDuration);
 
-        display.setTransformation(new Transformation(
-                translation,
-                rightRotation,
-                scale,
-                leftRotation
-        ));
+        display.setTransformationMatrix(transformation);
 
         super.configure(display);
     }
@@ -83,30 +76,6 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
         return this;
     }
 
-    public DisplayParticleBuilder<T> setTranslation(Vector3f translation) {
-        this.translation = translation;
-        return this;
-    }
-
-    public DisplayParticleBuilder<T> setRightRotation(Quaternionf rightRotation) {
-        this.rightRotation = rightRotation;
-        return this;
-    }
-
-    public DisplayParticleBuilder<T> setScale(Vector3f scale) {
-        this.scale = scale;
-        return this;
-    }
-
-    public Vector3f scale() {
-        return scale;
-    }
-
-    public DisplayParticleBuilder<T> setLeftRotation(Quaternionf leftRotation) {
-        this.leftRotation = leftRotation;
-        return this;
-    }
-
     public DisplayParticleBuilder<T> setAngularVelocity(@Nullable Vector angularVelocity) {
         this.angularVelocity = angularVelocity;
         return this;
@@ -114,6 +83,29 @@ public class DisplayParticleBuilder<T extends Display> extends EntityParticleBui
 
     public DisplayParticleBuilder<T> setAngularDrag(double angularDrag) {
         this.angularDrag = angularDrag;
+        return this;
+    }
+
+    public DisplayParticleBuilder<T> editTransformation(Consumer<Matrix4f> modifier) {
+        modifier.accept(transformation);
+        return this;
+    }
+
+    public Matrix4f transformation() {
+        return new Matrix4f(transformation);
+    }
+
+    public DisplayParticleBuilder<T> transformation(Matrix4f transformation) {
+        this.transformation = transformation;
+        return this;
+    }
+
+    public Vector rotationPivot() {
+        return rotationPivot == null ? new Vector() : rotationPivot.clone();
+    }
+
+    public DisplayParticleBuilder<T> rotationPivot(@Nullable Vector rotationPivot) {
+        this.rotationPivot = rotationPivot;
         return this;
     }
 }

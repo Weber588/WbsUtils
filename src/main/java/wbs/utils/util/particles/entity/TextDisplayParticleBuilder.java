@@ -6,7 +6,6 @@ import org.bukkit.Color;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.util.Transformation;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -24,7 +23,7 @@ import java.util.Objects;
 @NullMarked
 public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDisplay> {
     static final Vector3f SCALE_TO_SQUARE = new Vector3f(2f, 1f, 2f);
-    public static final @NotNull TextComponent DEFAULT_TEXT = Component.text(" ");
+    public static final TextComponent DEFAULT_TEXT = Component.text(" ");
     private @Nullable TextComponent text;
 
     public static Vector3f getScaling() {
@@ -47,9 +46,6 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
 
     public TextDisplayParticleBuilder() {
         super(TextDisplay.class);
-
-        // Set as default; bypass dynamic setter
-        super.setScale(SCALE_TO_SQUARE);
     }
 
     private static Float interpolateRotation(Float start, Float end, double progress) {
@@ -70,6 +66,7 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
 
         display.setBackgroundColor(backgroundColor);
 
+    /*
         if (!rotationFrames.isEmpty()) {
             InterpolatedFrameGenerator<TextDisplay, Float> rotationBuilder = buildInterpolatedKeyframes(TextDisplayParticleBuilder::interpolateRotation, 0f)
                     .setEntitySetter((textDisplay, rotation) -> {
@@ -97,7 +94,7 @@ public class TextDisplayParticleBuilder extends DisplayParticleBuilder<TextDispl
             colorFrames.forEach(colourBuilder::setFrame);
             fillKeyframes("color", colourBuilder);
         }
-
+        */
         super.configure(display);
     }
 
